@@ -9,7 +9,9 @@ ALLEGRO_BITMAP *font_image = NULL;
 ALLEGRO_FONT *font = NULL;
 GshmupPlayer player;
 GshmupBulletSystem *player_bullets = NULL;
+GshmupBulletSystem *current_bullets; /* Used by Guile procedures. */
 SCM_VARIABLE_INIT (init_hook, "shooter-init-hook", scm_make_hook (scm_from_int (0)));
+SCM_VARIABLE_INIT (shoot_hook, "player-shoot-hook", scm_make_hook (scm_from_int (0)));
 
 static void
 load_resources (void)
@@ -101,15 +103,22 @@ shooter_update (void)
     gshmup_update_bullet_system (player_bullets);
 }
 
-static void
-emit_bullet (void)
-{
-    GshmupVector2 pos = player.position;
-    float speed = 12;
+/* static void */
+/* player_shoot (void) */
+/* { */
+/*     GshmupVector2 pos = player.position; */
+/*     float speed = 12; */
 
-    gshmup_emit_bullet (player_bullets, bullet_image, pos, speed, 268, 0, 0, 0);
-    gshmup_emit_bullet (player_bullets, bullet_image, pos, speed, 270, 0, 0, 0);
-    gshmup_emit_bullet (player_bullets, bullet_image, pos, speed, 272, 0, 0, 0);
+/*     gshmup_emit_bullet (player_bullets, bullet_image, pos, speed, 268, 0, 0, 0); */
+/*     gshmup_emit_bullet (player_bullets, bullet_image, pos, speed, 270, 0, 0, 0); */
+/*     gshmup_emit_bullet (player_bullets, bullet_image, pos, speed, 272, 0, 0, 0); */
+/* } */
+
+static void
+player_shoot (void)
+{
+    current_bullets = player_bullets;
+    scm_run_hook (scm_variable_ref (shoot_hook), scm_list_n (SCM_UNDEFINED));
 }
 
 static void
@@ -129,7 +138,7 @@ shooter_key_down (int keycode)
         gshmup_player_set_direction (&player, GSHMUP_PLAYER_RIGHT, true);
         break;
     case GSHMUP_KEY_SHOOT:
-        emit_bullet ();
+        player_shoot ();
         break;
     }
 }
@@ -168,9 +177,30 @@ gshmup_create_shooter_scene (void)
     return scene;
 }
 
+SCM_DEFINE (player_position, "player-position", 0, 0, 0,
+            (void),
+            "Return player position vector.")
+{
+    return gshmup_scm_from_vector2 (player.position);
+}
+
+SCM_DEFINE (emit_bullet, "emit-bullet", 3, 0, 0,
+            (SCM pos, SCM speed, SCM direction),
+            "Emit a bullet.")
+{
+    gshmup_emit_bullet (current_bullets, bullet_image, gshmup_scm_to_vector2 (pos),
+                        scm_to_double (speed), scm_to_double (direction), 0, 0, 0);
+
+    return SCM_UNSPECIFIED;
+}
+
 void gshmup_shooter_init_scm (void)
 {
 #include "shooter.x"
 
-    scm_c_export ("shooter-init-hook", NULL);
+    scm_c_export ("shooter-init-hook",
+                  "player-shoot-hook",
+                  s_emit_bullet,
+                  s_player_position,
+                  NULL);
 }

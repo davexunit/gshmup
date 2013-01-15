@@ -25,5 +25,6 @@ void gshmup_init_player (GshmupPlayer *player, ALLEGRO_BITMAP *image);
 void gshmup_draw_player (GshmupPlayer *player);
 void gshmup_update_player (GshmupPlayer *player);
 void gshmup_player_set_direction (GshmupPlayer *player, int dir, bool flag);
+void gshmup_player_shoot (GshmupPlayer *player);
 
 #endif
