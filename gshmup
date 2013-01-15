@@ -1,0 +1,7 @@
+#! /usr/bin/guile -s
+!#
+
+(add-to-load-path "./module")
+(use-modules (gshmup core)
+             (gshmup init))
+(gshmup-start)

@@ -2,3 +2,4 @@
 *.o
 *.lo
 *.x
+/gshmup.so
