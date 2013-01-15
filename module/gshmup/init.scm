@@ -2,6 +2,14 @@
   #:use-module (gshmup core)
   #:use-module (gshmup shooter))
 
+(bind-key 'up 'up)
+(bind-key 'down 'down)
+(bind-key 'left 'left)
+(bind-key 'right 'right)
+(bind-key 'shoot 'z)
+(bind-key 'bomb 'x)
+(bind-key 'start 'return)
+
 (add-hook! shooter-init-hook (lambda ()
                                (display "hello world!")
                                (newline)))

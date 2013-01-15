@@ -16,6 +16,7 @@ static bool running = false;
 static bool paused = false;
 static bool redraw = true;
 static GshmupScene *current_scene = NULL;
+static int key_binds[GSHMUP_KEY_MAX];
 
 static void
 game_destroy (void)
@@ -46,6 +47,32 @@ game_update (void)
 }
 
 static void
+key_up (int keycode)
+{
+    for (int i = 0; i < GSHMUP_KEY_MAX; ++i) {
+        int gshmup_key = key_binds[i];
+
+        if (gshmup_key == keycode) {
+            current_scene->key_up (i);
+            break;
+        }
+    }
+}
+
+static void
+key_down (int keycode)
+{
+    for (int i = 0; i < GSHMUP_KEY_MAX; ++i) {
+        int gshmup_key = key_binds[i];
+
+        if (gshmup_key == keycode) {
+            current_scene->key_down (i);
+            break;
+        }
+    }
+}
+
+static void
 game_process_event (void)
 {
     static ALLEGRO_EVENT event;
@@ -59,13 +86,15 @@ game_process_event (void)
         game_update ();
     }
     else if (event.type == ALLEGRO_EVENT_KEY_UP) {
-        current_scene->key_up (event.keyboard.keycode);
+        key_up (event.keyboard.keycode);
+
     }
     else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
         if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
             running = false;
         }
-        current_scene->key_down (event.keyboard.keycode);
+
+        key_down (event.keyboard.keycode);
     }
 }
 
@@ -74,20 +103,20 @@ game_update_fps (void)
 {
     float time = al_get_time ();
 
-    fps++;
-
     if (time - fps_time >= 1) {
         last_fps = fps;
         fps = 0;
         fps_time = time;
     }
+
+    fps++;
 }
 
 static void
 game_draw (void)
 {
     al_set_target_bitmap (buffer);
-    al_clear_to_color (al_map_rgb_f (.01, .05, .05));
+    al_clear_to_color (al_map_rgb_f (.04, .04, .04));
     current_scene->draw ();
     al_set_target_backbuffer (display);
     al_clear_to_color (al_map_rgb (0, 0, 0));
@@ -113,8 +142,22 @@ init_scale (void)
     scale.y = (wh - scale.height) / 2;
 }
 
+static void
+init_keys (void)
+{
+    key_binds[GSHMUP_KEY_UP] = ALLEGRO_KEY_UP;
+    key_binds[GSHMUP_KEY_DOWN] = ALLEGRO_KEY_DOWN;
+    key_binds[GSHMUP_KEY_LEFT] = ALLEGRO_KEY_LEFT;
+    key_binds[GSHMUP_KEY_RIGHT] = ALLEGRO_KEY_RIGHT;
+    key_binds[GSHMUP_KEY_SHOOT] = ALLEGRO_KEY_Z;
+    key_binds[GSHMUP_KEY_BOMB] = ALLEGRO_KEY_X;
+    key_binds[GSHMUP_KEY_START] = ALLEGRO_KEY_ENTER;
+}
+
 void gshmup_init_game (void)
 {
+    init_keys ();
+
     /* Initialize Allegro. */
     if (!al_init ()) {
         fprintf (stderr, "failed to initialize allegro!\n");
@@ -214,4 +257,19 @@ int
 gshmup_get_fps (void)
 {
     return last_fps;
+}
+
+SCM_DEFINE (gshmup_s_bind_key, "bind-key", 2, 0, 0,
+            (SCM gshmup_key, SCM keycode),
+            "Maps a keycode to a gshmup control.")
+{
+    return SCM_UNSPECIFIED;
+}
+
+void
+gshmup_game_init_scm (void)
+{
+#include "game.x"
+
+    scm_c_export (s_gshmup_s_bind_key, NULL);
 }

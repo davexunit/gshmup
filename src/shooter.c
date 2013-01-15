@@ -116,19 +116,19 @@ static void
 shooter_key_down (int keycode)
 {
     switch (keycode) {
-    case ALLEGRO_KEY_UP:
+    case GSHMUP_KEY_UP:
         gshmup_player_set_direction (&player, GSHMUP_PLAYER_UP, true);
         break;
-    case ALLEGRO_KEY_DOWN:
+    case GSHMUP_KEY_DOWN:
         gshmup_player_set_direction (&player, GSHMUP_PLAYER_DOWN, true);
         break;
-    case ALLEGRO_KEY_LEFT:
+    case GSHMUP_KEY_LEFT:
         gshmup_player_set_direction (&player, GSHMUP_PLAYER_LEFT, true);
         break;
-    case ALLEGRO_KEY_RIGHT:
+    case GSHMUP_KEY_RIGHT:
         gshmup_player_set_direction (&player, GSHMUP_PLAYER_RIGHT, true);
         break;
-    case ALLEGRO_KEY_Z:
+    case GSHMUP_KEY_SHOOT:
         emit_bullet ();
         break;
     }
@@ -138,16 +138,16 @@ static void
 shooter_key_up (int keycode)
 {
     switch (keycode) {
-    case ALLEGRO_KEY_UP:
+    case GSHMUP_KEY_UP:
         gshmup_player_set_direction (&player, GSHMUP_PLAYER_UP, false);
         break;
-    case ALLEGRO_KEY_DOWN:
+    case GSHMUP_KEY_DOWN:
         gshmup_player_set_direction (&player, GSHMUP_PLAYER_DOWN, false);
         break;
-    case ALLEGRO_KEY_LEFT:
+    case GSHMUP_KEY_LEFT:
         gshmup_player_set_direction (&player, GSHMUP_PLAYER_LEFT, false);
         break;
-    case ALLEGRO_KEY_RIGHT:
+    case GSHMUP_KEY_RIGHT:
         gshmup_player_set_direction (&player, GSHMUP_PLAYER_RIGHT, false);
         break;
     }

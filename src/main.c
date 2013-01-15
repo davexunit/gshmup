@@ -24,5 +24,6 @@ gshmup_init (void)
 #include "main.x"
 
     scm_c_export (s_gshmup_s_start, NULL);
+    gshmup_game_init_scm ();
     gshmup_shooter_init_scm ();
 }
