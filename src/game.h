@@ -28,7 +28,9 @@ enum {
 void gshmup_init_game (void);
 void gshmup_run_game (void);
 void gshmup_set_current_scene (GshmupScene *scene);
+void gshmup_set_current_agenda (SCM agenda);
 int gshmup_get_fps (void);
 void gshmup_game_init_scm (void);
+
 
 #endif

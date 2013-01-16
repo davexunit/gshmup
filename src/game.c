@@ -26,6 +26,7 @@ static int key_binds[GSHMUP_KEY_MAX] = {
     ALLEGRO_KEY_ENTER,
 };
 SCM_VARIABLE_INIT (init_hook, "game-init-hook", scm_make_hook (scm_from_int (0)));
+SCM_VARIABLE (s_current_agenda, "current-agenda");
 
 static void
 game_destroy (void)
@@ -251,6 +252,12 @@ gshmup_set_current_scene (GshmupScene *scene)
     current_scene->init ();
 }
 
+void
+gshmup_set_current_agenda (SCM agenda)
+{
+    s_current_agenda = agenda;
+}
+
 int
 gshmup_get_fps (void)
 {
@@ -266,10 +273,22 @@ SCM_DEFINE (gshmup_s_bind_key, "%bind-key", 2, 0, 0,
     return SCM_UNSPECIFIED;
 }
 
+SCM_DEFINE (gshmup_s_game_schedule, "game-schedule", 2, 0, 0,
+            (SCM thunk, SCM dt),
+            "Schedule @var{thunk} to be called in @{dt} frames.")
+{
+    scm_call_3 (scm_c_public_ref ("gshmup agenda", "agenda-schedule"),
+                s_current_agenda, thunk, dt);
+
+    return SCM_UNSPECIFIED;
+}
+
 void
 gshmup_game_init_scm (void)
 {
 #include "game.x"
 
-    scm_c_export ("game-init-hook", NULL);
+    scm_c_export ("game-init-hook",
+                  s_gshmup_s_game_schedule,
+                  NULL);
 }
