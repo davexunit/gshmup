@@ -1,7 +1,8 @@
 #! /usr/bin/guile -s
 !#
 
+;; Bootstrap the game.
 (add-to-load-path "./module")
-(use-modules (gshmup core)
-             (gshmup init))
+(use-modules (gshmup core))
+(add-hook! game-init-hook (lambda () (use-modules (gshmup init))))
 (gshmup-start)

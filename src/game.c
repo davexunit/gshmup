@@ -16,7 +16,16 @@ static bool running = false;
 static bool paused = false;
 static bool redraw = true;
 static GshmupScene *current_scene = NULL;
-static int key_binds[GSHMUP_KEY_MAX];
+static int key_binds[GSHMUP_KEY_MAX] = {
+    ALLEGRO_KEY_UP,
+    ALLEGRO_KEY_DOWN,
+    ALLEGRO_KEY_LEFT,
+    ALLEGRO_KEY_RIGHT,
+    ALLEGRO_KEY_Z,
+    ALLEGRO_KEY_X,
+    ALLEGRO_KEY_ENTER,
+};
+SCM_VARIABLE_INIT (init_hook, "game-init-hook", scm_make_hook (scm_from_int (0)));
 
 static void
 game_destroy (void)
@@ -142,22 +151,8 @@ init_scale (void)
     scale.y = (wh - scale.height) / 2;
 }
 
-static void
-init_keys (void)
-{
-    key_binds[GSHMUP_KEY_UP] = ALLEGRO_KEY_UP;
-    key_binds[GSHMUP_KEY_DOWN] = ALLEGRO_KEY_DOWN;
-    key_binds[GSHMUP_KEY_LEFT] = ALLEGRO_KEY_LEFT;
-    key_binds[GSHMUP_KEY_RIGHT] = ALLEGRO_KEY_RIGHT;
-    key_binds[GSHMUP_KEY_SHOOT] = ALLEGRO_KEY_Z;
-    key_binds[GSHMUP_KEY_BOMB] = ALLEGRO_KEY_X;
-    key_binds[GSHMUP_KEY_START] = ALLEGRO_KEY_ENTER;
-}
-
 void gshmup_init_game (void)
 {
-    init_keys ();
-
     /* Initialize Allegro. */
     if (!al_init ()) {
         fprintf (stderr, "failed to initialize allegro!\n");
@@ -219,6 +214,9 @@ void gshmup_init_game (void)
     al_register_event_source (event_queue,
                               al_get_timer_event_source (timer));
     al_register_event_source (event_queue, al_get_keyboard_event_source ());
+
+    /* Run init hook. */
+    scm_run_hook (scm_variable_ref (init_hook), scm_list_n (SCM_UNDEFINED));
 }
 
 void
@@ -259,10 +257,12 @@ gshmup_get_fps (void)
     return last_fps;
 }
 
-SCM_DEFINE (gshmup_s_bind_key, "bind-key", 2, 0, 0,
+SCM_DEFINE (gshmup_s_bind_key, "%bind-key", 2, 0, 0,
             (SCM gshmup_key, SCM keycode),
             "Maps a keycode to a gshmup control.")
 {
+    key_binds[scm_to_int (gshmup_key)] = scm_to_int (keycode);
+
     return SCM_UNSPECIFIED;
 }
 
@@ -271,5 +271,5 @@ gshmup_game_init_scm (void)
 {
 #include "game.x"
 
-    scm_c_export (s_gshmup_s_bind_key, NULL);
+    scm_c_export ("game-init-hook", NULL);
 }

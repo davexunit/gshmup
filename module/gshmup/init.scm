@@ -8,8 +8,4 @@
 (bind-key 'right 'right)
 (bind-key 'shoot 'z)
 (bind-key 'bomb 'x)
-(bind-key 'start 'return)
-
-(add-hook! shooter-init-hook (lambda ()
-                               (display "hello world!")
-                               (newline)))
+(bind-key 'start 'enter)
