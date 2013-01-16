@@ -15,13 +15,17 @@ enum {
 typedef struct {
     GshmupSprite sprite;
     GshmupVector2 position;
+    bool shooting;
     bool dir[4]; /* 4 directional movement. */
     float speed;
+    int lives;
     int credits;
     int score;
+    SCM agenda;
 } GshmupPlayer;
 
-void gshmup_init_player (GshmupPlayer *player, ALLEGRO_BITMAP *image);
+GshmupPlayer *gshmup_create_player (ALLEGRO_BITMAP *image);
+void gshmup_destroy_player (GshmupPlayer *player);
 void gshmup_draw_player (GshmupPlayer *player);
 void gshmup_update_player (GshmupPlayer *player);
 void gshmup_player_set_direction (GshmupPlayer *player, int dir, bool flag);
