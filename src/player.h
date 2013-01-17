@@ -9,7 +9,7 @@
 #include "game.h"
 
 enum {
-    GSHMUP_PLAYER_UP = 0,
+    GSHMUP_PLAYER_UP,
     GSHMUP_PLAYER_DOWN,
     GSHMUP_PLAYER_LEFT,
     GSHMUP_PLAYER_RIGHT,
@@ -17,9 +17,7 @@ enum {
 
 typedef struct {
     _GSHMUP_ENTITY_HEADER
-    SCM agenda;
     GshmupSprite sprite;
-    GshmupVector2 position;
     bool shooting;
     bool dir[4]; /* 4 directional movement. */
     float speed;

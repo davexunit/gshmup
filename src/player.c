@@ -5,8 +5,8 @@ static const char *agenda_module = "gshmup agenda";
 GshmupEntity *
 gshmup_create_player (ALLEGRO_BITMAP *image)
 {
-    GshmupEntity *entity = (GshmupEntity *) scm_gc_malloc (sizeof (GshmupEntity),
-                                                           "player");
+    GshmupEntity *entity = gshmup_create_entity ();
+
     entity->type = GSHMUP_ENTITY_PLAYER;
     entity->player.position = gshmup_create_vector2 (0, 0);
     entity->player.shooting = false;
