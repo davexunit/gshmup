@@ -1,5 +1,15 @@
 #include "entity.h"
 
+GshmupEntity *gshmup_create_entity (void)
+{
+    return (GshmupEntity *) scm_gc_malloc (sizeof (GshmupEntity), "entity");
+}
+
+void gshmup_destroy_entity (GshmupEntity *entity)
+{
+    scm_gc_free (entity, sizeof (GshmupEntity), "entity");
+}
+
 void
 gshmup_draw_entity (GshmupEntity *entity)
 {
@@ -24,4 +34,10 @@ gshmup_update_entity (GshmupEntity *entity)
     default:
         break;
     }
+}
+
+void
+gshmup_kill_entity (GshmupEntity *entity)
+{
+    entity->base.kill = true;
 }
