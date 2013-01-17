@@ -83,6 +83,7 @@ shooter_destroy (void)
     al_destroy_bitmap (state.player_image);
     al_destroy_bitmap (state.font_image);
     al_destroy_font (state.font);
+    gshmup_destroy_entity (state.player);
 }
 
 static void
