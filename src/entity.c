@@ -18,6 +18,9 @@ gshmup_draw_entity (GshmupEntity *entity)
     case GSHMUP_ENTITY_PLAYER:
         gshmup_draw_player (GSHMUP_PLAYER (entity));
         break;
+    case GSHMUP_ENTITY_BULLET:
+        gshmup_draw_bullet (GSHMUP_BULLET (entity));
+        break;
     default:
         break;
     }
@@ -30,6 +33,9 @@ gshmup_update_entity (GshmupEntity *entity)
     {
     case GSHMUP_ENTITY_PLAYER:
         gshmup_update_player (GSHMUP_PLAYER (entity));
+        break;
+    case GSHMUP_ENTITY_BULLET:
+        gshmup_update_bullet (GSHMUP_BULLET (entity));
         break;
     default:
         break;

@@ -28,6 +28,7 @@ typedef union GshmupEntity GshmupEntity;
     GshmupEntity *next;
 
 #include "player.h"
+#include "bullet_system.h"
 
 union GshmupEntity {
     GshmupEntityType type;
@@ -39,7 +40,7 @@ union GshmupEntity {
         _GSHMUP_ENTITY_HEADER
     } base;
     GshmupPlayer player;
-    /* GshmupBullet bullet; */
+    GshmupBullet bullet;
 };
 
 GshmupEntity *gshmup_create_entity (void);
@@ -50,5 +51,6 @@ void gshmup_kill_entity (GshmupEntity *entity);
 
 /* Type cast macros. */
 #define GSHMUP_PLAYER(entity) (&entity->player)
+#define GSHMUP_BULLET(entity) (&entity->bullet)
 
 #endif
