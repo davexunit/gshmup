@@ -100,11 +100,11 @@ draw_hud (void)
     al_draw_textf (font, color, GAME_WIDTH - margin, margin, ALLEGRO_ALIGN_RIGHT,
                    "Score  %09d", player->score);
     al_draw_textf (font, color, margin, 16, 0, "Player Bullets  %d",
-                   state.player_bullets->bullet_count);
+                   gshmup_get_bullet_system_size (state.player_bullets));
     al_draw_textf (font, color, GAME_WIDTH - margin, 16, ALLEGRO_ALIGN_RIGHT,
                    "Player Bullet Pool  %05d/%05d",
-                   state.player_bullets->pool_size,
-                   state.player_bullets->max_pool_size);
+                   gshmup_get_bullet_system_free_size (state.player_bullets),
+                   gshmup_get_bullet_system_max_free_size (state.player_bullets));
     al_draw_textf (font, color, margin, margin, 0, "Credits  %d", player->credits);
     al_draw_textf (font, color, GAME_WIDTH - margin, GAME_HEIGHT - 12 - margin,
                    ALLEGRO_ALIGN_RIGHT, "FPS  %02d", gshmup_get_fps ());
