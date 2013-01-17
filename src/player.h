@@ -1,3 +1,6 @@
+/* Make sure GshmupEntity is defined first. */
+#include "entity.h"
+
 #ifndef GSHMUP_PLAYER_H
 #define GSHMUP_PLAYER_H
 
@@ -13,6 +16,8 @@ enum {
 };
 
 typedef struct {
+    _GSHMUP_ENTITY_HEADER
+    SCM agenda;
     GshmupSprite sprite;
     GshmupVector2 position;
     bool shooting;
@@ -21,11 +26,9 @@ typedef struct {
     int lives;
     int credits;
     int score;
-    SCM agenda;
 } GshmupPlayer;
 
-GshmupPlayer *gshmup_create_player (ALLEGRO_BITMAP *image);
-void gshmup_destroy_player (GshmupPlayer *player);
+GshmupEntity *gshmup_create_player (ALLEGRO_BITMAP *image);
 void gshmup_draw_player (GshmupPlayer *player);
 void gshmup_update_player (GshmupPlayer *player);
 void gshmup_player_set_direction (GshmupPlayer *player, int dir, bool flag);
