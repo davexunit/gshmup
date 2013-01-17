@@ -3,6 +3,8 @@
 
 ;; Bootstrap the game.
 (add-to-load-path "./module")
-(use-modules (gshmup core))
+(use-modules (gshmup core)
+             (system repl server))
+(spawn-server)
 (add-hook! game-init-hook (lambda () (use-modules (gshmup init))))
 (gshmup-start)
