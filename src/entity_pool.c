@@ -5,7 +5,8 @@ gshmup_create_entity_pool (int max_pool_size)
 {
     GshmupEntityPool *pool;
 
-    pool = (GshmupEntityPool *) malloc (sizeof (GshmupEntityPool));
+    pool = (GshmupEntityPool *) scm_gc_malloc (sizeof (GshmupEntityPool),
+                                                       "entity pool");
     pool->max_pool_size = max_pool_size;
     pool->pool_size = 0;
     pool->size = 0;
@@ -33,7 +34,7 @@ gshmup_destroy_entity_pool (GshmupEntityPool *pool)
 {
     destroy_entities (pool->active_entities);
     destroy_entities (pool->free_entities);
-    free (pool);
+    scm_gc_free (pool, sizeof (GshmupEntityPool), "entity pool");
 }
 
 void
@@ -116,10 +117,11 @@ gshmup_entity_pool_new (GshmupEntityPool *pool)
     if (pool->free_entities) {
         /* Remove entity from front of free entities list. */
         entity = pool->free_entities;
+        gshmup_init_entity (entity);
         pool->free_entities = entity->base.next;
         pool->pool_size--;
     } else {
-        entity = (GshmupEntity *) malloc (sizeof (GshmupEntity));
+        entity = gshmup_create_entity ();
     }
 
     /* Insert entity at front of active entities list. */
