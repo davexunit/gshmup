@@ -1,7 +1,5 @@
 #include "player.h"
 
-static const char *agenda_module = "gshmup agenda";
-
 GshmupEntity *
 gshmup_create_player (ALLEGRO_BITMAP *image)
 {
@@ -14,8 +12,6 @@ gshmup_create_player (ALLEGRO_BITMAP *image)
     entity->player.lives = 0;
     entity->player.credits = 0;
     entity->player.score = 0;
-    /* Make a new agenda for scheduling scripting procedures. */
-    entity->player.agenda = scm_call_0 (scm_c_public_ref (agenda_module, "make-agenda"));
     gshmup_init_sprite (&entity->player.sprite, image);
 
     for (int i = 0; i < 4; ++i) {
@@ -37,10 +33,6 @@ gshmup_update_player (GshmupPlayer *player)
 {
     GshmupVector2 v;
 
-    /* Update agenda. */
-    gshmup_set_current_agenda (player->agenda);
-    scm_call_2 (scm_c_public_ref (agenda_module, "update-agenda"),
-                player->agenda, scm_from_int (1));
     /* Transform movement flags into a direction vector. */
     v.x = player->dir[GSHMUP_PLAYER_RIGHT] - player->dir[GSHMUP_PLAYER_LEFT];
     v.y = player->dir[GSHMUP_PLAYER_DOWN] - player->dir[GSHMUP_PLAYER_UP];
