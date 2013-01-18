@@ -3,21 +3,13 @@
 #include "player.h"
 #include "bullet_system.h"
 
-/*
- * All the state variables placed into a stuct in case we ever want to
- * do anything with the state as a whole.
- */
-typedef struct {
-    ALLEGRO_BITMAP *player_image;
-    ALLEGRO_BITMAP *bullet_image;
-    ALLEGRO_BITMAP *font_image;
-    ALLEGRO_FONT *font;
-    GshmupEntity *player;
-    GshmupBulletSystem *player_bullets;
-} State;
-
-State state;
-GshmupBulletSystem *current_bullets; /* Used by Guile procedures. */
+ALLEGRO_BITMAP *player_image = NULL;
+ALLEGRO_BITMAP *bullet_image = NULL;
+ALLEGRO_BITMAP *font_image = NULL;
+ALLEGRO_FONT *font = NULL;
+GshmupBulletSystem *player_bullets = NULL;
+GshmupEntity *player = NULL;
+GshmupBulletSystem *current_bullets = NULL; /* Used by Guile procedures. */
 SCM_VARIABLE_INIT (s_init_hook, "shooter-init-hook", scm_make_hook (scm_from_int (0)));
 SCM_VARIABLE_INIT (s_shoot_hook, "player-shoot-hook", scm_make_hook (scm_from_int (0)));
 SCM_VARIABLE_INIT (s_player_lives, "player-lives", scm_from_int (3));
@@ -38,22 +30,22 @@ load_resources (void)
         112, 127,
     };
 
-    state.font_image = al_load_bitmap ("data/fonts/font.png");
-    state.font = al_grab_font_from_bitmap (state.font_image, 6, ranges);
-    state.player_image = al_load_bitmap ("data/sprites/player.png");
-    state.bullet_image = al_load_bitmap ("data/sprites/bullet.png");
+    font_image = al_load_bitmap ("data/fonts/font.png");
+    font = al_grab_font_from_bitmap (font_image, 6, ranges);
+    player_image = al_load_bitmap ("data/sprites/player.png");
+    bullet_image = al_load_bitmap ("data/sprites/bullet.png");
 }
 
 static void
 init_player (void)
 {
-    GshmupEntity *entity = gshmup_create_player (state.player_image);
+    GshmupEntity *entity = gshmup_create_player (player_image);
 
     entity->player.lives = scm_to_int (scm_variable_ref (s_player_lives));
     entity->player.credits = scm_to_int (scm_variable_ref (s_player_credits));
     entity->player.speed = scm_to_double (scm_variable_ref (s_player_speed));
     entity->player.position = gshmup_create_vector2 (GAME_WIDTH / 2, GAME_HEIGHT - 32);
-    state.player = entity;
+    player = entity;
 }
 
 static void
@@ -61,8 +53,8 @@ init_player_bullets (void)
 {
     static const float margin = 64;
 
-    state.player_bullets = gshmup_create_bullet_system (1000);
-    state.player_bullets->bounds = gshmup_create_rect (-margin,
+    player_bullets = gshmup_create_bullet_system (1000);
+    player_bullets->bounds = gshmup_create_rect (-margin,
                                                        -margin,
                                                        GAME_WIDTH + margin,
                                                        GAME_HEIGHT + margin);
@@ -80,32 +72,31 @@ shooter_init (void)
 static void
 shooter_destroy (void)
 {
-    al_destroy_bitmap (state.player_image);
-    al_destroy_bitmap (state.font_image);
-    al_destroy_font (state.font);
-    gshmup_destroy_entity (state.player);
+    al_destroy_bitmap (player_image);
+    al_destroy_bitmap (font_image);
+    al_destroy_font (font);
+    gshmup_destroy_entity (player);
 }
 
 static void
 draw_hud (void)
 {
     static const float margin = 4;
-    ALLEGRO_FONT *font = state.font;
     ALLEGRO_COLOR color = al_map_rgba_f (1, 1, 1, 1);
-    GshmupPlayer *player = GSHMUP_PLAYER (state.player);
+    GshmupPlayer *p = GSHMUP_PLAYER (player);
 
-    al_draw_textf (font, color, margin, margin, 0, "Credits  %d", player->credits);
+    al_draw_textf (font, color, margin, margin, 0, "Credits  %d", p->credits);
     al_draw_textf (font, color, GAME_WIDTH / 2, margin, ALLEGRO_ALIGN_CENTRE,
-                   "Lives  %d", player->lives);
+                   "Lives  %d", p->lives);
     al_draw_textf (font, color, GAME_WIDTH - margin, margin, ALLEGRO_ALIGN_RIGHT,
-                   "Score  %09d", player->score);
+                   "Score  %09d", p->score);
     al_draw_textf (font, color, margin, 16, 0, "Player Bullets  %d",
-                   gshmup_get_bullet_system_size (state.player_bullets));
+                   gshmup_get_bullet_system_size (player_bullets));
     al_draw_textf (font, color, GAME_WIDTH - margin, 16, ALLEGRO_ALIGN_RIGHT,
                    "Player Bullet Pool  %05d/%05d",
-                   gshmup_get_bullet_system_free_size (state.player_bullets),
-                   gshmup_get_bullet_system_max_free_size (state.player_bullets));
-    al_draw_textf (font, color, margin, margin, 0, "Credits  %d", player->credits);
+                   gshmup_get_bullet_system_free_size (player_bullets),
+                   gshmup_get_bullet_system_max_free_size (player_bullets));
+    al_draw_textf (font, color, margin, margin, 0, "Credits  %d", p->credits);
     al_draw_textf (font, color, GAME_WIDTH - margin, GAME_HEIGHT - 12 - margin,
                    ALLEGRO_ALIGN_RIGHT, "FPS  %02d", gshmup_get_fps ());
 }
@@ -113,49 +104,50 @@ draw_hud (void)
 static void
 shooter_draw (void)
 {
-    gshmup_draw_bullet_system (state.player_bullets);
-    gshmup_draw_entity (state.player);
+    gshmup_draw_bullet_system (player_bullets);
+    gshmup_draw_entity (player);
     draw_hud ();
 }
 
 static void
 shooter_update (void)
 {
-    gshmup_update_entity (state.player);
-    gshmup_update_bullet_system (state.player_bullets);
+    gshmup_update_entity (player);
+    gshmup_update_bullet_system (player_bullets);
 }
 
 static void
 player_shoot (void)
 {
-    GSHMUP_PLAYER (state.player)->shooting = true;
-    current_bullets = state.player_bullets;
+    GSHMUP_PLAYER (player)->shooting = true;
+    current_bullets = player_bullets;
+    gshmup_set_current_agenda (player->player.agenda);
     scm_run_hook (scm_variable_ref (s_shoot_hook), scm_list_n (SCM_UNDEFINED));
 }
 
 static void
 player_stop_shoot (void)
 {
-    GSHMUP_PLAYER (state.player)->shooting = false;
+    GSHMUP_PLAYER (player)->shooting = false;
 }
 
 static void
 shooter_key_down (int keycode)
 {
-    GshmupPlayer *player = GSHMUP_PLAYER (state.player);
+    GshmupPlayer *p = GSHMUP_PLAYER (player);
 
     switch (keycode) {
     case GSHMUP_KEY_UP:
-        gshmup_player_set_direction (player, GSHMUP_PLAYER_UP, true);
+        gshmup_player_set_direction (p, GSHMUP_PLAYER_UP, true);
         break;
     case GSHMUP_KEY_DOWN:
-        gshmup_player_set_direction (player, GSHMUP_PLAYER_DOWN, true);
+        gshmup_player_set_direction (p, GSHMUP_PLAYER_DOWN, true);
         break;
     case GSHMUP_KEY_LEFT:
-        gshmup_player_set_direction (player, GSHMUP_PLAYER_LEFT, true);
+        gshmup_player_set_direction (p, GSHMUP_PLAYER_LEFT, true);
         break;
     case GSHMUP_KEY_RIGHT:
-        gshmup_player_set_direction (player, GSHMUP_PLAYER_RIGHT, true);
+        gshmup_player_set_direction (p, GSHMUP_PLAYER_RIGHT, true);
         break;
     case GSHMUP_KEY_SHOOT:
         player_shoot ();
@@ -166,20 +158,20 @@ shooter_key_down (int keycode)
 static void
 shooter_key_up (int keycode)
 {
-    GshmupPlayer *player = GSHMUP_PLAYER (state.player);
+    GshmupPlayer *p = GSHMUP_PLAYER (player);
 
     switch (keycode) {
     case GSHMUP_KEY_UP:
-        gshmup_player_set_direction (player, GSHMUP_PLAYER_UP, false);
+        gshmup_player_set_direction (p, GSHMUP_PLAYER_UP, false);
         break;
     case GSHMUP_KEY_DOWN:
-        gshmup_player_set_direction (player, GSHMUP_PLAYER_DOWN, false);
+        gshmup_player_set_direction (p, GSHMUP_PLAYER_DOWN, false);
         break;
     case GSHMUP_KEY_LEFT:
-        gshmup_player_set_direction (player, GSHMUP_PLAYER_LEFT, false);
+        gshmup_player_set_direction (p, GSHMUP_PLAYER_LEFT, false);
         break;
     case GSHMUP_KEY_RIGHT:
-        gshmup_player_set_direction (player, GSHMUP_PLAYER_RIGHT, false);
+        gshmup_player_set_direction (p, GSHMUP_PLAYER_RIGHT, false);
         break;
     case GSHMUP_KEY_SHOOT:
         player_stop_shoot ();
@@ -206,21 +198,21 @@ SCM_DEFINE (player_position, "player-position", 0, 0, 0,
             (void),
             "Return player position vector.")
 {
-    return gshmup_scm_from_vector2 (GSHMUP_PLAYER (state.player)->position);
+    return gshmup_scm_from_vector2 (GSHMUP_PLAYER (player)->position);
 }
 
 SCM_DEFINE (player_shooting_p, "player-shooting?", 0, 0, 0,
             (void),
             "Return @code{#t} if the player is currently shooting.")
 {
-    return scm_from_bool (GSHMUP_PLAYER (state.player)->shooting);
+    return scm_from_bool (GSHMUP_PLAYER (player)->shooting);
 }
 
 SCM_DEFINE (emit_bullet, "emit-bullet", 3, 0, 0,
             (SCM pos, SCM speed, SCM direction),
             "Emit a bullet.")
 {
-    gshmup_emit_bullet (current_bullets, state.bullet_image,
+    gshmup_emit_bullet (current_bullets, bullet_image,
                         gshmup_scm_to_vector2 (pos), scm_to_double (speed),
                         scm_to_double (direction), 0, 0, 0);
 
