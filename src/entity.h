@@ -44,6 +44,7 @@ union GshmupEntity {
 };
 
 GshmupEntity *gshmup_create_entity (void);
+void gshmup_init_entity (GshmupEntity *entity);
 void gshmup_destroy_entity (GshmupEntity *entity);
 void gshmup_draw_entity (GshmupEntity *entity);
 void gshmup_update_entity (GshmupEntity *entity);
