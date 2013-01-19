@@ -4,11 +4,13 @@
 #include "bullet_system.h"
 
 ALLEGRO_BITMAP *player_image = NULL;
+ALLEGRO_BITMAP *enemy_image = NULL;
 ALLEGRO_BITMAP *bullet_image = NULL;
 ALLEGRO_BITMAP *font_image = NULL;
 ALLEGRO_FONT *font = NULL;
 GshmupBulletSystem *player_bullets = NULL;
 GshmupEntity *player = NULL;
+GshmupEntityPool *enemies = NULL;
 GshmupBulletSystem *current_bullets = NULL; /* Used by Guile procedures. */
 SCM_VARIABLE_INIT (s_init_hook, "shooter-init-hook", scm_make_hook (scm_from_int (0)));
 SCM_VARIABLE_INIT (s_shoot_hook, "player-shoot-hook", scm_make_hook (scm_from_int (0)));
@@ -19,7 +21,6 @@ SCM_VARIABLE_INIT (s_player_speed, "player-speed", scm_from_double (6));
 static void
 load_resources (void)
 {
-
     /* Character code ranges in the bitmap font we're using. */
     int ranges[] = {
         32, 47,
@@ -33,6 +34,7 @@ load_resources (void)
     font_image = al_load_bitmap ("data/fonts/font.png");
     font = al_grab_font_from_bitmap (font_image, 6, ranges);
     player_image = al_load_bitmap ("data/sprites/player.png");
+    enemy_image = al_load_bitmap ("data/sprites/enemy.png");
     bullet_image = al_load_bitmap ("data/sprites/bullet.png");
 }
 
@@ -61,11 +63,18 @@ init_player_bullets (void)
 }
 
 static void
+init_enemies (void)
+{
+    enemies = gshmup_create_entity_pool (20);
+}
+
+static void
 shooter_init (void)
 {
     load_resources ();
     init_player ();
     init_player_bullets ();
+    init_enemies ();
     scm_run_hook (scm_variable_ref (s_init_hook), scm_list_n (SCM_UNDEFINED));
 }
 
@@ -106,6 +115,7 @@ shooter_draw (void)
 {
     gshmup_draw_bullet_system (player_bullets);
     gshmup_draw_entity (player);
+    gshmup_draw_entity_pool (enemies);
     draw_hud ();
 }
 
@@ -114,21 +124,27 @@ shooter_update (void)
 {
     gshmup_update_entity (player);
     gshmup_update_bullet_system (player_bullets);
+    gshmup_update_entity_pool (enemies);
 }
 
 static void
 player_shoot (void)
 {
-    GSHMUP_PLAYER (player)->shooting = true;
-    current_bullets = player_bullets;
-    gshmup_set_current_agenda (player->player.agenda);
-    scm_run_hook (scm_variable_ref (s_shoot_hook), scm_list_n (SCM_UNDEFINED));
+    GshmupPlayer *p = GSHMUP_PLAYER (player);
+
+    if (!p->shooting) {
+        p->shooting = true;
+        current_bullets = player_bullets;
+        gshmup_set_current_agenda (player->player.agenda);
+        scm_run_hook (scm_variable_ref (s_shoot_hook), scm_list_n (SCM_UNDEFINED));
+    }
 }
 
 static void
 player_stop_shoot (void)
 {
     GSHMUP_PLAYER (player)->shooting = false;
+    gshmup_entity_clear_agenda (player);
 }
 
 static void
@@ -219,6 +235,23 @@ SCM_DEFINE (emit_bullet, "emit-bullet", 3, 0, 0,
     return SCM_UNSPECIFIED;
 }
 
+SCM_DEFINE (spawn_enemy, "spawn-enemy", 2, 0, 0,
+            (SCM pos, SCM thunk),
+            "Spawn an enemy and run the AI procedure @var{thunk}.")
+{
+    GshmupEntity *entity = gshmup_entity_pool_new (enemies);
+
+    gshmup_init_enemy (entity, enemy_image);
+    entity->enemy.position = gshmup_scm_to_vector2 (pos);
+
+    if (scm_is_true (scm_procedure_p (thunk))) {
+        gshmup_set_current_agenda (entity->enemy.agenda);
+        scm_call_0 (thunk);
+    }
+
+    return SCM_UNSPECIFIED;
+}
+
 void gshmup_shooter_init_scm (void)
 {
 #include "shooter.x"
@@ -228,8 +261,9 @@ void gshmup_shooter_init_scm (void)
                   "player-lives",
                   "player-credits",
                   "player-speed",
-                  s_emit_bullet,
                   s_player_position,
                   s_player_shooting_p,
+                  s_emit_bullet,
+                  s_spawn_enemy,
                   NULL);
 }
