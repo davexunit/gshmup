@@ -46,6 +46,7 @@ gshmup_create_bullet_system (int max_bullets)
     system = (GshmupBulletSystem *) malloc (sizeof (GshmupBulletSystem));
     system->bullets = gshmup_create_entity_pool (max_bullets);
     system->bounds = gshmup_create_rect (0, 0, 0, 0);
+
     return system;
 }
 
