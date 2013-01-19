@@ -112,6 +112,6 @@
           (set-agenda-segments agenda (rest-segments agenda))
           (next-segment))))))
 
-(define (clear-agenda! agenda)
+(define (clear-agenda agenda)
   "Removes all scheduled procedures from the agenda."
   (set-agenda-segments agenda '()))
