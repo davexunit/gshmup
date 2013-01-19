@@ -6,7 +6,6 @@ gshmup_create_player (ALLEGRO_BITMAP *image)
     GshmupEntity *entity = gshmup_create_entity ();
 
     entity->type = GSHMUP_ENTITY_PLAYER;
-    entity->player.position = gshmup_create_vector2 (0, 0);
     entity->player.shooting = false;
     entity->player.speed = 0;
     entity->player.lives = 0;
