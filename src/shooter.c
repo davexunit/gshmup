@@ -3,17 +3,22 @@
 #include "player.h"
 #include "bullet_system.h"
 
-ALLEGRO_BITMAP *player_image = NULL;
-ALLEGRO_BITMAP *enemy_image = NULL;
-ALLEGRO_BITMAP *bullet_image = NULL;
-ALLEGRO_BITMAP *font_image = NULL;
-ALLEGRO_FONT *font = NULL;
-GshmupBulletSystem *player_bullets = NULL;
-GshmupEntity *player = NULL;
-GshmupEntityPool *enemies = NULL;
-GshmupBulletSystem *current_bullets = NULL; /* Used by Guile procedures. */
-SCM_VARIABLE_INIT (s_init_hook, "shooter-init-hook", scm_make_hook (scm_from_int (0)));
-SCM_VARIABLE_INIT (s_shoot_hook, "player-shoot-hook", scm_make_hook (scm_from_int (0)));
+static const float text_margin = 4;
+static ALLEGRO_COLOR text_color;
+static ALLEGRO_BITMAP *player_image = NULL;
+static ALLEGRO_BITMAP *enemy_image = NULL;
+static ALLEGRO_BITMAP *bullet_image = NULL;
+static ALLEGRO_BITMAP *font_image = NULL;
+static ALLEGRO_FONT *font = NULL;
+static GshmupBulletSystem *player_bullets = NULL;
+static GshmupEntity *player = NULL;
+static GshmupEntityPool *enemies = NULL;
+static GshmupBulletSystem *enemy_bullets = NULL;
+static GshmupBulletSystem *current_bullets = NULL; /* Used by Guile procedures. */
+SCM_VARIABLE_INIT (s_init_hook, "shooter-init-hook",
+                   scm_make_hook (scm_from_int (0)));
+SCM_VARIABLE_INIT (s_shoot_hook, "player-shoot-hook",
+                   scm_make_hook (scm_from_int (0)));
 SCM_VARIABLE_INIT (s_player_lives, "player-lives", scm_from_int (3));
 SCM_VARIABLE_INIT (s_player_credits, "player-credits", scm_from_int (3));
 SCM_VARIABLE_INIT (s_player_speed, "player-speed", scm_from_double (6));
@@ -55,11 +60,23 @@ init_player_bullets (void)
 {
     static const float margin = 64;
 
-    player_bullets = gshmup_create_bullet_system (1000);
+    player_bullets = gshmup_create_bullet_system (400);
     player_bullets->bounds = gshmup_create_rect (-margin,
-                                                       -margin,
-                                                       GAME_WIDTH + margin,
-                                                       GAME_HEIGHT + margin);
+                                                 -margin,
+                                                 GAME_WIDTH + margin,
+                                                 GAME_HEIGHT + margin);
+}
+
+static void
+init_enemy_bullets (void)
+{
+    static const float margin = 64;
+
+    enemy_bullets = gshmup_create_bullet_system (5000);
+    enemy_bullets->bounds = gshmup_create_rect (-margin,
+                                                -margin,
+                                                GAME_WIDTH + margin,
+                                                GAME_HEIGHT + margin);
 }
 
 static void
@@ -71,10 +88,12 @@ init_enemies (void)
 static void
 shooter_init (void)
 {
+    text_color = al_map_rgba_f (1, 1, 1, 1);
     load_resources ();
     init_player ();
     init_player_bullets ();
     init_enemies ();
+    init_enemy_bullets ();
     scm_run_hook (scm_variable_ref (s_init_hook), scm_list_n (SCM_UNDEFINED));
 }
 
@@ -87,29 +106,39 @@ shooter_destroy (void)
     gshmup_destroy_entity (player);
     gshmup_destroy_bullet_system (player_bullets);
     gshmup_destroy_entity_pool (enemies);
+    gshmup_destroy_bullet_system (enemy_bullets);
+}
+
+static void
+draw_bullet_system_stats (GshmupBulletSystem *bullets, const char *name,
+                          float y)
+{
+    al_draw_textf (font, text_color, text_margin, y, 0, "%s Bullets  %d", name,
+                   gshmup_get_bullet_system_size (bullets));
+    al_draw_textf (font, text_color, GAME_WIDTH - text_margin, y, ALLEGRO_ALIGN_RIGHT,
+                   "%s Bullet Pool  %05d/%05d", name,
+                   gshmup_get_bullet_system_free_size (bullets),
+                   gshmup_get_bullet_system_max_free_size (bullets));
 }
 
 static void
 draw_hud (void)
 {
-    static const float margin = 4;
-    ALLEGRO_COLOR color = al_map_rgba_f (1, 1, 1, 1);
     GshmupPlayer *p = GSHMUP_PLAYER (player);
 
-    al_draw_textf (font, color, margin, margin, 0, "Credits  %d", p->credits);
-    al_draw_textf (font, color, GAME_WIDTH / 2, margin, ALLEGRO_ALIGN_CENTRE,
+    al_draw_textf (font, text_color, text_margin, text_margin, 0,
+                   "Credits  %d", p->credits);
+    al_draw_textf (font, text_color, GAME_WIDTH / 2, text_margin, ALLEGRO_ALIGN_CENTRE,
                    "Lives  %d", p->lives);
-    al_draw_textf (font, color, GAME_WIDTH - margin, margin, ALLEGRO_ALIGN_RIGHT,
-                   "Score  %09d", p->score);
-    al_draw_textf (font, color, margin, 16, 0, "Player Bullets  %d",
-                   gshmup_get_bullet_system_size (player_bullets));
-    al_draw_textf (font, color, GAME_WIDTH - margin, 16, ALLEGRO_ALIGN_RIGHT,
-                   "Player Bullet Pool  %05d/%05d",
-                   gshmup_get_bullet_system_free_size (player_bullets),
-                   gshmup_get_bullet_system_max_free_size (player_bullets));
-    al_draw_textf (font, color, margin, margin, 0, "Credits  %d", p->credits);
-    al_draw_textf (font, color, GAME_WIDTH - margin, GAME_HEIGHT - 12 - margin,
+    al_draw_textf (font, text_color, GAME_WIDTH - text_margin, text_margin,
+                   ALLEGRO_ALIGN_RIGHT, "Score  %09d", p->score);
+    al_draw_textf (font, text_color, text_margin, text_margin, 0, "Credits  %d",
+                   p->credits);
+    al_draw_textf (font, text_color, GAME_WIDTH - text_margin,
+                   GAME_HEIGHT - 12 - text_margin,
                    ALLEGRO_ALIGN_RIGHT, "FPS  %02d", gshmup_get_fps ());
+    draw_bullet_system_stats (player_bullets, "Player", 16);
+    draw_bullet_system_stats (enemy_bullets, "Enemy", 28);
 }
 
 static void
@@ -117,6 +146,7 @@ shooter_draw (void)
 {
     gshmup_draw_bullet_system (player_bullets);
     gshmup_draw_entity (player);
+    gshmup_draw_bullet_system (enemy_bullets);
     gshmup_draw_entity_pool (enemies);
     draw_hud ();
 }
@@ -127,7 +157,9 @@ shooter_update (void)
     current_bullets = player_bullets;
     gshmup_update_entity (player);
     gshmup_update_bullet_system (player_bullets);
+    current_bullets = enemy_bullets;
     gshmup_update_entity_pool (enemies);
+    gshmup_update_bullet_system (enemy_bullets);
 }
 
 static void
@@ -248,7 +280,7 @@ SCM_DEFINE (spawn_enemy, "spawn-enemy", 2, 0, 0,
     entity->enemy.position = gshmup_scm_to_vector2 (pos);
 
     if (scm_is_true (scm_procedure_p (thunk))) {
-        current_bullets = player_bullets;
+        current_bullets = enemy_bullets;
         gshmup_set_current_agenda (entity->enemy.agenda);
         scm_call_0 (thunk);
     }
