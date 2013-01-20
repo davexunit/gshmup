@@ -12,5 +12,6 @@
 
 #include "math.h"
 #include "vector.h"
+#include "sprite_sheet.h"
 
 #endif
