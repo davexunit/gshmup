@@ -85,6 +85,8 @@ shooter_destroy (void)
     al_destroy_bitmap (font_image);
     al_destroy_font (font);
     gshmup_destroy_entity (player);
+    gshmup_destroy_bullet_system (player_bullets);
+    gshmup_destroy_entity_pool (enemies);
 }
 
 static void
@@ -122,6 +124,7 @@ shooter_draw (void)
 static void
 shooter_update (void)
 {
+    current_bullets = player_bullets;
     gshmup_update_entity (player);
     gshmup_update_bullet_system (player_bullets);
     gshmup_update_entity_pool (enemies);
@@ -245,9 +248,19 @@ SCM_DEFINE (spawn_enemy, "spawn-enemy", 2, 0, 0,
     entity->enemy.position = gshmup_scm_to_vector2 (pos);
 
     if (scm_is_true (scm_procedure_p (thunk))) {
+        current_bullets = player_bullets;
         gshmup_set_current_agenda (entity->enemy.agenda);
         scm_call_0 (thunk);
     }
+
+    return SCM_UNSPECIFIED;
+}
+
+SCM_DEFINE (clear_enemies, "clear-enemies", 0, 0, 0,
+            (void),
+            "Remove all enemies from the game.")
+{
+    gshmup_clear_entity_pool (enemies);
 
     return SCM_UNSPECIFIED;
 }
@@ -265,5 +278,6 @@ void gshmup_shooter_init_scm (void)
                   s_player_shooting_p,
                   s_emit_bullet,
                   s_spawn_enemy,
+                  s_clear_enemies,
                   NULL);
 }
