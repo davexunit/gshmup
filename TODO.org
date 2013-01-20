@@ -1,0 +1,8 @@
+* Things To Do
+** TODO Expand bullet properties
+   Different images, hitboxes, colors, etc.
+** TODO Collision detection
+** TODO Improved keybinding system
+   Allow the user to bind any keyboard key to a Guile procedure.
+** TODO Animated sprites
+** TODO Main menu screen
