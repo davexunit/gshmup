@@ -6,14 +6,11 @@ static ALLEGRO_EVENT_QUEUE *event_queue = NULL;
 static ALLEGRO_TIMER *timer = NULL;
 static ALLEGRO_BITMAP *buffer = NULL;
 static GshmupRect scale;
-static float timestep = 1.0f / 60.0f;
-static float last_update_time = 0;
-static float time_accumulator = 0;
+static float timestep = 1.0f / 60;
 static float fps_time;
 static int fps = 0;
 static int last_fps = 0;
 static bool running = false;
-static bool paused = false;
 static bool redraw = true;
 static GshmupScene *current_scene = NULL;
 static int key_binds[GSHMUP_KEY_MAX] = {
@@ -39,21 +36,8 @@ game_destroy (void)
 static void
 game_update (void)
 {
-    float time = al_get_time ();
-    float dt = time - last_update_time;
-
     redraw = true;
-    last_update_time = time;
-
-    /* No updates while paused. */
-    if (!paused) {
-        time_accumulator += dt;
-
-        while (time_accumulator >= timestep) {
-            time_accumulator -= timestep;
-            current_scene->update();
-        }
-    }
+    current_scene->update();
 }
 
 static void
@@ -226,7 +210,7 @@ gshmup_run_game (void)
     running = true;
 
     al_start_timer (timer);
-    last_update_time = al_get_time ();
+    fps_time = al_get_time ();
 
     while (running) {
         game_process_event ();
