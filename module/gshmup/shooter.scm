@@ -1,6 +1,7 @@
 (define-module (gshmup shooter)
   #:use-module (gshmup core)
   #:use-module (gshmup coroutine)
+  #:use-module (gshmup helpers)
   #:export (init-shooter))
 
 (add-hook! player-shoot-hook (lambda () (test-shot)))
@@ -18,3 +19,16 @@
       (emit-bullet p speed 360))
     (wait 5)
     (test-shot)))
+
+(add-hook! shooter-init-hook (lambda () (spawn-test-enemy)))
+
+(define (spawn-test-enemy)
+  (spawn-enemy (make-vector2 240 240) (lambda () (test-pattern))))
+
+(define-coroutine (test-pattern)
+  (let fire ((a 0)
+             (n 16))
+    (repeat n (lambda (i)
+                (emit-bullet (make-vector2 240 240) 5 (+ a (* 360 (/ i n))))))
+    (wait 6)
+    (fire (+ a 5) n)))
