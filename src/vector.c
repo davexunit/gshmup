@@ -146,7 +146,7 @@ SCM
 gshmup_scm_from_vector2 (GshmupVector2 v)
 {
     SCM smob;
-    GshmupVector2 *new_v = (GshmupVector2 *) scm_gc_malloc (sizeof (GshmupVector2), "vector2");
+    GshmupVector2 *new_v = (GshmupVector2 *) malloc (sizeof (GshmupVector2));
 
     *new_v = v;
 
@@ -294,7 +294,7 @@ free_vector2 (SCM v)
 {
     GshmupVector2 *vector = (GshmupVector2 *) SCM_SMOB_DATA (v);
 
-    scm_gc_free (vector, sizeof (GshmupVector2), "vector2");
+    free (vector);
 
     return 0;
 }
