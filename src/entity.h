@@ -52,6 +52,7 @@ void gshmup_draw_entity (GshmupEntity *entity);
 void gshmup_update_entity (GshmupEntity *entity);
 void gshmup_kill_entity (GshmupEntity *entity);
 void gshmup_entity_clear_agenda (GshmupEntity *entity);
+void gshmup_entity_init_scm (void);
 
 /* Type cast macros. */
 #define GSHMUP_PLAYER(entity) (&entity->player)

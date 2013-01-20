@@ -25,6 +25,7 @@ gshmup_init (void)
     scm_c_export (s_gshmup_s_start, NULL);
     gshmup_init_vector2 ();
     gshmup_init_rect ();
+    gshmup_entity_init_scm ();
     gshmup_game_init_scm ();
     gshmup_shooter_init_scm ();
 }
