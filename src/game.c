@@ -71,7 +71,7 @@ game_process_event (void)
 {
     static ALLEGRO_EVENT event;
 
-    al_wait_for_event(event_queue, &event);
+    al_wait_for_event (event_queue, &event);
 
     if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
         running = false;
