@@ -43,7 +43,8 @@ gshmup_create_bullet_system (int max_bullets)
 {
     GshmupBulletSystem *system;
 
-    system = (GshmupBulletSystem *) malloc (sizeof (GshmupBulletSystem));
+    system = (GshmupBulletSystem *) scm_gc_malloc (sizeof (GshmupBulletSystem),
+                                                   "bullet system");
     system->bullets = gshmup_create_entity_pool (max_bullets);
     system->bounds = gshmup_create_rect (0, 0, 0, 0);
 
@@ -54,7 +55,7 @@ void
 gshmup_destroy_bullet_system (GshmupBulletSystem *system)
 {
     gshmup_destroy_entity_pool (system->bullets);
-    free (system);
+    scm_gc_free (system, sizeof (GshmupBulletSystem), "bullet system");
 }
 
 void
