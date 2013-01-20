@@ -48,6 +48,7 @@ void
 gshmup_update_entity (GshmupEntity *entity)
 {
     /* Update agenda. */
+    gshmup_set_current_agenda (entity->base.agenda);
     scm_call_2 (scm_c_public_ref (agenda_module, "update-agenda"),
                 entity->base.agenda, scm_from_int (1));
 
