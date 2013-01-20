@@ -280,9 +280,7 @@ SCM_DEFINE (spawn_enemy, "spawn-enemy", 2, 0, 0,
     entity->enemy.position = gshmup_scm_to_vector2 (pos);
 
     if (scm_is_true (scm_procedure_p (thunk))) {
-        current_bullets = enemy_bullets;
-        gshmup_set_current_agenda (entity->enemy.agenda);
-        scm_call_0 (thunk);
+        gshmup_entity_schedule (entity, 0, thunk);
     }
 
     return SCM_UNSPECIFIED;
