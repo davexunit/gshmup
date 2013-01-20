@@ -1,8 +1,23 @@
 * Things To Do
-** TODO Expand bullet properties
-   Different images, hitboxes, colors, etc.
+** TODO Implement all bullet properties
+- position
+- direction
+- velocity
+- accelleration
+- angular velocity
+- tile
+- hitbox
+- blend mode (alpha or additive)
+- directional (rotates with the bullet)
+- color
+- lifetime
+- scale
+*** TODO setters/getters for all properties
+*** TODO emit-bullet procedure that accepts all properties
 ** TODO Collision detection
 ** TODO Improved keybinding system
-   Allow the user to bind any keyboard key to a Guile procedure.
+Allow the user to bind any keyboard key to a Guile procedure.
 ** TODO Animated sprites
 ** TODO Main menu screen
+** TODO Asset customization
+Allow the user to specify what assets (art, music, etc.) to load from Guile.
