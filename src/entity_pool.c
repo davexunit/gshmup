@@ -92,13 +92,15 @@ gshmup_clear_entity_pool (GshmupEntityPool *pool)
         gshmup_entity_pool_free (pool, entity);
         entity = next;
     }
+
+    pool->active_entities = NULL;
 }
 
 void
 gshmup_entity_pool_free (GshmupEntityPool *pool, GshmupEntity *entity)
 {
     if (pool->pool_size >= pool->max_pool_size) {
-        /* Free the memory if there's no room in the pool. */
+        /* Sorry kids, pool's closed. */
         gshmup_destroy_entity (entity);
     } else {
         pool->pool_size++;
