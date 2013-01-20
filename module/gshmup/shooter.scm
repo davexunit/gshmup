@@ -30,5 +30,7 @@
              (n 16))
     (repeat n (lambda (i)
                 (emit-bullet (make-vector2 240 240) 5 (+ a (* 360 (/ i n))))))
-    (wait 6)
+    (repeat n (lambda (i)
+                (emit-bullet (make-vector2 240 240) 5 (- (* 360 (/ i n)) a))))
+    (wait 2)
     (fire (+ a 5) n)))
