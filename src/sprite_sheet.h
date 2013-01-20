@@ -22,6 +22,7 @@ GshmupSpriteSheet *gshmup_create_sprite_sheet (ALLEGRO_BITMAP *image, int tile_w
                                                int tile_height, int spacing,
                                                int margin);
 void gshmup_destroy_sprite_sheet (GshmupSpriteSheet *sprite_sheet);
-ALLEGRO_BITMAP *gshmup_sprite_sheet_tile (GshmupSpriteSheet *sprite_sheet, int index);
+ALLEGRO_BITMAP *gshmup_get_sprite_sheet_tile (GshmupSpriteSheet *sprite_sheet,
+                                              int index);
 
 #endif
