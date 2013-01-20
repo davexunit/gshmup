@@ -10,6 +10,7 @@ static ALLEGRO_BITMAP *enemy_image = NULL;
 static ALLEGRO_BITMAP *bullet_image = NULL;
 static ALLEGRO_BITMAP *font_image = NULL;
 static ALLEGRO_FONT *font = NULL;
+static GshmupSpriteSheet *bullet_sprites = NULL;
 static GshmupBulletSystem *player_bullets = NULL;
 static GshmupEntity *player = NULL;
 static GshmupEntityPool *enemies = NULL;
@@ -40,7 +41,8 @@ load_resources (void)
     font = al_grab_font_from_bitmap (font_image, 6, ranges);
     player_image = al_load_bitmap ("data/sprites/player.png");
     enemy_image = al_load_bitmap ("data/sprites/enemy.png");
-    bullet_image = al_load_bitmap ("data/sprites/bullet.png");
+    bullet_image = al_load_bitmap ("data/sprites/bullets.png");
+    bullet_sprites = gshmup_create_sprite_sheet (bullet_image, 32, 32, 0, 0);
 }
 
 static void
@@ -263,7 +265,8 @@ SCM_DEFINE (emit_bullet, "emit-bullet", 3, 0, 0,
             (SCM pos, SCM speed, SCM direction),
             "Emit a bullet.")
 {
-    gshmup_emit_bullet (current_bullets, bullet_image,
+    gshmup_emit_bullet (current_bullets,
+                        gshmup_get_sprite_sheet_tile (bullet_sprites, 0),
                         gshmup_scm_to_vector2 (pos), scm_to_double (speed),
                         scm_to_double (direction), 0, 0, 0);
 
