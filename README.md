@@ -35,11 +35,10 @@ GNU GPL v3
 
 Thanks
 ------
-Thanks to mark_weaver and ijp for helping me with everything Guile
-related on a regular basis.
-
-Thanks to wingo for his coroutine implementation.
-
-Thanks to MIT Press for SICP.
-
-Thanks to the fine folks on the #guile and #allegro rooms on freenode.
+Thanks to:
+* mark_weaver and ijp for helping me with everything Guile
+  related on a regular basis.
+* wingo for his coroutine implementation.
+* MIT Press for SICP.
+* the other fine folks that I forgot to mention on the #guile and
+  #allegro rooms on freenode.
