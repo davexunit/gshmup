@@ -1,6 +1,7 @@
 #include "bullet_system.h"
 
 static scm_t_bits bullet_type_tag;
+static GshmupBulletSystem *current_bullets = NULL;
 SCM_SYMBOL (sym_blend_alpha, "alpha");
 SCM_SYMBOL (sym_blend_add, "add");
 
@@ -205,6 +206,24 @@ gshmup_get_bullet_system_max_free_size (GshmupBulletSystem *system)
 }
 
 void
+gshmup_set_current_bullet_system (GshmupBulletSystem *system)
+{
+    current_bullets = system;
+}
+
+SCM_DEFINE (emit_bullet, "%emit-bullet", 4, 0, 0,
+            (SCM pos, SCM speed, SCM direction, SCM type),
+            "Emit a bullet.")
+{
+    gshmup_emit_bullet (current_bullets,
+                        gshmup_scm_to_vector2 (pos), scm_to_double (speed),
+                        scm_to_double (direction), 0, 0, 0,
+                        check_bullet_type (type));
+
+    return SCM_UNSPECIFIED;
+}
+
+void
 gshmup_bullet_system_init_scm (void)
 {
     bullet_type_tag = scm_make_smob_type ("<bullet-type>", sizeof (GshmupBulletType));
@@ -214,5 +233,7 @@ gshmup_bullet_system_init_scm (void)
 
 #include "bullet_system.x"
 
-    scm_c_export (s_make_bullet_type, NULL);
+    scm_c_export (s_make_bullet_type,
+                  s_emit_bullet,
+                  NULL);
 }

@@ -23,7 +23,6 @@ static GshmupBulletSystem *player_bullets = NULL;
 static GshmupEntity *player = NULL;
 static GshmupEntityPool *enemies = NULL;
 static GshmupBulletSystem *enemy_bullets = NULL;
-static GshmupBulletSystem *current_bullets = NULL; /* Used by Guile procedures. */
 static GshmupBackground background;
 static GshmupBackground fog;
 SCM_VARIABLE_INIT (s_init_hook, "shooter-init-hook",
@@ -210,10 +209,10 @@ shooter_update (void)
     gshmup_update_agenda (agenda);
     gshmup_update_background (&background);
     gshmup_update_background (&fog);
-    current_bullets = player_bullets;
+    gshmup_set_current_bullet_system (player_bullets);
     gshmup_update_entity (player);
     gshmup_update_bullet_system (player_bullets);
-    current_bullets = enemy_bullets;
+    gshmup_set_current_bullet_system (enemy_bullets);
     gshmup_update_entity_pool (enemies);
     gshmup_update_bullet_system (enemy_bullets);
 }
@@ -225,7 +224,7 @@ player_shoot (void)
 
     if (!p->shooting) {
         p->shooting = true;
-        current_bullets = player_bullets;
+        gshmup_set_current_bullet_system (player_bullets);
         gshmup_set_current_agenda (player->player.agenda);
         scm_run_hook (scm_variable_ref (s_shoot_hook), scm_list_n (SCM_UNDEFINED));
     }
@@ -315,18 +314,6 @@ SCM_DEFINE (player_shooting_p, "player-shooting?", 0, 0, 0,
     return scm_from_bool (GSHMUP_PLAYER (player)->shooting);
 }
 
-SCM_DEFINE (emit_bullet, "%emit-bullet", 4, 0, 0,
-            (SCM pos, SCM speed, SCM direction, SCM type),
-            "Emit a bullet.")
-{
-    gshmup_emit_bullet (current_bullets,
-                        gshmup_scm_to_vector2 (pos), scm_to_double (speed),
-                        scm_to_double (direction), 0, 0, 0,
-                        check_bullet_type (type));
-
-    return SCM_UNSPECIFIED;
-}
-
 SCM_DEFINE (spawn_enemy, "spawn-enemy", 3, 0, 0,
             (SCM pos, SCM max_health, SCM thunk),
             "Spawn an enemy and run the AI procedure @var{thunk}.")
@@ -363,7 +350,6 @@ void gshmup_shooter_init_scm (void)
                   "player-speed",
                   s_player_position,
                   s_player_shooting_p,
-                  s_emit_bullet,
                   s_spawn_enemy,
                   s_clear_enemies,
                   NULL);
