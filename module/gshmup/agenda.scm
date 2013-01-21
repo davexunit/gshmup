@@ -63,7 +63,7 @@
 
 (define (agenda-time-delay agenda dt)
   "Returns time given a delta from the current agenda time."
-  (+ (agenda-time agenda) dt))
+  (+ (agenda-time agenda) (inexact->exact (round dt))))
 
 (define (agenda-schedule agenda dt callback)
   "Schedules a callback procedure in the agenda relative to the current agenda time."
