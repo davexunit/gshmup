@@ -24,6 +24,7 @@ static int key_binds[GSHMUP_KEY_MAX] = {
 };
 SCM_VARIABLE_INIT (init_hook, "game-init-hook", scm_make_hook (scm_from_int (0)));
 SCM_VARIABLE (s_current_agenda, "current-agenda");
+SCM_VARIABLE (s_debug_mode, "game-debug-mode");
 
 static void
 game_destroy (void)
@@ -248,6 +249,12 @@ gshmup_get_fps (void)
     return last_fps;
 }
 
+bool
+gshmup_debug_mode (void)
+{
+    return scm_to_bool (scm_variable_ref (s_debug_mode));
+}
+
 SCM_DEFINE (gshmup_s_bind_key, "%bind-key", 2, 0, 0,
             (SCM gshmup_key, SCM keycode),
             "Maps a keycode to a gshmup control.")
@@ -273,6 +280,7 @@ gshmup_game_init_scm (void)
 #include "game.x"
 
     scm_c_export ("game-init-hook",
+                  "game-debug-mode",
                   s_gshmup_s_game_schedule,
                   NULL);
 }

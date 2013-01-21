@@ -6,10 +6,14 @@
 #include "scene.h"
 
 #define GAME_TITLE "GSHMUP"
-#define GAME_WIDTH 450
-#define GAME_HEIGHT 600
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 600
+/* #define GAME_WIDTH 450 */
+/* #define GAME_HEIGHT 600 */
+/* #define SCREEN_WIDTH 800 */
+/* #define SCREEN_HEIGHT 600 */
+#define GAME_WIDTH 240
+#define GAME_HEIGHT 320
+#define SCREEN_WIDTH 480
+#define SCREEN_HEIGHT 640
 
 /*
  * Keyboard control keys.
@@ -31,6 +35,6 @@ void gshmup_set_current_scene (GshmupScene *scene);
 void gshmup_set_current_agenda (SCM agenda);
 int gshmup_get_fps (void);
 void gshmup_game_init_scm (void);
-
+bool gshmup_debug_mode (void);
 
 #endif
