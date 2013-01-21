@@ -26,7 +26,7 @@ typedef struct {
     int score;
 } GshmupPlayer;
 
-GshmupEntity *gshmup_create_player (ALLEGRO_BITMAP *image);
+GshmupEntity *gshmup_create_player (GshmupAnimation *anim);
 void gshmup_draw_player (GshmupPlayer *player);
 void gshmup_update_player (GshmupPlayer *player);
 void gshmup_player_set_direction (GshmupPlayer *player, int dir, bool flag);

@@ -1,7 +1,7 @@
 #include "player.h"
 
 GshmupEntity *
-gshmup_create_player (ALLEGRO_BITMAP *image)
+gshmup_create_player (GshmupAnimation *anim)
 {
     GshmupEntity *entity = gshmup_create_entity ();
 
@@ -11,7 +11,8 @@ gshmup_create_player (ALLEGRO_BITMAP *image)
     entity->player.lives = 0;
     entity->player.credits = 0;
     entity->player.score = 0;
-    gshmup_init_sprite (&entity->player.sprite, image);
+    gshmup_init_animated_sprite (&entity->player.sprite, anim);
+    gshmup_play_animation (anim);
 
     for (int i = 0; i < 4; ++i) {
         entity->player.dir[i] = false;
@@ -32,6 +33,7 @@ gshmup_update_player (GshmupPlayer *player)
 {
     GshmupVector2 v;
 
+    gshmup_update_animation (player->sprite.anim);
     /* Transform movement flags into a direction vector. */
     v.x = player->dir[GSHMUP_PLAYER_RIGHT] - player->dir[GSHMUP_PLAYER_LEFT];
     v.y = player->dir[GSHMUP_PLAYER_DOWN] - player->dir[GSHMUP_PLAYER_UP];
