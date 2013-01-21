@@ -11,7 +11,7 @@ typedef struct {
     GshmupSprite sprite;
 } GshmupEnemy;
 
-void gshmup_init_enemy (GshmupEntity *entity, ALLEGRO_BITMAP *image);
+void gshmup_init_enemy (GshmupEntity *entity, GshmupAnimation *anim);
 void gshmup_draw_enemy (GshmupEnemy *enemy);
 void gshmup_update_enemy (GshmupEnemy *enemy);
 
