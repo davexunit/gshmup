@@ -17,7 +17,7 @@
 ** TODO Collision detection
 ** TODO Improved keybinding system
 Allow the user to bind any keyboard key to a Guile procedure.
-** TODO Animated sprites
+** DONE Animated sprites
 ** TODO Main menu screen
 ** TODO Asset customization
 Allow the user to specify what assets (art, music, etc.) to load from Guile.
