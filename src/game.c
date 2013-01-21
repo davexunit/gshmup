@@ -164,17 +164,14 @@ void gshmup_init_game (void)
 
     if (!al_install_audio ()) {
         fprintf (stderr, "failed to initialize audio addon!\n");
-        exit (-1);
     }
 
     if (!al_init_acodec_addon ()) {
         fprintf (stderr, "failed to initialize audio codecs addon!\n");
-        exit (-1);
     }
 
     if (!al_reserve_samples (16)) {
         fprintf (stderr, "failed to reserve samples!\n");
-        exit (-1);
     }
 
     if(!al_install_keyboard ()) {
