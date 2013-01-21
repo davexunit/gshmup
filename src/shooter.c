@@ -33,6 +33,7 @@ SCM_VARIABLE_INIT (s_shoot_hook, "player-shoot-hook",
 SCM_VARIABLE_INIT (s_player_lives, "player-lives", scm_from_int (3));
 SCM_VARIABLE_INIT (s_player_credits, "player-credits", scm_from_int (3));
 SCM_VARIABLE_INIT (s_player_speed, "player-speed", scm_from_double (6));
+static SCM agenda;
 
 static void
 load_resources (void)
@@ -131,6 +132,8 @@ shooter_init (void)
     init_enemies ();
     init_enemy_bullets ();
     init_background ();
+    agenda = gshmup_create_agenda ();
+    gshmup_set_current_agenda (agenda);
     scm_run_hook (scm_variable_ref (s_init_hook), scm_list_n (SCM_UNDEFINED));
 }
 
@@ -204,6 +207,7 @@ shooter_draw (void)
 static void
 shooter_update (void)
 {
+    gshmup_update_agenda (agenda);
     gshmup_update_background (&background);
     gshmup_update_background (&fog);
     current_bullets = player_bullets;
