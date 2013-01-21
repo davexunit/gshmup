@@ -225,7 +225,7 @@ player_shoot (void)
     if (!p->shooting) {
         p->shooting = true;
         gshmup_set_current_bullet_system (player_bullets);
-        gshmup_set_current_agenda (player->player.agenda);
+        gshmup_set_current_agenda (p->agenda);
         scm_run_hook (scm_variable_ref (s_shoot_hook), scm_list_n (SCM_UNDEFINED));
     }
 }
