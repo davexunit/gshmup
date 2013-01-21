@@ -323,13 +323,13 @@ SCM_DEFINE (emit_bullet, "%emit-bullet", 4, 0, 0,
     return SCM_UNSPECIFIED;
 }
 
-SCM_DEFINE (spawn_enemy, "spawn-enemy", 2, 0, 0,
-            (SCM pos, SCM thunk),
+SCM_DEFINE (spawn_enemy, "spawn-enemy", 3, 0, 0,
+            (SCM pos, SCM max_health, SCM thunk),
             "Spawn an enemy and run the AI procedure @var{thunk}.")
 {
     GshmupEntity *entity = gshmup_entity_pool_new (enemies);
 
-    gshmup_init_enemy (entity, enemy_anim);
+    gshmup_init_enemy (entity, enemy_anim, scm_to_int (max_health));
     entity->enemy.position = gshmup_scm_to_vector2 (pos);
 
     if (scm_is_true (scm_procedure_p (thunk))) {

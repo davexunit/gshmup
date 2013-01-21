@@ -9,9 +9,11 @@
 typedef struct {
     _GSHMUP_ENTITY_HEADER
     GshmupSprite sprite;
+    int max_health;
+    int health;
 } GshmupEnemy;
 
-void gshmup_init_enemy (GshmupEntity *entity, GshmupAnimation *anim);
+void gshmup_init_enemy (GshmupEntity *entity, GshmupAnimation *anim, int max_health);
 void gshmup_draw_enemy (GshmupEnemy *enemy);
 void gshmup_update_enemy (GshmupEnemy *enemy);
 
