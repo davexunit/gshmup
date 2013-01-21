@@ -49,9 +49,9 @@ load_resources (void)
 
     font_image = al_load_bitmap ("data/fonts/font.png");
     font = al_grab_font_from_bitmap (font_image, 6, ranges);
-    player_image = al_load_bitmap ("data/sprites/player2.png");
+    player_image = al_load_bitmap ("data/sprites/player.png");
     player_sprites = gshmup_create_sprite_sheet (player_image, 32, 32, 0, 0);
-    enemy_image = al_load_bitmap ("data/sprites/LittleAlienShip.png");
+    enemy_image = al_load_bitmap ("data/sprites/enemy_1.png");
     enemy_sprites = gshmup_create_sprite_sheet (enemy_image, 32, 32, 0, 0);
     bullet_image = al_load_bitmap ("data/sprites/bullets.png");
     bullet_sprites = gshmup_create_sprite_sheet (bullet_image, 32, 32, 0, 0);
