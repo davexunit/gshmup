@@ -18,6 +18,8 @@ void
 gshmup_init_entity (GshmupEntity *entity)
 {
     entity->base.position = gshmup_create_vector2 (0, 0);
+    entity->base.kill = false;
+
     /*
      * Make a new agenda for scheduling scripting procedures.
      * Re-use the old one if it exists.
@@ -57,7 +59,6 @@ gshmup_update_entity (GshmupEntity *entity)
 {
     /* Update agenda. */
     current_entity = entity;
-    gshmup_set_current_agenda (entity->base.agenda);
     gshmup_update_agenda (entity->base.agenda);
 
     switch (entity->type) {
