@@ -2,11 +2,13 @@
 #include "game.h"
 #include "player.h"
 #include "bullet_system.h"
+#include "background.h"
 
 static const int text_margin = 4;
 static const int text_space = 12;
 static ALLEGRO_COLOR text_color;
 static ALLEGRO_BITMAP *background_image = NULL;
+static ALLEGRO_BITMAP *fog_image = NULL;
 static ALLEGRO_BITMAP *player_image = NULL;
 static ALLEGRO_BITMAP *enemy_image = NULL;
 static ALLEGRO_BITMAP *bullet_image = NULL;
@@ -14,13 +16,14 @@ static ALLEGRO_BITMAP *font_image = NULL;
 static ALLEGRO_FONT *font = NULL;
 static GshmupSpriteSheet *bullet_sprites = NULL;
 static GshmupSpriteSheet *player_sprites = NULL;
+static GshmupSpriteSheet *enemy_sprites = NULL;
 static GshmupBulletSystem *player_bullets = NULL;
 static GshmupEntity *player = NULL;
 static GshmupEntityPool *enemies = NULL;
 static GshmupBulletSystem *enemy_bullets = NULL;
 static GshmupBulletSystem *current_bullets = NULL; /* Used by Guile procedures. */
-static float scroll_y = 0;
-static float scroll_speed = 1.1;
+static GshmupBackground background;
+static GshmupBackground fog;
 SCM_VARIABLE_INIT (s_init_hook, "shooter-init-hook",
                    scm_make_hook (scm_from_int (0)));
 SCM_VARIABLE_INIT (s_shoot_hook, "player-shoot-hook",
@@ -46,10 +49,12 @@ load_resources (void)
     font = al_grab_font_from_bitmap (font_image, 6, ranges);
     player_image = al_load_bitmap ("data/sprites/player2.png");
     player_sprites = gshmup_create_sprite_sheet (player_image, 32, 32, 0, 0);
-    enemy_image = al_load_bitmap ("data/sprites/enemy.png");
+    enemy_image = al_load_bitmap ("data/sprites/LittleAlienShip.png");
+    enemy_sprites = gshmup_create_sprite_sheet (enemy_image, 32, 32, 0, 0);
     bullet_image = al_load_bitmap ("data/sprites/bullets.png");
     bullet_sprites = gshmup_create_sprite_sheet (bullet_image, 32, 32, 0, 0);
     background_image = al_load_bitmap ("data/sprites/background.png");
+    fog_image = al_load_bitmap ("data/sprites/fog.png");
 }
 
 static void
@@ -96,6 +101,13 @@ init_enemies (void)
 }
 
 static void
+init_background (void)
+{
+    gshmup_init_background (&background, background_image, 2);
+    gshmup_init_background (&fog, fog_image, 1);
+}
+
+static void
 shooter_init (void)
 {
     text_color = al_map_rgba_f (1, 1, 1, 1);
@@ -104,6 +116,7 @@ shooter_init (void)
     init_player_bullets ();
     init_enemies ();
     init_enemy_bullets ();
+    init_background ();
     scm_run_hook (scm_variable_ref (s_init_hook), scm_list_n (SCM_UNDEFINED));
 }
 
@@ -164,9 +177,8 @@ draw_hud (void)
 static void
 shooter_draw (void)
 {
-    al_draw_bitmap (background_image, 0, scroll_y, 0);
-    al_draw_bitmap (background_image, 0,
-                    scroll_y - al_get_bitmap_height (background_image), 0);
+    gshmup_draw_background (&background);
+    gshmup_draw_background (&fog);
     gshmup_draw_bullet_system (player_bullets);
     gshmup_draw_entity (player);
     gshmup_draw_bullet_system (enemy_bullets);
@@ -177,19 +189,14 @@ shooter_draw (void)
 static void
 shooter_update (void)
 {
+    gshmup_update_background (&background);
+    gshmup_update_background (&fog);
     current_bullets = player_bullets;
     gshmup_update_entity (player);
     gshmup_update_bullet_system (player_bullets);
     current_bullets = enemy_bullets;
     gshmup_update_entity_pool (enemies);
     gshmup_update_bullet_system (enemy_bullets);
-
-    /* Update scrolling background */
-    scroll_y += scroll_speed;
-
-    if (scroll_y >= GAME_HEIGHT) {
-        scroll_y -= al_get_bitmap_height (background_image);
-    }
 }
 
 static void
@@ -306,8 +313,9 @@ SCM_DEFINE (spawn_enemy, "spawn-enemy", 2, 0, 0,
             "Spawn an enemy and run the AI procedure @var{thunk}.")
 {
     GshmupEntity *entity = gshmup_entity_pool_new (enemies);
+    ALLEGRO_BITMAP *tile = gshmup_get_sprite_sheet_tile (enemy_sprites, 0);
 
-    gshmup_init_enemy (entity, enemy_image);
+    gshmup_init_enemy (entity, tile);
     entity->enemy.position = gshmup_scm_to_vector2 (pos);
 
     if (scm_is_true (scm_procedure_p (thunk))) {
