@@ -23,8 +23,8 @@ static int key_binds[GSHMUP_KEY_MAX] = {
     ALLEGRO_KEY_ENTER,
 };
 SCM_VARIABLE_INIT (init_hook, "game-init-hook", scm_make_hook (scm_from_int (0)));
-SCM_VARIABLE (s_current_agenda, "current-agenda");
 SCM_VARIABLE (s_debug_mode, "game-debug-mode");
+static SCM s_current_agenda = SCM_BOOL_F;
 static SCM s_make_agenda;
 static SCM s_update_agenda;
 static SCM s_agenda_schedule;
@@ -271,6 +271,7 @@ gshmup_schedule (SCM agenda, int dt, SCM thunk)
 void
 gshmup_update_agenda (SCM agenda)
 {
+    s_current_agenda = agenda;
     scm_call_2 (s_update_agenda, agenda, scm_from_int (1));
 }
 
