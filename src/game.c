@@ -25,6 +25,10 @@ static int key_binds[GSHMUP_KEY_MAX] = {
 SCM_VARIABLE_INIT (init_hook, "game-init-hook", scm_make_hook (scm_from_int (0)));
 SCM_VARIABLE (s_current_agenda, "current-agenda");
 SCM_VARIABLE (s_debug_mode, "game-debug-mode");
+static SCM s_make_agenda;
+static SCM s_update_agenda;
+static SCM s_agenda_schedule;
+static SCM s_clear_agenda;
 
 static void
 game_destroy (void)
@@ -252,6 +256,30 @@ gshmup_debug_mode (void)
     return scm_to_bool (scm_variable_ref (s_debug_mode));
 }
 
+SCM
+gshmup_create_agenda (void)
+{
+    return scm_call_0 (s_make_agenda);
+}
+
+void
+gshmup_schedule (SCM agenda, int dt, SCM thunk)
+{
+    scm_call_3 (s_agenda_schedule, agenda, scm_from_int (dt), thunk);
+}
+
+void
+gshmup_update_agenda (SCM agenda)
+{
+    scm_call_2 (s_update_agenda, agenda, scm_from_int (1));
+}
+
+void
+gshmup_clear_agenda (SCM agenda)
+{
+    scm_call_1 (s_clear_agenda, agenda);
+}
+
 SCM_DEFINE (gshmup_s_bind_key, "%bind-key", 2, 0, 0,
             (SCM gshmup_key, SCM keycode),
             "Maps a keycode to a gshmup control.")
@@ -271,13 +299,41 @@ SCM_DEFINE (gshmup_s_game_schedule, "game-schedule", 2, 0, 0,
     return SCM_UNSPECIFIED;
 }
 
+SCM_DEFINE (gshmup_s_game_width, "game-width", 0, 0, 0,
+            (void),
+            "Get game field width.")
+{
+    return scm_from_int (GAME_WIDTH);
+}
+
+SCM_DEFINE (gshmup_s_game_height, "game-height", 0, 0, 0,
+            (void),
+            "Get game field height")
+{
+    return scm_from_int (GAME_HEIGHT);
+}
+
 void
 gshmup_game_init_scm (void)
 {
+    const char *agenda_module = "gshmup agenda";
+
+    /*
+     * Caching this is extremely important. We use this procedure so
+     * often that calling scm_c_public_ref when we need was causing
+     * Guile's GC to collect every ~2 seconds.
+     */
+    s_make_agenda = scm_c_public_ref (agenda_module, "make-agenda");
+    s_update_agenda = scm_c_public_ref (agenda_module, "update-agenda");
+    s_agenda_schedule = scm_c_public_ref (agenda_module, "agenda-schedule");
+    s_clear_agenda = scm_c_public_ref (agenda_module, "clear-agenda");
+
 #include "game.x"
 
     scm_c_export ("game-init-hook",
                   "game-debug-mode",
                   s_gshmup_s_game_schedule,
+                  s_gshmup_s_game_width,
+                  s_gshmup_s_game_height,
                   NULL);
 }

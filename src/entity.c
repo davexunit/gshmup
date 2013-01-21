@@ -1,9 +1,5 @@
 #include "entity.h"
 
-static SCM s_make_agenda;
-static SCM s_update_agenda;
-static SCM s_agenda_schedule;
-static SCM s_clear_agenda;
 static GshmupEntity *current_entity = NULL;
 
 GshmupEntity *
@@ -27,9 +23,9 @@ gshmup_init_entity (GshmupEntity *entity)
      * Re-use the old one if it exists.
      */
     if (scm_is_true (entity->base.agenda)) {
-        scm_call_1 (s_clear_agenda, entity->base.agenda);
+        gshmup_clear_agenda (entity->base.agenda);
     } else {
-        entity->base.agenda = scm_call_0 (s_make_agenda);
+        entity->base.agenda = gshmup_create_agenda ();
     }
 }
 
@@ -60,10 +56,9 @@ void
 gshmup_update_entity (GshmupEntity *entity)
 {
     /* Update agenda. */
-    gshmup_set_current_agenda (entity->base.agenda);
     current_entity = entity;
-    scm_call_2 (s_update_agenda,
-                entity->base.agenda, scm_from_int (1));
+    gshmup_set_current_agenda (entity->base.agenda);
+    gshmup_update_agenda (entity->base.agenda);
 
     switch (entity->type) {
     case GSHMUP_ENTITY_PLAYER:
@@ -83,7 +78,7 @@ gshmup_update_entity (GshmupEntity *entity)
 void
 gshmup_entity_schedule (GshmupEntity *entity, int dt, SCM thunk)
 {
-    scm_call_3 (s_agenda_schedule, entity->base.agenda, scm_from_int (dt), thunk);
+    gshmup_schedule (entity->base.agenda, dt, thunk);
 }
 
 void
@@ -95,7 +90,7 @@ gshmup_kill_entity (GshmupEntity *entity)
 void
 gshmup_entity_clear_agenda (GshmupEntity *entity)
 {
-    scm_call_1 (s_clear_agenda, entity->base.agenda);
+    gshmup_clear_agenda (entity->base.agenda);
 }
 
 SCM_DEFINE (entity_position, "entity-position", 0, 0, 0,
@@ -115,24 +110,22 @@ SCM_DEFINE (move_entity, "move-entity", 1, 0, 0,
     return SCM_UNSPECIFIED;
 }
 
+SCM_DEFINE (kill_entity, "kill-entity", 0, 0, 0,
+            (void),
+            "Sets kill flag on the current entity.")
+{
+    current_entity->base.kill = true;
+
+    return SCM_UNSPECIFIED;
+}
+
 void
 gshmup_entity_init_scm (void)
 {
-    const char *agenda_module = "gshmup agenda";
-
-    /*
-     * Caching this is extremely important. We use this procedure so
-     * often that calling scm_c_public_ref when we need was causing
-     * Guile's GC to collect every ~2 seconds.
-     */
-    s_make_agenda = scm_c_public_ref (agenda_module, "make-agenda");
-    s_update_agenda = scm_c_public_ref (agenda_module, "update-agenda");
-    s_agenda_schedule = scm_c_public_ref (agenda_module, "agenda-schedule");
-    s_clear_agenda = scm_c_public_ref (agenda_module, "clear-agenda");
-
 #include "entity.x"
 
     scm_c_export (s_entity_position,
                   s_move_entity,
+                  s_kill_entity,
                   NULL);
 }

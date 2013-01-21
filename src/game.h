@@ -36,5 +36,9 @@ void gshmup_set_current_agenda (SCM agenda);
 int gshmup_get_fps (void);
 void gshmup_game_init_scm (void);
 bool gshmup_debug_mode (void);
+SCM gshmup_create_agenda (void);
+void gshmup_schedule (SCM agenda, int dt, SCM thunk);
+void gshmup_update_agenda (SCM agenda);
+void gshmup_clear_agenda (SCM agenda);
 
 #endif
