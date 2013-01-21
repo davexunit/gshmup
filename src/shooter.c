@@ -17,6 +17,8 @@ static ALLEGRO_FONT *font = NULL;
 static GshmupSpriteSheet *bullet_sprites = NULL;
 static GshmupSpriteSheet *player_sprites = NULL;
 static GshmupSpriteSheet *enemy_sprites = NULL;
+static GshmupAnimation *player_anim = NULL;
+static GshmupAnimation *enemy_anim = NULL;
 static GshmupBulletSystem *player_bullets = NULL;
 static GshmupEntity *player = NULL;
 static GshmupEntityPool *enemies = NULL;
@@ -58,10 +60,21 @@ load_resources (void)
 }
 
 static void
+init_animations (void)
+{
+    int player_frames[] = { 0, 1, 2, 3 };
+    int enemy_frames[] = { 0, 1, 2, 3 };
+
+    player_anim = gshmup_create_animation (player_sprites, 2, 4, player_frames,
+                                           GSHMUP_ANIM_LOOP);
+    enemy_anim = gshmup_create_animation (enemy_sprites, 2, 4, enemy_frames,
+                                          GSHMUP_ANIM_LOOP);
+}
+
+static void
 init_player (void)
 {
-    ALLEGRO_BITMAP *tile = gshmup_get_sprite_sheet_tile (player_sprites, 0);
-    GshmupEntity *entity = gshmup_create_player (tile);
+    GshmupEntity *entity = gshmup_create_player (player_anim);
 
     entity->player.lives = scm_to_int (scm_variable_ref (s_player_lives));
     entity->player.credits = scm_to_int (scm_variable_ref (s_player_credits));
@@ -103,7 +116,7 @@ init_enemies (void)
 static void
 init_background (void)
 {
-    gshmup_init_background (&background, background_image, 2);
+    gshmup_init_background (&background, background_image, 3);
     gshmup_init_background (&fog, fog_image, 1);
 }
 
@@ -112,6 +125,7 @@ shooter_init (void)
 {
     text_color = al_map_rgba_f (1, 1, 1, 1);
     load_resources ();
+    init_animations ();
     init_player ();
     init_player_bullets ();
     init_enemies ();
@@ -130,6 +144,7 @@ shooter_destroy (void)
     gshmup_destroy_bullet_system (player_bullets);
     gshmup_destroy_entity_pool (enemies);
     gshmup_destroy_bullet_system (enemy_bullets);
+    gshmup_destroy_animation (player_anim);
 }
 
 static void
@@ -313,9 +328,8 @@ SCM_DEFINE (spawn_enemy, "spawn-enemy", 2, 0, 0,
             "Spawn an enemy and run the AI procedure @var{thunk}.")
 {
     GshmupEntity *entity = gshmup_entity_pool_new (enemies);
-    ALLEGRO_BITMAP *tile = gshmup_get_sprite_sheet_tile (enemy_sprites, 0);
 
-    gshmup_init_enemy (entity, tile);
+    gshmup_init_enemy (entity, enemy_anim);
     entity->enemy.position = gshmup_scm_to_vector2 (pos);
 
     if (scm_is_true (scm_procedure_p (thunk))) {
