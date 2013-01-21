@@ -2,6 +2,8 @@
   #:use-module (gshmup core)
   #:use-module (gshmup shooter))
 
+(set! game-debug-mode #f)
+
 ;; Set preferred keybindings.
 (bind-key 'up 'up)
 (bind-key 'down 'down)
@@ -14,4 +16,4 @@
 ;; Player settings.
 (set! player-credits 5)
 (set! player-lives 5)
-(set! player-speed 6.5)
+(set! player-speed 5)
