@@ -44,7 +44,7 @@
   (let fire ((a 0)
              (n 16))
     (repeat n (lambda (i)
-                (emit-bullet (entity-position) 3 (+ a (* 360 (/ i n))) 'fire)))
+                (emit-bullet (entity-position) 2 (+ a (* 360 (/ i n))) 'fire)))
     ;; (repeat n (lambda (i)
     ;;             (emit-bullet (entity-position) 3 (- (* 360 (/ i n)) a) 'fire)))
     (wait 12)

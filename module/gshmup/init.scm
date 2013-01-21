@@ -16,4 +16,4 @@
 ;; Player settings.
 (set! player-credits 5)
 (set! player-lives 5)
-(set! player-speed 5)
+(set! player-speed 3.5)
