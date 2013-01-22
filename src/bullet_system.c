@@ -2,6 +2,7 @@
 
 static scm_t_bits bullet_type_tag;
 static GshmupBulletSystem *current_bullets = NULL;
+static GshmupBullet *current_bullet = NULL;
 SCM_SYMBOL (sym_blend_alpha, "alpha");
 SCM_SYMBOL (sym_blend_add, "add");
 
@@ -107,6 +108,7 @@ gshmup_draw_bullet (GshmupBullet *bullet)
 void
 gshmup_update_bullet (GshmupBullet *bullet)
 {
+    current_bullet = bullet;
     al_transform_coordinates (&bullet->angular_velocity,
                               &bullet->vel.x, &bullet->vel.y);
     al_transform_coordinates (&bullet->angular_velocity,
@@ -187,7 +189,8 @@ gshmup_set_bullet_type (GshmupEntity *entity, GshmupBulletType *type)
 void
 gshmup_emit_bullet (GshmupBulletSystem *system, GshmupVector2 position,
                     float speed, float direction, float acceleration,
-                    float angular_velocity, float life, GshmupBulletType *type)
+                    float angular_velocity, float life, GshmupBulletType *type,
+                    SCM thunk)
 {
     GshmupEntity *entity = gshmup_entity_pool_new (system->bullets);
 
@@ -200,6 +203,10 @@ gshmup_emit_bullet (GshmupBulletSystem *system, GshmupVector2 position,
     gshmup_set_bullet_type (entity, type);
     init_bullet_movement (GSHMUP_BULLET (entity), speed, direction,
                           acceleration, angular_velocity);
+
+    if (scm_is_true (thunk) && scm_is_false (scm_eq_p (thunk, SCM_UNDEFINED))) {
+        gshmup_schedule (entity->bullet.agenda, 0, thunk);
+    }
 }
 
 int
@@ -254,14 +261,72 @@ gshmup_bullet_system_collide_rect (GshmupBulletSystem *system, GshmupRect rect)
     }
 }
 
-SCM_DEFINE (emit_bullet, "%emit-bullet", 4, 0, 0,
-            (SCM pos, SCM speed, SCM direction, SCM type),
+SCM_DEFINE (emit_bullet, "%emit-bullet", 4, 1, 0,
+            (SCM pos, SCM speed, SCM direction, SCM type, SCM thunk),
             "Emit a bullet.")
 {
     gshmup_emit_bullet (current_bullets,
                         gshmup_scm_to_vector2 (pos), scm_to_double (speed),
                         scm_to_double (direction), 0, 0, 0,
-                        check_bullet_type (type));
+                        check_bullet_type (type), thunk);
+
+    return SCM_UNSPECIFIED;
+}
+
+SCM_DEFINE (bullet_position, "bullet-position", 0, 0, 0,
+            (void),
+            "Return bullet position.")
+{
+    return gshmup_scm_from_vector2 (current_bullet->position);
+}
+
+SCM_DEFINE (bullet_speed, "bullet-speed", 0, 0, 0,
+            (void),
+            "Return bullet speed.")
+{
+    return scm_from_double (gshmup_vector2_mag (current_bullet->vel));
+}
+
+SCM_DEFINE (bullet_direction, "bullet-direction", 0, 0, 0,
+            (void),
+            "Return bullet direction in degrees.")
+{
+    float direction = gshmup_rad_to_deg (gshmup_vector2_angle (current_bullet->vel));
+
+    return scm_from_double (direction);
+}
+
+
+SCM_DEFINE (set_bullet_position, "set-bullet-position", 1, 0, 0,
+            (SCM position),
+            "Change the current bullet's position.")
+{
+    current_bullet->position = gshmup_scm_to_vector2 (position);
+
+    return SCM_UNSPECIFIED;
+}
+
+SCM_DEFINE (set_bullet_speed, "set-bullet-speed", 1, 0, 0,
+            (SCM speed),
+            "Change the current bullet's speed.")
+{
+    GshmupVector2 normal = gshmup_vector2_norm (current_bullet->vel);
+
+    current_bullet->vel = gshmup_vector2_scale (normal, scm_to_double (speed));
+
+    return SCM_UNSPECIFIED;
+}
+
+SCM_DEFINE (set_bullet_direction, "set-bullet-direction", 1, 0, 0,
+            (SCM direction),
+            "Change the current bullet's direction.")
+{
+    float theta = gshmup_deg_to_rad (scm_to_double (direction));
+    float speed = gshmup_vector2_mag (current_bullet->vel);
+    float acceleration = gshmup_vector2_mag (current_bullet->acc);
+
+    current_bullet->vel = gshmup_vector2_from_polar (speed, theta);
+    current_bullet->acc = gshmup_vector2_from_polar (acceleration, theta);
 
     return SCM_UNSPECIFIED;
 }
@@ -278,5 +343,11 @@ gshmup_bullet_system_init_scm (void)
 
     scm_c_export (s_make_bullet_type,
                   s_emit_bullet,
+                  s_bullet_position,
+                  s_bullet_speed,
+                  s_bullet_direction,
+                  s_set_bullet_position,
+                  s_set_bullet_speed,
+                  s_set_bullet_direction,
                   NULL);
 }

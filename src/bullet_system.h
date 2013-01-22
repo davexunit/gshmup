@@ -60,7 +60,7 @@ void gshmup_set_bullet_type (GshmupEntity *entity, GshmupBulletType *type);
 void gshmup_emit_bullet (GshmupBulletSystem *system, GshmupVector2 position,
                          float speed, float direction, float acceleration,
                          float angular_velocity, float life,
-                         GshmupBulletType *type);
+                         GshmupBulletType *type, SCM thunk);
 int gshmup_get_bullet_system_size (GshmupBulletSystem *system);
 int gshmup_get_bullet_system_free_size (GshmupBulletSystem *system);
 int gshmup_get_bullet_system_max_free_size (GshmupBulletSystem *system);
