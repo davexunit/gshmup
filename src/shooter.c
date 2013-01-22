@@ -14,6 +14,8 @@ static ALLEGRO_BITMAP *enemy_image = NULL;
 static ALLEGRO_BITMAP *bullet_image = NULL;
 static ALLEGRO_BITMAP *font_image = NULL;
 static ALLEGRO_FONT *font = NULL;
+static ALLEGRO_COLOR hitbox_fill_color;
+static ALLEGRO_COLOR hitbox_border_color;
 static GshmupSpriteSheet *bullet_sprites = NULL;
 static GshmupSpriteSheet *player_sprites = NULL;
 static GshmupSpriteSheet *enemy_sprites = NULL;
@@ -80,6 +82,7 @@ init_player (void)
     entity->player.credits = scm_to_int (scm_variable_ref (s_player_credits));
     entity->player.speed = scm_to_double (scm_variable_ref (s_player_speed));
     entity->player.position = gshmup_create_vector2 (GAME_WIDTH / 2, GAME_HEIGHT - 32);
+    entity->player.hitbox = gshmup_create_rect (-1, -1, 2, 2);
     player = entity;
 }
 
@@ -124,6 +127,8 @@ static void
 shooter_init (void)
 {
     text_color = al_map_rgba_f (1, 1, 1, 1);
+    hitbox_fill_color = al_map_rgb_f (1, 1, 1);
+    hitbox_border_color = al_map_rgb_f (0, 0, 0);
     load_resources ();
     init_animations ();
     init_player ();
@@ -192,6 +197,15 @@ draw_hud (void)
 }
 
 static void
+draw_player_hitbox (void)
+{
+    GshmupPlayer *p = GSHMUP_PLAYER (player);
+
+    gshmup_draw_rect (gshmup_rect_move (p->hitbox, p->position),
+                      hitbox_fill_color, hitbox_border_color);
+}
+
+static void
 shooter_draw (void)
 {
     gshmup_draw_background (&background);
@@ -200,8 +214,42 @@ shooter_draw (void)
     gshmup_draw_entity (player);
     gshmup_draw_bullet_system (enemy_bullets);
     gshmup_draw_entity_pool (enemies);
+
+    if (gshmup_debug_mode ()) {
+        draw_player_hitbox ();
+        gshmup_draw_bullet_system_hitboxes (player_bullets, hitbox_fill_color,
+                                            hitbox_border_color);
+        gshmup_draw_bullet_system_hitboxes (enemy_bullets, hitbox_fill_color,
+                                            hitbox_border_color);
+    }
+
     draw_hud ();
 }
+
+static void
+check_enemy_collisions (void)
+{
+    GshmupEntity *entity = enemies->active_entities;
+
+    while (entity) {
+        GshmupEnemy *enemy = GSHMUP_ENEMY (entity);
+        GshmupRect hitbox = gshmup_rect_move (enemy->hitbox, enemy->position);
+
+        gshmup_bullet_system_collide_rect (player_bullets, hitbox);
+
+        entity = enemy->next;
+    }
+}
+
+static void
+check_player_collisions (void)
+{
+    GshmupPlayer *p = GSHMUP_PLAYER (player);
+    GshmupRect hitbox = gshmup_rect_move (p->hitbox, p->position);
+
+    gshmup_bullet_system_collide_rect (enemy_bullets, hitbox);
+}
+
 
 static void
 shooter_update (void)
@@ -215,6 +263,8 @@ shooter_update (void)
     gshmup_set_current_bullet_system (enemy_bullets);
     gshmup_update_entity_pool (enemies);
     gshmup_update_bullet_system (enemy_bullets);
+    check_enemy_collisions ();
+    check_player_collisions ();
 }
 
 static void
@@ -314,14 +364,15 @@ SCM_DEFINE (player_shooting_p, "player-shooting?", 0, 0, 0,
     return scm_from_bool (GSHMUP_PLAYER (player)->shooting);
 }
 
-SCM_DEFINE (spawn_enemy, "spawn-enemy", 3, 0, 0,
-            (SCM pos, SCM max_health, SCM thunk),
+SCM_DEFINE (spawn_enemy, "spawn-enemy", 4, 0, 0,
+            (SCM pos, SCM max_health, SCM hitbox, SCM thunk),
             "Spawn an enemy and run the AI procedure @var{thunk}.")
 {
     GshmupEntity *entity = gshmup_entity_pool_new (enemies);
 
     gshmup_init_enemy (entity, enemy_anim, scm_to_int (max_health));
     entity->enemy.position = gshmup_scm_to_vector2 (pos);
+    entity->enemy.hitbox = gshmup_scm_to_rect (hitbox);
 
     if (scm_is_true (scm_procedure_p (thunk))) {
         gshmup_entity_schedule (entity, 0, thunk);
