@@ -150,6 +150,21 @@ gshmup_draw_bullet_system (GshmupBulletSystem *system)
     al_hold_bitmap_drawing (false);
 }
 
+void gshmup_draw_bullet_system_hitboxes (GshmupBulletSystem *system,
+                                         ALLEGRO_COLOR fill_color,
+                                         ALLEGRO_COLOR border_color)
+{
+    GshmupEntity *entity = system->bullets->active_entities;
+
+    while (entity) {
+        GshmupBullet *bullet = GSHMUP_BULLET (entity);
+        GshmupRect hitbox = gshmup_rect_move (bullet->hitbox, bullet->position);
+
+        gshmup_draw_rect (hitbox, fill_color, border_color);
+        entity = bullet->next;
+    }
+}
+
 void
 gshmup_update_bullet_system (GshmupBulletSystem *system)
 {
@@ -209,6 +224,34 @@ void
 gshmup_set_current_bullet_system (GshmupBulletSystem *system)
 {
     current_bullets = system;
+}
+
+static bool
+bullet_collision_check (GshmupBullet *bullet, GshmupRect rect)
+{
+    GshmupRect hitbox = gshmup_rect_move (bullet->hitbox, bullet->position);
+
+    if (gshmup_rect_collide_rect (hitbox, rect)) {
+        return true;
+    }
+
+    return false;
+}
+
+void
+gshmup_bullet_system_collide_rect (GshmupBulletSystem *system, GshmupRect rect)
+{
+    GshmupEntity *entity = system->bullets->active_entities;
+
+    while (entity) {
+        GshmupBullet *bullet = GSHMUP_BULLET (entity);
+
+        if (bullet_collision_check (bullet, rect)) {
+            bullet->kill = true;
+        }
+
+        entity = bullet->next;
+    }
 }
 
 SCM_DEFINE (emit_bullet, "%emit-bullet", 4, 0, 0,

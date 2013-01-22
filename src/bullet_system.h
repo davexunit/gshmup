@@ -52,6 +52,9 @@ GshmupBulletSystem *gshmup_create_bullet_system (int max_bullets,
                                                  GshmupSpriteSheet *sprite_sheet);
 void gshmup_destroy_bullet_system (GshmupBulletSystem *system);
 void gshmup_draw_bullet_system (GshmupBulletSystem *system);
+void gshmup_draw_bullet_system_hitboxes (GshmupBulletSystem *system,
+                                         ALLEGRO_COLOR fill_color,
+                                         ALLEGRO_COLOR border_color);
 void gshmup_update_bullet_system (GshmupBulletSystem *system);
 void gshmup_set_bullet_type (GshmupEntity *entity, GshmupBulletType *type);
 void gshmup_emit_bullet (GshmupBulletSystem *system, GshmupVector2 position,
@@ -62,6 +65,7 @@ int gshmup_get_bullet_system_size (GshmupBulletSystem *system);
 int gshmup_get_bullet_system_free_size (GshmupBulletSystem *system);
 int gshmup_get_bullet_system_max_free_size (GshmupBulletSystem *system);
 void gshmup_set_current_bullet_system (GshmupBulletSystem *system);
+void gshmup_bullet_system_collide_rect (GshmupBulletSystem *system, GshmupRect rect);
 void gshmup_bullet_system_init_scm (void);
 
 #endif
