@@ -16,10 +16,10 @@
   (hash-ref bullet-types key))
 
 ;;(define* (emit-bullet system pos speed direction type . keyword-args)
-(define (emit-bullet position speed direction type)
+(define* (emit-bullet position speed direction type #:optional thunk)
   "Emits a non-scripted bullet."
   (let ((type (get-bullet-type type)))
-    (%emit-bullet position speed direction type)))
+    (%emit-bullet position speed direction type thunk)))
 
 (define (set-bullet-type bullet type)
   (let ((type (get-bullet-type type)))
