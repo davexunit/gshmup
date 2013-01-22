@@ -82,7 +82,7 @@ init_player (void)
     entity->player.credits = scm_to_int (scm_variable_ref (s_player_credits));
     entity->player.speed = scm_to_double (scm_variable_ref (s_player_speed));
     entity->player.position = gshmup_create_vector2 (GAME_WIDTH / 2, GAME_HEIGHT - 32);
-    entity->player.hitbox = gshmup_create_rect (-1, -1, 2, 2);
+    entity->player.hitbox = gshmup_create_rect (-1, -1, 3, 3);
     player = entity;
 }
 
