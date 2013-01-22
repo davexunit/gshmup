@@ -11,6 +11,7 @@ typedef struct {
     GshmupSprite sprite;
     int max_health;
     int health;
+    GshmupRect hitbox;
 } GshmupEnemy;
 
 void gshmup_init_enemy (GshmupEntity *entity, GshmupAnimation *anim, int max_health);

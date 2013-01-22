@@ -24,6 +24,7 @@ typedef struct {
     int lives;
     int credits;
     int score;
+    GshmupRect hitbox;
 } GshmupPlayer;
 
 GshmupEntity *gshmup_create_player (GshmupAnimation *anim);
