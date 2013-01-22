@@ -57,10 +57,6 @@ gshmup_draw_entity (GshmupEntity *entity)
 void
 gshmup_update_entity (GshmupEntity *entity)
 {
-    /* Update agenda. */
-    current_entity = entity;
-    gshmup_update_agenda (entity->base.agenda);
-
     switch (entity->type) {
     case GSHMUP_ENTITY_PLAYER:
         gshmup_update_player (GSHMUP_PLAYER (entity));
@@ -74,6 +70,10 @@ gshmup_update_entity (GshmupEntity *entity)
     default:
         break;
     }
+
+    /* Update agenda. */
+    current_entity = entity;
+    gshmup_update_agenda (entity->base.agenda);
 }
 
 void
