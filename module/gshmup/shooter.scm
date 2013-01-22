@@ -24,7 +24,7 @@
 
 (define-coroutine (test-shot)
   (when (player-shooting?)
-    (let ((speed 15)
+    (let ((speed 10)
           (p (player-position)))
       (emit-bullet p speed 268 'blue)
       (emit-bullet p speed 270 'blue)
