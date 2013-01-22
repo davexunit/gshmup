@@ -12,8 +12,8 @@
                       (make-bullet-type 1 (make-rect -2 -2 4 4) 'alpha #t))
 (register-bullet-type 'large-orange
                       (make-bullet-type 2 (make-rect -5 -5 10 10) 'alpha #f))
-(register-bullet-type 'sword
-                      (make-bullet-type 3 (make-rect -4 -4 8 8) 'alpha #t))
+(register-bullet-type 'blue
+                      (make-bullet-type 3 (make-rect -3 -3 6 6) 'alpha #t))
 (register-bullet-type 'bright
                       (make-bullet-type 4 (make-rect -8 -8 16 16) 'add #f))
 (register-bullet-type 'fire
@@ -25,13 +25,13 @@
   (when (player-shooting?)
     (let ((speed 15)
           (p (player-position)))
-      (emit-bullet p speed 268 'sword)
-      (emit-bullet p speed 270 'sword)
-      (emit-bullet p speed 272 'sword)
-      (emit-bullet p speed 180 'sword)
-      (emit-bullet p speed 225 'sword)
-      (emit-bullet p speed 315 'sword)
-      (emit-bullet p speed 360 'sword))
+      (emit-bullet p speed 268 'blue)
+      (emit-bullet p speed 270 'blue)
+      (emit-bullet p speed 272 'blue)
+      (emit-bullet p speed 180 'blue)
+      (emit-bullet p speed 225 'blue)
+      (emit-bullet p speed 315 'blue)
+      (emit-bullet p speed 360 'blue))
     (wait 5)
     (test-shot)))
 
@@ -43,7 +43,8 @@
   (spawn-test-enemy))
 
 (define (spawn-test-enemy)
-  (spawn-enemy (make-vector2 120 -32) 200 (lambda () (test-script))))
+  (spawn-enemy (make-vector2 120 -32) 200 (make-rect -16 -16 32 32)
+               (lambda () (test-script))))
 
 (define-coroutine (test-script)
   (move-in)
