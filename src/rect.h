@@ -16,6 +16,9 @@ GshmupRect gshmup_rect_center (GshmupRect rect, GshmupVector2 center);
 GshmupVector2 gshmup_get_rect_center (GshmupRect rect);
 bool gshmup_rect_collide_point (GshmupRect rect, GshmupVector2 p);
 bool gshmup_rect_collide_rect (GshmupRect rect, GshmupRect other);
+void gshmup_draw_rect (GshmupRect rect, ALLEGRO_COLOR fill_color,
+                       ALLEGRO_COLOR border_color);
+
 
 /* Scheme bindings. */
 GshmupRect gshmup_scm_to_rect (SCM rect_smob);

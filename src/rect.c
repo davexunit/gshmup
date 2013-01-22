@@ -76,6 +76,17 @@ gshmup_rect_scale (GshmupRect rect, GshmupVector2 scale)
     return gshmup_rect_center (scale_rect, center);
 }
 
+void
+gshmup_draw_rect (GshmupRect rect, ALLEGRO_COLOR fill_color,
+                  ALLEGRO_COLOR border_color)
+{
+    float end_x = rect.x + rect.width;
+    float end_y = rect.y + rect.height;
+
+    al_draw_filled_rectangle (rect.x, rect.y, end_x, end_y, fill_color);
+    al_draw_rectangle (rect.x, rect.y, end_x, end_y, border_color, 1);
+}
+
 GshmupRect
 gshmup_scm_to_rect (SCM rect)
 {
