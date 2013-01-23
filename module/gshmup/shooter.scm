@@ -75,7 +75,7 @@
                 (wait 1))))
 
 (define-coroutine (test-bullet-script)
-  (define angle-step 20)
+  (define angle-step 10)
 
   (define (step angle)
     (set-bullet-direction (+ (bullet-direction) (* 8 (sin-deg angle))))
