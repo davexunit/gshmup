@@ -119,8 +119,8 @@ init_enemies (void)
 static void
 init_background (void)
 {
-    gshmup_init_background (&background, background_image, 3);
-    gshmup_init_background (&fog, fog_image, 1);
+    gshmup_init_background (&background, background_image, 1);
+    gshmup_init_background (&fog, fog_image, 3);
 }
 
 static void
