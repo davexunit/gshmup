@@ -1,5 +1,7 @@
 #include "player.h"
 
+static GshmupPlayer *current_player = NULL;
+
 GshmupEntity *
 gshmup_create_player (GshmupAnimation *anim)
 {
@@ -51,4 +53,10 @@ void
 gshmup_player_set_direction (GshmupPlayer *player, int dir, bool flag)
 {
     player->dir[dir] = flag;
+}
+
+void
+gshmup_set_current_player (GshmupPlayer *player)
+{
+    current_player = player;
 }

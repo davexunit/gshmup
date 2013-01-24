@@ -21,6 +21,7 @@ typedef struct {
     bool shooting;
     bool dir[4]; /* 4 directional movement. */
     float speed;
+    int strength;
     int lives;
     int credits;
     int score;
@@ -31,5 +32,6 @@ GshmupEntity *gshmup_create_player (GshmupAnimation *anim);
 void gshmup_draw_player (GshmupPlayer *player);
 void gshmup_update_player (GshmupPlayer *player);
 void gshmup_player_set_direction (GshmupPlayer *player, int dir, bool flag);
+void gshmup_set_current_player (GshmupPlayer *player);
 
 #endif
