@@ -254,6 +254,7 @@ gshmup_bullet_system_collide_rect (GshmupBulletSystem *system, GshmupRect rect)
         if (bullet_collision_check (bullet, rect)) {
             bullet->kill = true;
 
+            /* Call bullet collision Guile callback procedure. */
             if (scm_is_true (scm_procedure_p (bullet->on_hit))) {
                 scm_call_0 (bullet->on_hit);
             }
