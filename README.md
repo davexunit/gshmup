@@ -9,6 +9,8 @@ extension language, Guile, for configuration and event scripting.
 Lua is often the go-to language for game scripting, but I wanted to
 try something different.
 
+[*Watch a brief demo video*](http://www.youtube.com/watch?v=ZhjeW8qVkL0)
+
 Try it
 ------
 ```
