@@ -21,7 +21,6 @@ typedef struct {
     bool shooting;
     bool dir[4]; /* 4 directional movement. */
     float speed;
-    int strength;
     int lives;
     int credits;
     int score;
