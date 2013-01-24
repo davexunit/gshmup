@@ -240,11 +240,7 @@ bullet_collision_check (GshmupBullet *bullet, GshmupRect rect)
 {
     GshmupRect hitbox = gshmup_rect_move (bullet->hitbox, bullet->position);
 
-    if (gshmup_rect_collide_rect (hitbox, rect)) {
-        return true;
-    }
-
-    return false;
+    return gshmup_rect_collide_rect (hitbox, rect);
 }
 
 void
@@ -261,6 +257,8 @@ gshmup_bullet_system_collide_rect (GshmupBulletSystem *system, GshmupRect rect)
             if (scm_is_true (scm_procedure_p (bullet->on_hit))) {
                 scm_call_0 (bullet->on_hit);
             }
+
+            return;
         }
 
         entity = bullet->next;
