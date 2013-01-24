@@ -20,6 +20,7 @@ typedef struct {
     int blend_mode;
     bool directional;
     GshmupRect hitbox;
+    SCM on_hit;
 } GshmupBulletType;
 
 typedef struct {
@@ -41,6 +42,7 @@ typedef struct {
     ALLEGRO_COLOR color;
     int blend_mode;
     GshmupBulletSystem *parent;
+    SCM on_hit;
 } GshmupBullet;
 
 GshmupBulletType *check_bullet_type (SCM bullet_type);

@@ -46,8 +46,8 @@ check_bullet_type (SCM bullet_type)
     return (GshmupBulletType *) SCM_SMOB_DATA (bullet_type);
 }
 
-SCM_DEFINE (make_bullet_type, "make-bullet-type", 4, 0, 0,
-            (SCM tile, SCM hitbox, SCM blend_mode, SCM directional),
+SCM_DEFINE (make_bullet_type, "make-bullet-type", 5, 0, 0,
+            (SCM tile, SCM hitbox, SCM blend_mode, SCM directional, SCM on_hit),
             "Make a new bullet type instance.")
 {
     GshmupBulletType *bullet_type;
@@ -58,6 +58,7 @@ SCM_DEFINE (make_bullet_type, "make-bullet-type", 4, 0, 0,
     bullet_type->hitbox = gshmup_scm_to_rect (hitbox);
     bullet_type->blend_mode = scm_to_blend_mode (blend_mode);
     bullet_type->directional = scm_to_bool (directional);
+    bullet_type->on_hit = on_hit;
 
     SCM_RETURN_NEWSMOB (bullet_type_tag, bullet_type);
 }
@@ -77,7 +78,7 @@ print_bullet_type (SCM bullet_type_smob, SCM port, scm_print_state *pstate)
 {
    scm_puts ("#<bullet-type>", port);
 
-    return 1;
+   return 1;
 }
 
 static void
@@ -184,6 +185,7 @@ gshmup_set_bullet_type (GshmupEntity *entity, GshmupBulletType *type)
     entity->bullet.directional = type->directional;
     entity->bullet.hitbox = type->hitbox;
     entity->bullet.blend_mode = type->blend_mode;
+    entity->bullet.on_hit = type->on_hit;
 }
 
 void
@@ -255,6 +257,10 @@ gshmup_bullet_system_collide_rect (GshmupBulletSystem *system, GshmupRect rect)
 
         if (bullet_collision_check (bullet, rect)) {
             bullet->kill = true;
+
+            if (scm_is_true (scm_procedure_p (bullet->on_hit))) {
+                scm_call_0 (bullet->on_hit);
+            }
         }
 
         entity = bullet->next;
