@@ -12,9 +12,12 @@
 - color
 - lifetime
 - scale
-*** TODO setters/getters for all properties
-*** TODO emit-bullet procedure that accepts all properties
+- damage
+*** TODO setters/getters for all properties.
+*** TODO emit-bullet procedure that accepts all properties.
 ** TODO Collision detection
+*** DONE Remove bullets that collide with something.
+*** TODO Use a callback to handle damaging enemies and killing the player.
 ** TODO Improved keybinding system
 Allow the user to bind any keyboard key to a Guile procedure.
 ** DONE Animated sprites
