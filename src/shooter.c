@@ -81,6 +81,7 @@ init_player (void)
     entity->player.lives = scm_to_int (scm_variable_ref (s_player_lives));
     entity->player.credits = scm_to_int (scm_variable_ref (s_player_credits));
     entity->player.speed = scm_to_double (scm_variable_ref (s_player_speed));
+    entity->player.strength = 10;
     entity->player.position = gshmup_create_vector2 (GAME_WIDTH / 2, GAME_HEIGHT - 32);
     entity->player.hitbox = gshmup_create_rect (-1, -1, 3, 3);
     player = entity;
@@ -235,8 +236,8 @@ check_enemy_collisions (void)
         GshmupEnemy *enemy = GSHMUP_ENEMY (entity);
         GshmupRect hitbox = gshmup_rect_move (enemy->hitbox, enemy->position);
 
+        gshmup_set_current_enemy (enemy);
         gshmup_bullet_system_collide_rect (player_bullets, hitbox);
-
         entity = enemy->next;
     }
 }
@@ -390,6 +391,15 @@ SCM_DEFINE (clear_enemies, "clear-enemies", 0, 0, 0,
     return SCM_UNSPECIFIED;
 }
 
+SCM_DEFINE (kill_player, "kill-player", 0, 0, 0,
+            (void),
+            "Decrement player life counter. Game over if there are no lives left.")
+{
+    player->player.lives--;
+
+    return SCM_UNSPECIFIED;
+}
+
 void gshmup_shooter_init_scm (void)
 {
 #include "shooter.x"
@@ -403,5 +413,6 @@ void gshmup_shooter_init_scm (void)
                   s_player_shooting_p,
                   s_spawn_enemy,
                   s_clear_enemies,
+                  s_kill_player,
                   NULL);
 }
