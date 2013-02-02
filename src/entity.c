@@ -3,25 +3,20 @@
 static GshmupEntity *current_entity = NULL;
 
 GshmupEntity *
-gshmup_create_entity (int type, GshmupEntityDrawFunc draw,
-                      GshmupEntityUpdateFunc update)
+gshmup_create_entity (void)
 {
     GshmupEntity *entity;
 
     entity = (GshmupEntity *) scm_gc_malloc (sizeof (GshmupEntity), "entity");
     entity->base.agenda = SCM_BOOL_F;
-    gshmup_init_entity (entity, type, draw, update);
+    gshmup_init_entity (entity);
 
     return entity;
 }
 
 void
-gshmup_init_entity (GshmupEntity *entity, int type, GshmupEntityDrawFunc draw,
-                    GshmupEntityUpdateFunc update)
+gshmup_init_entity (GshmupEntity *entity)
 {
-    entity->base.type = type;
-    entity->base.draw = draw;
-    entity->base.update = update;
     entity->base.position = gshmup_create_vector2 (0, 0);
     entity->base.kill = false;
 
@@ -44,13 +39,37 @@ void gshmup_destroy_entity (GshmupEntity *entity)
 void
 gshmup_draw_entity (GshmupEntity *entity)
 {
-    entity->base.update (entity);
+    switch (entity->type) {
+    case GSHMUP_ENTITY_PLAYER:
+        gshmup_draw_player (GSHMUP_PLAYER (entity));
+        break;
+    case GSHMUP_ENTITY_ENEMY:
+        gshmup_draw_enemy (GSHMUP_ENEMY (entity));
+        break;
+    case GSHMUP_ENTITY_BULLET:
+        gshmup_draw_bullet (GSHMUP_BULLET (entity));
+        break;
+    default:
+        break;
+    }
 }
 
 void
 gshmup_update_entity (GshmupEntity *entity)
 {
-    entity->base.draw (entity);
+    switch (entity->type) {
+    case GSHMUP_ENTITY_PLAYER:
+        gshmup_update_player (GSHMUP_PLAYER (entity));
+        break;
+    case GSHMUP_ENTITY_ENEMY:
+        gshmup_update_enemy (GSHMUP_ENEMY (entity));
+        break;
+    case GSHMUP_ENTITY_BULLET:
+        gshmup_update_bullet (GSHMUP_BULLET (entity));
+        break;
+    default:
+        break;
+    }
 
     /* Update agenda. */
     current_entity = entity;

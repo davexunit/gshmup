@@ -100,19 +100,15 @@ bullet_out_of_bounds (GshmupBullet *bullet)
 }
 
 void
-gshmup_draw_bullet (GshmupEntity *entity)
+gshmup_draw_bullet (GshmupBullet *bullet)
 {
-    GshmupBullet *bullet = GSHMUP_BULLET (entity);
-
     bullet->sprite.position = bullet->position;
     gshmup_draw_sprite (&bullet->sprite);
 }
 
 void
-gshmup_update_bullet (GshmupEntity *entity)
+gshmup_update_bullet (GshmupBullet *bullet)
 {
-    GshmupBullet *bullet = GSHMUP_BULLET (entity);
-
     current_bullet = bullet;
     al_transform_coordinates (&bullet->angular_velocity,
                               &bullet->vel.x, &bullet->vel.y);
@@ -199,7 +195,6 @@ gshmup_emit_bullet (GshmupBulletSystem *system, GshmupVector2 position,
                     SCM thunk)
 {
     GshmupEntity *entity = gshmup_entity_pool_new (system->bullets);
-    GshmupBullet *bullet = GSHMUP_BULLET (entity);
 
     entity->type = GSHMUP_ENTITY_BULLET;
     entity->bullet.parent = system;
