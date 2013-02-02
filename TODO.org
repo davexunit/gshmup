@@ -17,10 +17,10 @@
 *** TODO emit-bullet procedure that accepts all properties.
 ** TODO Collision detection
 *** DONE Remove bullets that collide with something.
-*** TODO Use a callback to handle damaging enemies and killing the player.
+*** DONE Use a callback to handle damaging enemies and killing the player.
 ** TODO Improved keybinding system
-Allow the user to bind any keyboard key to a Guile procedure.
+*** TODO Allow the user to bind any keyboard key to a Guile procedure.
 ** DONE Animated sprites
 ** TODO Main menu screen
 ** TODO Asset customization
-Allow the user to specify what assets (art, music, etc.) to load from Guile.
+   Allow the user to specify what assets (art, music, etc.) to load from Guile.
