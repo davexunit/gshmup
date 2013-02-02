@@ -5,34 +5,39 @@ static GshmupPlayer *current_player = NULL;
 GshmupEntity *
 gshmup_create_player (GshmupAnimation *anim)
 {
-    GshmupEntity *entity = gshmup_create_entity ();
+    GshmupEntity *entity = gshmup_create_entity (GSHMUP_ENTITY_PLAYER,
+                                                 gshmup_draw_player,
+                                                 gshmup_update_player);
+    GshmupPlayer *player = GSHMUP_PLAYER (entity);
 
-    entity->type = GSHMUP_ENTITY_PLAYER;
-    entity->player.shooting = false;
-    entity->player.speed = 0;
-    entity->player.lives = 0;
-    entity->player.credits = 0;
-    entity->player.score = 0;
-    gshmup_init_animated_sprite (&entity->player.sprite, anim);
+    player->shooting = false;
+    player->speed = 0;
+    player->lives = 0;
+    player->credits = 0;
+    player->score = 0;
+    gshmup_init_animated_sprite (&player->sprite, anim);
     gshmup_play_animation (anim);
 
     for (int i = 0; i < 4; ++i) {
-        entity->player.dir[i] = false;
+        player->dir[i] = false;
     }
 
     return entity;
 }
 
 void
-gshmup_draw_player (GshmupPlayer *player)
+gshmup_draw_player (GshmupEntity *entity)
 {
+    GshmupPlayer *player = GSHMUP_PLAYER (entity);
+
     player->sprite.position = player->position;
     gshmup_draw_sprite (&player->sprite);
 }
 
 void
-gshmup_update_player (GshmupPlayer *player)
+gshmup_update_player (GshmupEntity *entity)
 {
+    GshmupPlayer *player = GSHMUP_PLAYER (entity);
     GshmupVector2 v;
 
     gshmup_update_animation (player->sprite.anim);

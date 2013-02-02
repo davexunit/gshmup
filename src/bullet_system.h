@@ -47,8 +47,8 @@ typedef struct {
 
 GshmupBulletType *check_bullet_type (SCM bullet_type);
 
-void gshmup_draw_bullet (GshmupBullet *bullet);
-void gshmup_update_bullet (GshmupBullet *bullet);
+void gshmup_draw_bullet (GshmupEntity *entity);
+void gshmup_update_bullet (GshmupEntity *entity);
 
 GshmupBulletSystem *gshmup_create_bullet_system (int max_bullets,
                                                  GshmupSpriteSheet *sprite_sheet);

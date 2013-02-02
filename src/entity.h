@@ -19,13 +19,18 @@ typedef enum {
 } GshmupEntityType;
 
 typedef union GshmupEntity GshmupEntity;
+typedef void (*GshmupEntityDrawFunc) (GshmupEntity *);
+typedef void (*GshmupEntityUpdateFunc) (GshmupEntity *);
 
+/* Common member variables for all Entity types. */
 #define _GSHMUP_ENTITY_HEADER \
     GshmupEntityType type; \
     SCM agenda; \
     bool kill; \
     GshmupVector2 position; \
-    GshmupEntity *next;
+    GshmupEntity *next; \
+    void (*draw) (GshmupEntity *); \
+    void (*update) (GshmupEntity *);
 
 #include "player.h"
 #include "enemy.h"
@@ -45,8 +50,11 @@ union GshmupEntity {
     GshmupBullet bullet;
 };
 
-GshmupEntity *gshmup_create_entity (void);
-void gshmup_init_entity (GshmupEntity *entity);
+GshmupEntity *gshmup_create_entity (int type, GshmupEntityDrawFunc draw,
+                                    GshmupEntityUpdateFunc update);
+void gshmup_init_entity (GshmupEntity *entity, int type,
+                         GshmupEntityDrawFunc draw,
+                         GshmupEntityUpdateFunc update);
 void gshmup_destroy_entity (GshmupEntity *entity);
 void gshmup_draw_entity (GshmupEntity *entity);
 void gshmup_update_entity (GshmupEntity *entity);
