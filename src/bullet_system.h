@@ -23,25 +23,35 @@ typedef struct {
     SCM on_hit;
 } GshmupBulletType;
 
+typedef struct GshmupBulletAgenda GshmupBulletAgenda;
+
+struct GshmupBulletAgenda {
+    int bullet_id;
+    SCM agenda;
+    GshmupBulletAgenda *next;
+};
+
 typedef struct {
     GshmupSpriteSheet *sprite_sheet;
-    GshmupEntityPool *bullets;
+    GArray *bullets;
     GshmupRect bounds;
+    int len;
 } GshmupBulletSystem;
 
 typedef struct {
-    _GSHMUP_ENTITY_HEADER
+    GshmupBulletSystem *parent;
     int life;         /* Maximum lifetime. 0 is unlimited. */
     int life_count;   /* Total elapsed lifetime. */
+    int blend_mode;
     bool directional; /* Rotate sprite in bullet direction? */
+    bool kill;
+    GshmupVector2 pos;
     GshmupVector2 vel;
     GshmupVector2 acc;
     GshmupRect hitbox;
     ALLEGRO_TRANSFORM angular_velocity; /* Change in direction. */
     GshmupSprite sprite;
     ALLEGRO_COLOR color;
-    int blend_mode;
-    GshmupBulletSystem *parent;
     SCM on_hit;
 } GshmupBullet;
 
@@ -50,7 +60,7 @@ GshmupBulletType *check_bullet_type (SCM bullet_type);
 void gshmup_draw_bullet (GshmupBullet *bullet);
 void gshmup_update_bullet (GshmupBullet *bullet);
 
-GshmupBulletSystem *gshmup_create_bullet_system (int max_bullets,
+GshmupBulletSystem *gshmup_create_bullet_system (int reserved_size,
                                                  GshmupSpriteSheet *sprite_sheet);
 void gshmup_destroy_bullet_system (GshmupBulletSystem *system);
 void gshmup_draw_bullet_system (GshmupBulletSystem *system);
@@ -58,7 +68,7 @@ void gshmup_draw_bullet_system_hitboxes (GshmupBulletSystem *system,
                                          ALLEGRO_COLOR fill_color,
                                          ALLEGRO_COLOR border_color);
 void gshmup_update_bullet_system (GshmupBulletSystem *system);
-void gshmup_set_bullet_type (GshmupEntity *entity, GshmupBulletType *type);
+void gshmup_set_bullet_type (GshmupBullet *bullet, GshmupBulletType *type);
 void gshmup_emit_bullet (GshmupBulletSystem *system, GshmupVector2 position,
                          float speed, float direction, float acceleration,
                          float angular_velocity, float life,

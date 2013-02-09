@@ -96,13 +96,13 @@ init_bullet_movement (GshmupBullet *bullet, float speed, float direction,
 static bool
 bullet_out_of_bounds (GshmupBullet *bullet)
 {
-    return !gshmup_rect_collide_point (bullet->parent->bounds, bullet->position);
+    return !gshmup_rect_collide_point (bullet->parent->bounds, bullet->pos);
 }
 
 void
 gshmup_draw_bullet (GshmupBullet *bullet)
 {
-    bullet->sprite.position = bullet->position;
+    bullet->sprite.position = bullet->pos;
     gshmup_draw_sprite (&bullet->sprite);
 }
 
@@ -114,7 +114,7 @@ gshmup_update_bullet (GshmupBullet *bullet)
                               &bullet->vel.x, &bullet->vel.y);
     al_transform_coordinates (&bullet->angular_velocity,
                               &bullet->acc.x, &bullet->acc.y);
-    bullet->position = gshmup_vector2_add (bullet->position, bullet->vel);
+    bullet->pos = gshmup_vector2_add (bullet->pos, bullet->vel);
     bullet->vel = gshmup_vector2_add (bullet->vel, bullet->acc);
     bullet->life_count++;
     bullet->kill = bullet->kill || bullet_out_of_bounds (bullet);
@@ -125,15 +125,17 @@ gshmup_update_bullet (GshmupBullet *bullet)
 }
 
 GshmupBulletSystem *
-gshmup_create_bullet_system (int max_bullets, GshmupSpriteSheet *sprite_sheet)
+gshmup_create_bullet_system (int reserved_size, GshmupSpriteSheet *sprite_sheet)
 {
     GshmupBulletSystem *system;
 
     system = (GshmupBulletSystem *) scm_gc_malloc (sizeof (GshmupBulletSystem),
                                                    "bullet system");
     system->sprite_sheet = sprite_sheet;
-    system->bullets = gshmup_create_entity_pool (max_bullets);
+    system->bullets = g_array_sized_new (false, false, sizeof (GshmupBullet),
+                                         reserved_size);
     system->bounds = gshmup_create_rect (0, 0, 0, 0);
+    system->len = 0;
 
     return system;
 }
@@ -141,7 +143,7 @@ gshmup_create_bullet_system (int max_bullets, GshmupSpriteSheet *sprite_sheet)
 void
 gshmup_destroy_bullet_system (GshmupBulletSystem *system)
 {
-    gshmup_destroy_entity_pool (system->bullets);
+    g_array_free (system->bullets, true);
     scm_gc_free (system, sizeof (GshmupBulletSystem), "bullet system");
 }
 
@@ -149,43 +151,55 @@ void
 gshmup_draw_bullet_system (GshmupBulletSystem *system)
 {
     al_hold_bitmap_drawing (true);
-    gshmup_draw_entity_pool (system->bullets);
+
+    for (int i = 0; i < system->bullets->len; ++i) {
+        GshmupBullet *bullet = &g_array_index (system->bullets, GshmupBullet, i);
+
+        gshmup_draw_bullet (bullet);
+    }
+
     al_hold_bitmap_drawing (false);
 }
 
-void gshmup_draw_bullet_system_hitboxes (GshmupBulletSystem *system,
-                                         ALLEGRO_COLOR fill_color,
-                                         ALLEGRO_COLOR border_color)
+void
+gshmup_draw_bullet_system_hitboxes (GshmupBulletSystem *system,
+                                    ALLEGRO_COLOR fill_color,
+                                    ALLEGRO_COLOR border_color)
 {
-    GshmupEntity *entity = system->bullets->active_entities;
-
-    while (entity) {
-        GshmupBullet *bullet = GSHMUP_BULLET (entity);
-        GshmupRect hitbox = gshmup_rect_move (bullet->hitbox, bullet->position);
+    for (int i = 0; i < system->bullets->len; ++i) {
+        GshmupBullet *bullet = &g_array_index (system->bullets, GshmupBullet, i);
+        GshmupRect hitbox = gshmup_rect_move (bullet->hitbox, bullet->pos);
 
         gshmup_draw_rect (hitbox, fill_color, border_color);
-        entity = bullet->next;
     }
 }
 
 void
 gshmup_update_bullet_system (GshmupBulletSystem *system)
 {
-    gshmup_update_entity_pool (system->bullets);
+    for (int i = 0; i < system->bullets->len; ++i) {
+        GshmupBullet *bullet = &g_array_index (system->bullets, GshmupBullet, i);
+
+        gshmup_update_bullet (bullet);
+
+        if (bullet->kill) {
+            g_array_remove_index_fast (system->bullets, i--);
+        }
+    }
 }
 
 void
-gshmup_set_bullet_type (GshmupEntity *entity, GshmupBulletType *type)
+gshmup_set_bullet_type (GshmupBullet *bullet, GshmupBulletType *type)
 {
-    GshmupBulletSystem *parent = entity->bullet.parent;
+    GshmupBulletSystem *parent = bullet->parent;
     ALLEGRO_BITMAP *image = gshmup_get_sprite_sheet_tile (parent->sprite_sheet,
-                                                         type->tile);
+                                                          type->tile);
 
-    gshmup_init_sprite (&entity->bullet.sprite, image);
-    entity->bullet.directional = type->directional;
-    entity->bullet.hitbox = type->hitbox;
-    entity->bullet.blend_mode = type->blend_mode;
-    entity->bullet.on_hit = type->on_hit;
+    gshmup_init_sprite (&bullet->sprite, image);
+    bullet->directional = type->directional;
+    bullet->hitbox = type->hitbox;
+    bullet->blend_mode = type->blend_mode;
+    bullet->on_hit = type->on_hit;
 }
 
 void
@@ -194,39 +208,43 @@ gshmup_emit_bullet (GshmupBulletSystem *system, GshmupVector2 position,
                     float angular_velocity, float life, GshmupBulletType *type,
                     SCM thunk)
 {
-    GshmupEntity *entity = gshmup_entity_pool_new (system->bullets);
+    GshmupBullet bullet;
 
-    entity->type = GSHMUP_ENTITY_BULLET;
-    entity->bullet.parent = system;
-    entity->bullet.position = position;
-    entity->bullet.life = life;
-    entity->bullet.life_count = 0;
-    entity->bullet.kill = false;
-    gshmup_set_bullet_type (entity, type);
-    init_bullet_movement (GSHMUP_BULLET (entity), speed, direction,
+    bullet.parent = system;
+    bullet.life = life;
+    bullet.life_count = 0;
+    bullet.blend_mode = 0;
+    bullet.kill = false;
+    bullet.pos = position;
+    bullet.life_count = 0;
+    bullet.kill = false;
+    gshmup_set_bullet_type (&bullet, type);
+    init_bullet_movement (&bullet, speed, direction,
                           acceleration, angular_velocity);
 
     if (scm_is_true (thunk) && scm_is_false (scm_eq_p (thunk, SCM_UNDEFINED))) {
-        gshmup_schedule (entity->bullet.agenda, 0, thunk);
+        /* gshmup_schedule (bullet.agenda, 0, thunk); */
     }
+
+    g_array_append_val (system->bullets, bullet);
 }
 
 int
 gshmup_get_bullet_system_size (GshmupBulletSystem *system)
 {
-    return system->bullets->size;
+    return system->bullets->len;
 }
 
 int
 gshmup_get_bullet_system_free_size (GshmupBulletSystem *system)
 {
-    return system->bullets->pool_size;
+    return system->bullets->len;
 }
 
 int
 gshmup_get_bullet_system_max_free_size (GshmupBulletSystem *system)
 {
-    return system->bullets->max_pool_size;
+    return system->bullets->len;
 }
 
 void
@@ -238,7 +256,7 @@ gshmup_set_current_bullet_system (GshmupBulletSystem *system)
 static bool
 bullet_collision_check (GshmupBullet *bullet, GshmupRect rect)
 {
-    GshmupRect hitbox = gshmup_rect_move (bullet->hitbox, bullet->position);
+    GshmupRect hitbox = gshmup_rect_move (bullet->hitbox, bullet->pos);
 
     return gshmup_rect_collide_rect (hitbox, rect);
 }
@@ -246,10 +264,8 @@ bullet_collision_check (GshmupBullet *bullet, GshmupRect rect)
 void
 gshmup_bullet_system_collide_rect (GshmupBulletSystem *system, GshmupRect rect)
 {
-    GshmupEntity *entity = system->bullets->active_entities;
-
-    while (entity) {
-        GshmupBullet *bullet = GSHMUP_BULLET (entity);
+    for (int i = 0; i < system->bullets->len; ++i) {
+        GshmupBullet *bullet = &g_array_index (system->bullets, GshmupBullet, i);
 
         if (bullet_collision_check (bullet, rect)) {
             bullet->kill = true;
@@ -261,8 +277,6 @@ gshmup_bullet_system_collide_rect (GshmupBulletSystem *system, GshmupRect rect)
 
             return;
         }
-
-        entity = bullet->next;
     }
 }
 
@@ -282,7 +296,7 @@ SCM_DEFINE (bullet_position, "bullet-position", 0, 0, 0,
             (void),
             "Return bullet position.")
 {
-    return gshmup_scm_from_vector2 (current_bullet->position);
+    return gshmup_scm_from_vector2 (current_bullet->pos);
 }
 
 SCM_DEFINE (bullet_speed, "bullet-speed", 0, 0, 0,
@@ -306,7 +320,7 @@ SCM_DEFINE (set_bullet_position, "set-bullet-position", 1, 0, 0,
             (SCM position),
             "Change the current bullet's position.")
 {
-    current_bullet->position = gshmup_scm_to_vector2 (position);
+    current_bullet->pos = gshmup_scm_to_vector2 (position);
 
     return SCM_UNSPECIFIED;
 }
