@@ -1,6 +1,3 @@
-/* Make sure GshmupEntity is defined first. */
-#include "entity.h"
-
 #ifndef GSHMUP_PLAYER_H
 #define GSHMUP_PLAYER_H
 
@@ -16,7 +13,8 @@ enum {
 };
 
 typedef struct {
-    _GSHMUP_ENTITY_HEADER
+    SCM agenda;
+    GshmupVector2 position;
     GshmupSprite sprite;
     bool shooting;
     bool dir[4]; /* 4 directional movement. */
@@ -27,7 +25,8 @@ typedef struct {
     GshmupRect hitbox;
 } GshmupPlayer;
 
-GshmupEntity *gshmup_create_player (GshmupAnimation *anim);
+GshmupPlayer *gshmup_create_player (GshmupAnimation *anim);
+void gshmup_destroy_player (GshmupPlayer *player);
 void gshmup_draw_player (GshmupPlayer *player);
 void gshmup_update_player (GshmupPlayer *player);
 void gshmup_player_set_direction (GshmupPlayer *player, int dir, bool flag);

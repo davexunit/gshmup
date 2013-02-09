@@ -5,25 +5,33 @@ SCM_VARIABLE_INIT (s_lives_per_credit, "lives-per-credit", scm_from_int (3));
 SCM_VARIABLE_INIT (s_num_credits, "num-credits", scm_from_int (3));
 SCM_VARIABLE_INIT (s_player_speed, "player-speed", scm_from_double (6));
 
-GshmupEntity *
+GshmupPlayer *
 gshmup_create_player (GshmupAnimation *anim)
 {
-    GshmupEntity *entity = gshmup_create_entity ();
+    GshmupPlayer *player = (GshmupPlayer *) scm_gc_malloc (sizeof (GshmupPlayer),
+                                                           "player");
 
-    entity->type = GSHMUP_ENTITY_PLAYER;
-    entity->player.shooting = false;
-    entity->player.lives = scm_to_int (scm_variable_ref (s_lives_per_credit));
-    entity->player.credits = scm_to_int (scm_variable_ref (s_num_credits));
-    entity->player.speed = scm_to_double (scm_variable_ref (s_player_speed));
-    entity->player.score = 0;
-    gshmup_init_animated_sprite (&entity->player.sprite, anim);
+    player->position = gshmup_create_vector2 (0, 0);
+    player->agenda = gshmup_create_agenda ();
+    player->shooting = false;
+    player->lives = scm_to_int (scm_variable_ref (s_lives_per_credit));
+    player->credits = scm_to_int (scm_variable_ref (s_num_credits));
+    player->speed = scm_to_double (scm_variable_ref (s_player_speed));
+    player->score = 0;
+    gshmup_init_animated_sprite (&player->sprite, anim);
     gshmup_play_animation (anim);
 
     for (int i = 0; i < 4; ++i) {
-        entity->player.dir[i] = false;
+        player->dir[i] = false;
     }
 
-    return entity;
+    return player;
+}
+
+void
+gshmup_destroy_player (GshmupPlayer *player)
+{
+    scm_gc_free (player, sizeof (GshmupPlayer), "player");
 }
 
 void
@@ -50,6 +58,8 @@ gshmup_update_player (GshmupPlayer *player)
     v.x = gshmup_clamp (v.x, 0, GAME_WIDTH);
     v.y = gshmup_clamp (v.y, 0, GAME_HEIGHT);
     player->position = v;
+
+    gshmup_update_agenda (player->agenda);
 }
 
 void
