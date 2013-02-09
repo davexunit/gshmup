@@ -31,9 +31,6 @@ SCM_VARIABLE_INIT (s_init_hook, "shooter-init-hook",
                    scm_make_hook (scm_from_int (0)));
 SCM_VARIABLE_INIT (s_shoot_hook, "player-shoot-hook",
                    scm_make_hook (scm_from_int (0)));
-SCM_VARIABLE_INIT (s_player_lives, "player-lives", scm_from_int (3));
-SCM_VARIABLE_INIT (s_player_credits, "player-credits", scm_from_int (3));
-SCM_VARIABLE_INIT (s_player_speed, "player-speed", scm_from_double (6));
 static SCM agenda;
 
 static void
@@ -78,9 +75,6 @@ init_player (void)
 {
     GshmupEntity *entity = gshmup_create_player (player_anim);
 
-    entity->player.lives = scm_to_int (scm_variable_ref (s_player_lives));
-    entity->player.credits = scm_to_int (scm_variable_ref (s_player_credits));
-    entity->player.speed = scm_to_double (scm_variable_ref (s_player_speed));
     entity->player.position = gshmup_create_vector2 (GAME_WIDTH / 2, GAME_HEIGHT - 32);
     entity->player.hitbox = gshmup_create_rect (-1, -1, 3, 3);
     player = entity;
@@ -405,9 +399,6 @@ void gshmup_shooter_init_scm (void)
 
     scm_c_export ("shooter-init-hook",
                   "player-shoot-hook",
-                  "player-lives",
-                  "player-credits",
-                  "player-speed",
                   s_player_position,
                   s_player_shooting_p,
                   s_spawn_enemy,

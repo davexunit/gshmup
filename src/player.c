@@ -1,6 +1,9 @@
 #include "player.h"
 
 static GshmupPlayer *current_player = NULL;
+SCM_VARIABLE_INIT (s_lives_per_credit, "lives-per-credit", scm_from_int (3));
+SCM_VARIABLE_INIT (s_num_credits, "num-credits", scm_from_int (3));
+SCM_VARIABLE_INIT (s_player_speed, "player-speed", scm_from_double (6));
 
 GshmupEntity *
 gshmup_create_player (GshmupAnimation *anim)
@@ -9,9 +12,9 @@ gshmup_create_player (GshmupAnimation *anim)
 
     entity->type = GSHMUP_ENTITY_PLAYER;
     entity->player.shooting = false;
-    entity->player.speed = 0;
-    entity->player.lives = 0;
-    entity->player.credits = 0;
+    entity->player.lives = scm_to_int (scm_variable_ref (s_lives_per_credit));
+    entity->player.credits = scm_to_int (scm_variable_ref (s_num_credits));
+    entity->player.speed = scm_to_double (scm_variable_ref (s_player_speed));
     entity->player.score = 0;
     gshmup_init_animated_sprite (&entity->player.sprite, anim);
     gshmup_play_animation (anim);
@@ -59,4 +62,15 @@ void
 gshmup_set_current_player (GshmupPlayer *player)
 {
     current_player = player;
+}
+
+void
+gshmup_player_init_scm (void)
+{
+#include "player.x"
+
+    scm_c_export ("lives-per-credit",
+                  "num-credits",
+                  "player-speed",
+                  NULL);
 }
