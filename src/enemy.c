@@ -105,31 +105,11 @@ SCM_DEFINE (damage_enemy, "damage-enemy", 1, 0, 0,
     return SCM_UNSPECIFIED;
 }
 
-SCM_DEFINE (enemy_position, "enemy-position", 0, 0, 0,
-            (void),
-            "Return the position of the current enemy.")
-{
-    return gshmup_scm_from_vector2 (current_enemy->entity.position);
-}
-
-SCM_DEFINE (move_enemy, "move-enemy", 1, 0, 0,
-            (SCM v),
-            "Add @var{v} to the currrent enemy's position.")
-{
-    current_enemy->entity.position =
-        gshmup_vector2_add (current_enemy->entity.position,
-                            gshmup_scm_to_vector2 (v));
-
-    return SCM_UNSPECIFIED;
-}
-
 void
 gshmup_enemy_init_scm (void)
 {
 #include "enemy.x"
 
     scm_c_export (s_damage_enemy,
-                  s_enemy_position,
-                  s_move_enemy,
                   NULL);
 }
