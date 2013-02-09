@@ -16,7 +16,7 @@
 #define SCREEN_HEIGHT 640
 
 /*
- * Keyboard control keys.
+ * Controls.
  */
 enum {
     GSHMUP_KEY_UP,
