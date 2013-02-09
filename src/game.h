@@ -2,7 +2,6 @@
 #define GSHMUP_GAME_H
 
 #include "common.h"
-#include "rect.h"
 #include "scene.h"
 
 #define GAME_TITLE "GSHMUP"

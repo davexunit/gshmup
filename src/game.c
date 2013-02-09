@@ -1,4 +1,5 @@
 #include "game.h"
+#include "rect.h"
 #include <time.h>
 
 static ALLEGRO_DISPLAY *display = NULL;
