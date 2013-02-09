@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include "sprite.h"
+#include "rect.h"
 #include "game.h"
 
 enum {
