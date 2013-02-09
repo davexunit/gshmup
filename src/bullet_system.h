@@ -5,7 +5,6 @@
 #include "game.h"
 #include "rect.h"
 #include "sprite.h"
-#include "entity_pool.h"
 
 /* Blending modes */
 enum {

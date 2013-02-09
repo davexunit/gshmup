@@ -1,6 +1,7 @@
 #include "shooter.h"
 #include "game.h"
 #include "player.h"
+#include "enemy.h"
 #include "bullet_system.h"
 #include "background.h"
 
