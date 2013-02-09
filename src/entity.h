@@ -13,7 +13,6 @@
 
 typedef enum {
     GSHMUP_ENTITY_ANY,
-    GSHMUP_ENTITY_ENEMY,
 } GshmupEntityType;
 
 typedef union GshmupEntity GshmupEntity;
@@ -36,7 +35,6 @@ union GshmupEntity {
     struct {
         _GSHMUP_ENTITY_HEADER
     } base;
-    GshmupEnemy enemy;
 };
 
 GshmupEntity *gshmup_create_entity (void);
@@ -48,8 +46,5 @@ void gshmup_entity_schedule (GshmupEntity *entity, int dt, SCM thunk);
 void gshmup_kill_entity (GshmupEntity *entity);
 void gshmup_entity_clear_agenda (GshmupEntity *entity);
 void gshmup_entity_init_scm (void);
-
-/* Type cast macros. */
-#define GSHMUP_ENEMY(entity) (&entity->enemy)
 
 #endif

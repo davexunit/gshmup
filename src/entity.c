@@ -41,9 +41,6 @@ void
 gshmup_draw_entity (GshmupEntity *entity)
 {
     switch (entity->type) {
-    case GSHMUP_ENTITY_ENEMY:
-        gshmup_draw_enemy (GSHMUP_ENEMY (entity));
-        break;
     default:
         break;
     }
@@ -53,9 +50,6 @@ void
 gshmup_update_entity (GshmupEntity *entity)
 {
     switch (entity->type) {
-    case GSHMUP_ENTITY_ENEMY:
-        gshmup_update_enemy (GSHMUP_ENEMY (entity));
-        break;
     default:
         break;
     }
