@@ -75,8 +75,9 @@ static void
 init_player (void)
 {
     player = gshmup_create_player (player_anim);
-    player->position = gshmup_create_vector2 (GAME_WIDTH / 2, GAME_HEIGHT - 32);
-    player->hitbox = gshmup_create_rect (-1, -1, 3, 3);
+    player->entity.position = gshmup_create_vector2 (GAME_WIDTH / 2,
+                                                     GAME_HEIGHT - 32);
+    player->entity.hitbox = gshmup_create_rect (-1, -1, 3, 3);
 }
 
 static void
@@ -183,7 +184,8 @@ draw_hud (void)
 static void
 draw_player_hitbox (void)
 {
-    gshmup_draw_rect (gshmup_rect_move (player->hitbox, player->position),
+    gshmup_draw_rect (gshmup_rect_move (player->entity.hitbox,
+                                        player->entity.position),
                       hitbox_fill_color, hitbox_border_color);
 }
 
@@ -214,7 +216,8 @@ check_enemy_collisions (void)
     GshmupEnemy *enemy = enemies;
 
     while (enemy) {
-        GshmupRect hitbox = gshmup_rect_move (enemy->hitbox, enemy->position);
+        GshmupRect hitbox = gshmup_rect_move (enemy->entity.hitbox,
+                                              enemy->entity.position);
 
         gshmup_set_current_enemy (enemy);
         gshmup_bullet_system_collide_rect (player_bullets, hitbox);
@@ -225,7 +228,8 @@ check_enemy_collisions (void)
 static void
 check_player_collisions (void)
 {
-    GshmupRect hitbox = gshmup_rect_move (player->hitbox, player->position);
+    GshmupRect hitbox = gshmup_rect_move (player->entity.hitbox,
+                                          player->entity.position);
 
     gshmup_bullet_system_collide_rect (enemy_bullets, hitbox);
 }
@@ -253,7 +257,7 @@ player_shoot (void)
     if (!player->shooting) {
         player->shooting = true;
         gshmup_set_current_bullet_system (player_bullets);
-        gshmup_set_current_agenda (player->agenda);
+        gshmup_set_current_agenda (player->entity.agenda);
         scm_run_hook (scm_variable_ref (s_shoot_hook), scm_list_n (SCM_UNDEFINED));
     }
 }
@@ -262,7 +266,7 @@ static void
 player_stop_shoot (void)
 {
     player->shooting = false;
-    gshmup_clear_agenda (player->agenda);
+    gshmup_clear_agenda (player->entity.agenda);
 }
 
 static void
@@ -328,7 +332,7 @@ SCM_DEFINE (player_position, "player-position", 0, 0, 0,
             (void),
             "Return player position vector.")
 {
-    return gshmup_scm_from_vector2 (player->position);
+    return gshmup_scm_from_vector2 (player->entity.position);
 }
 
 SCM_DEFINE (player_shooting_p, "player-shooting?", 0, 0, 0,
@@ -344,13 +348,13 @@ SCM_DEFINE (spawn_enemy, "spawn-enemy", 4, 0, 0,
 {
     GshmupEnemy *enemy = gshmup_create_enemy (enemy_anim, scm_to_int (max_health));
 
-    enemy->position = gshmup_scm_to_vector2 (pos);
-    enemy->hitbox = gshmup_scm_to_rect (hitbox);
+    enemy->entity.position = gshmup_scm_to_vector2 (pos);
+    enemy->entity.hitbox = gshmup_scm_to_rect (hitbox);
     enemy->next = enemies;
     enemies = enemy;
 
     if (scm_is_true (scm_procedure_p (thunk))) {
-        gshmup_schedule (enemy->agenda, 0, thunk);
+        gshmup_schedule (enemy->entity.agenda, 0, thunk);
     }
 
     return SCM_UNSPECIFIED;
