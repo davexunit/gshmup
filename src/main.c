@@ -3,6 +3,9 @@
 #include "game.h"
 #include "shooter.h"
 #include "player.h"
+#include "enemy.h"
+#include "bullet_system.h"
+#include "entity.h"
 
 SCM_DEFINE (gshmup_s_start, "gshmup-start", 0, 0, 0,
             (void),

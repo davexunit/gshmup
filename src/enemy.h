@@ -5,6 +5,7 @@
 
 #include "common.h"
 #include "sprite.h"
+#include "rect.h"
 
 typedef struct {
     _GSHMUP_ENTITY_HEADER

@@ -1,9 +1,8 @@
-#include "entity.h"
-
 #ifndef GSHMUP_BULLET_SYSTEM_H
 #define GSHMUP_BULLET_SYSTEM_H
 
 #include "common.h"
+#include "game.h"
 #include "rect.h"
 #include "sprite.h"
 #include "entity_pool.h"
