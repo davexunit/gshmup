@@ -7,17 +7,26 @@
 #include "sprite.h"
 #include "rect.h"
 
-typedef struct {
-    _GSHMUP_ENTITY_HEADER
+typedef struct GshmupEnemy GshmupEnemy;
+
+struct GshmupEnemy{
+    SCM agenda;
+    bool kill;
+    GshmupVector2 position;
     GshmupSprite sprite;
     int max_health;
     int health;
     GshmupRect hitbox;
-} GshmupEnemy;
+    GshmupEnemy *next;
+};
 
-void gshmup_init_enemy (GshmupEntity *entity, GshmupAnimation *anim, int max_health);
+GshmupEnemy *gshmup_create_enemy (GshmupAnimation *anim, int max_health);
+void gshmup_destroy_enemy (GshmupEnemy *enemy);
+void gshmup_destroy_enemies (GshmupEnemy *enemy);
 void gshmup_draw_enemy (GshmupEnemy *enemy);
+void gshmup_draw_enemies (GshmupEnemy *enemy);
 void gshmup_update_enemy (GshmupEnemy *enemy);
+GshmupEnemy *gshmup_update_enemies (GshmupEnemy *enemy);
 void gshmup_set_current_enemy (GshmupEnemy *enemy);
 void gshmup_enemy_init_scm (void);
 
