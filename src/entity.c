@@ -1,7 +1,6 @@
 #include "entity.h"
-#include "game.h"
 
-static GshmupEntity *current_entity = NULL;
+/* static GshmupEntity *current_entity = NULL; */
 
 void
 gshmup_entity_init_scm (void)
