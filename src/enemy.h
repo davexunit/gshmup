@@ -4,19 +4,17 @@
 #define GSHMUP_ENEMY_H
 
 #include "common.h"
+#include "entity.h"
 #include "sprite.h"
 #include "rect.h"
 
 typedef struct GshmupEnemy GshmupEnemy;
 
 struct GshmupEnemy{
-    SCM agenda;
+    GshmupEntity entity;
     bool kill;
-    GshmupVector2 position;
-    GshmupSprite sprite;
     int max_health;
     int health;
-    GshmupRect hitbox;
     GshmupEnemy *next;
 };
 
