@@ -19,6 +19,8 @@
 - [X] Remove bullets that collide with something.
 - [X] Use a callback to handle damaging enemies and killing the player.
 ** DONE Animated sprites
+- [X] Add Animation type
+- [X] Add Animation member variable to Sprite
 ** TODO Splash screen
 The intro screen with game logo that tells you to 'Press Any Key' or something.
 
@@ -26,10 +28,11 @@ The intro screen with game logo that tells you to 'Press Any Key' or something.
 - [ ] Add config option for background image
 - [ ] Add config option for title image
 ** TODO Main menu screen
+To be tasked later...
 ** TODO Asset customization
 - [ ] Allow the user to specify what assets (art, music, etc.) to load
 ** TODO Port agenda to C?
-Could reduce GC runs.
+   Could reduce GC runs.
 ** DONE Configuration variables
 SCM_VARIABLE in C, set! them in init.scm.
 
@@ -66,8 +69,45 @@ A good domain specific language will allow for very elegant game scripts to be w
   - [ ] tileset
   - [ ] animation
   - [ ] script
-
 ** TODO Remove Entity union
-I don't think there is good reason to have Player, Enemy, etc. all in a union.
-If anything, each of these structs should have an Entity member instead for
-common data.
+I don't think there is good reason to have Player, Enemy, etc. all in
+a union. If anything, each of these structs should have an Entity
+member instead for common data.
+
+- [ ] Create new Entity type with the following member variables
+  - name
+  - position
+  - tileset
+  - animation
+  - sprite
+- [ ] Refactor Player and Enemy so that they have an Entity member
+- [ ] BulletSystem is not an Entity, silly
+** TODO Add ParticleSystem type
+Useful for cool effects like explosions and whatnot.
+
+** TODO Add Items
+Items are basically particles that execute a script when the player
+touches them.
+
+- [ ] Add Item type
+  - name
+  - tileset
+  - animation
+  - script
+- [ ] Add ItemSystem
+  - Use GArray to store items efficiently
+
+** TODO Refactor ParticleSystem, BulletSystem, and ItemSystem
+All of these systems behave differently, but there's some common logic
+and data that can be extracted, hopefully.
+
+- [ ] DRY up common logic and data.
+
+** TODO Add Stages
+Stages encapsulate a game level.
+
+- [ ] Create Stage type.
+  - title
+  - description
+  - map
+  - script
