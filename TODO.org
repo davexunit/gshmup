@@ -24,3 +24,4 @@
 ** TODO Main menu screen
 ** TODO Asset customization
    Allow the user to specify what assets (art, music, etc.) to load from Guile.
+** TODO Port agenda to C?
