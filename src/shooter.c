@@ -23,7 +23,7 @@ static GshmupAnimation *player_anim = NULL;
 static GshmupAnimation *enemy_anim = NULL;
 static GshmupBulletSystem *player_bullets = NULL;
 static GshmupPlayer *player = NULL;
-static GshmupEntityPool *enemies = NULL;
+static GshmupEnemy *enemies = NULL;
 static GshmupBulletSystem *enemy_bullets = NULL;
 static GshmupBackground background;
 static GshmupBackground fog;
@@ -103,12 +103,6 @@ init_enemy_bullets (void)
 }
 
 static void
-init_enemies (void)
-{
-    enemies = gshmup_create_entity_pool (20);
-}
-
-static void
 init_background (void)
 {
     gshmup_init_background (&background, background_image, 1);
@@ -125,7 +119,6 @@ shooter_init (void)
     init_animations ();
     init_player ();
     init_player_bullets ();
-    init_enemies ();
     init_enemy_bullets ();
     init_background ();
     agenda = gshmup_create_agenda ();
@@ -141,7 +134,7 @@ shooter_destroy (void)
     al_destroy_font (font);
     gshmup_destroy_player (player);
     gshmup_destroy_bullet_system (player_bullets);
-    gshmup_destroy_entity_pool (enemies);
+    gshmup_destroy_enemies (enemies);
     gshmup_destroy_bullet_system (enemy_bullets);
     gshmup_destroy_animation (player_anim);
 }
@@ -201,7 +194,7 @@ shooter_draw (void)
     gshmup_draw_bullet_system (player_bullets);
     gshmup_draw_player (player);
     gshmup_draw_bullet_system (enemy_bullets);
-    gshmup_draw_entity_pool (enemies);
+    gshmup_draw_enemies (enemies);
 
     if (gshmup_debug_mode ()) {
         draw_player_hitbox ();
@@ -217,15 +210,14 @@ shooter_draw (void)
 static void
 check_enemy_collisions (void)
 {
-    GshmupEntity *entity = enemies->active_entities;
+    GshmupEnemy *enemy = enemies;
 
-    while (entity) {
-        GshmupEnemy *enemy = GSHMUP_ENEMY (entity);
+    while (enemy) {
         GshmupRect hitbox = gshmup_rect_move (enemy->hitbox, enemy->position);
 
         gshmup_set_current_enemy (enemy);
         gshmup_bullet_system_collide_rect (player_bullets, hitbox);
-        entity = enemy->next;
+        enemy = enemy->next;
     }
 }
 
@@ -248,7 +240,7 @@ shooter_update (void)
     gshmup_update_player (player);
     gshmup_update_bullet_system (player_bullets);
     gshmup_set_current_bullet_system (enemy_bullets);
-    gshmup_update_entity_pool (enemies);
+    enemies = gshmup_update_enemies (enemies);
     gshmup_update_bullet_system (enemy_bullets);
     check_enemy_collisions ();
     check_player_collisions ();
@@ -349,14 +341,15 @@ SCM_DEFINE (spawn_enemy, "spawn-enemy", 4, 0, 0,
             (SCM pos, SCM max_health, SCM hitbox, SCM thunk),
             "Spawn an enemy and run the AI procedure @var{thunk}.")
 {
-    GshmupEntity *entity = gshmup_entity_pool_new (enemies);
+    GshmupEnemy *enemy = gshmup_create_enemy (enemy_anim, scm_to_int (max_health));
 
-    gshmup_init_enemy (entity, enemy_anim, scm_to_int (max_health));
-    entity->enemy.position = gshmup_scm_to_vector2 (pos);
-    entity->enemy.hitbox = gshmup_scm_to_rect (hitbox);
+    enemy->position = gshmup_scm_to_vector2 (pos);
+    enemy->hitbox = gshmup_scm_to_rect (hitbox);
+    enemy->next = enemies;
+    enemies = enemy;
 
     if (scm_is_true (scm_procedure_p (thunk))) {
-        gshmup_entity_schedule (entity, 0, thunk);
+        gshmup_schedule (enemy->agenda, 0, thunk);
     }
 
     return SCM_UNSPECIFIED;
@@ -366,7 +359,7 @@ SCM_DEFINE (clear_enemies, "clear-enemies", 0, 0, 0,
             (void),
             "Remove all enemies from the game.")
 {
-    gshmup_clear_entity_pool (enemies);
+    gshmup_destroy_enemies (enemies);
 
     return SCM_UNSPECIFIED;
 }
