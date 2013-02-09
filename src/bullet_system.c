@@ -25,18 +25,18 @@ scm_to_blend_mode (SCM blend_mode)
     return mode;
 }
 
-static void
-set_blend_mode (int blend_mode)
-{
-    switch (blend_mode) {
-    case GSHMUP_BULLET_BLEND_ALPHA:
-        al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
-        break;
-    case GSHMUP_BULLET_BLEND_ADD:
-        al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_ONE);
-        break;
-    }
-}
+/* static void */
+/* set_blend_mode (int blend_mode) */
+/* { */
+/*     switch (blend_mode) { */
+/*     case GSHMUP_BULLET_BLEND_ALPHA: */
+/*         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA); */
+/*         break; */
+/*     case GSHMUP_BULLET_BLEND_ADD: */
+/*         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_ONE); */
+/*         break; */
+/*     } */
+/* } */
 
 GshmupBulletType *
 check_bullet_type (SCM bullet_type)
