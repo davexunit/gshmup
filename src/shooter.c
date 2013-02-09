@@ -22,7 +22,7 @@ static GshmupSpriteSheet *enemy_sprites = NULL;
 static GshmupAnimation *player_anim = NULL;
 static GshmupAnimation *enemy_anim = NULL;
 static GshmupBulletSystem *player_bullets = NULL;
-static GshmupEntity *player = NULL;
+static GshmupPlayer *player = NULL;
 static GshmupEntityPool *enemies = NULL;
 static GshmupBulletSystem *enemy_bullets = NULL;
 static GshmupBackground background;
@@ -73,11 +73,9 @@ init_animations (void)
 static void
 init_player (void)
 {
-    GshmupEntity *entity = gshmup_create_player (player_anim);
-
-    entity->player.position = gshmup_create_vector2 (GAME_WIDTH / 2, GAME_HEIGHT - 32);
-    entity->player.hitbox = gshmup_create_rect (-1, -1, 3, 3);
-    player = entity;
+    player = gshmup_create_player (player_anim);
+    player->position = gshmup_create_vector2 (GAME_WIDTH / 2, GAME_HEIGHT - 32);
+    player->hitbox = gshmup_create_rect (-1, -1, 3, 3);
 }
 
 static void
@@ -141,7 +139,7 @@ shooter_destroy (void)
     al_destroy_bitmap (player_image);
     al_destroy_bitmap (font_image);
     al_destroy_font (font);
-    gshmup_destroy_entity (player);
+    gshmup_destroy_player (player);
     gshmup_destroy_bullet_system (player_bullets);
     gshmup_destroy_entity_pool (enemies);
     gshmup_destroy_bullet_system (enemy_bullets);
@@ -166,19 +164,17 @@ draw_bullet_system_stats (GshmupBulletSystem *bullets, const char *name,
 static void
 draw_hud (void)
 {
-    GshmupPlayer *p = GSHMUP_PLAYER (player);
-
     al_draw_text (font, text_color, text_margin, text_margin, 0, "Credits");
     al_draw_textf (font, text_color, text_margin, text_margin + text_space, 0,
-                   "%d", p->credits);
+                   "%d", player->credits);
     al_draw_text (font, text_color, GAME_WIDTH / 2, text_margin, ALLEGRO_ALIGN_CENTRE,
                   "Lives");
     al_draw_textf (font, text_color, GAME_WIDTH / 2, text_margin + text_space,
-                   ALLEGRO_ALIGN_CENTRE, "%d", p->lives);
+                   ALLEGRO_ALIGN_CENTRE, "%d", player->lives);
     al_draw_text (font, text_color, GAME_WIDTH - text_margin, text_margin,
                   ALLEGRO_ALIGN_RIGHT, "Score");
     al_draw_textf (font, text_color, GAME_WIDTH - text_margin, text_margin + text_space,
-                   ALLEGRO_ALIGN_RIGHT, "%09d", p->score);
+                   ALLEGRO_ALIGN_RIGHT, "%09d", player->score);
     al_draw_textf (font, text_color, GAME_WIDTH - text_margin,
                    GAME_HEIGHT - 12 - text_margin,
                    ALLEGRO_ALIGN_RIGHT, "FPS  %02d", gshmup_get_fps ());
@@ -193,9 +189,7 @@ draw_hud (void)
 static void
 draw_player_hitbox (void)
 {
-    GshmupPlayer *p = GSHMUP_PLAYER (player);
-
-    gshmup_draw_rect (gshmup_rect_move (p->hitbox, p->position),
+    gshmup_draw_rect (gshmup_rect_move (player->hitbox, player->position),
                       hitbox_fill_color, hitbox_border_color);
 }
 
@@ -205,7 +199,7 @@ shooter_draw (void)
     gshmup_draw_background (&background);
     gshmup_draw_background (&fog);
     gshmup_draw_bullet_system (player_bullets);
-    gshmup_draw_entity (player);
+    gshmup_draw_player (player);
     gshmup_draw_bullet_system (enemy_bullets);
     gshmup_draw_entity_pool (enemies);
 
@@ -238,8 +232,7 @@ check_enemy_collisions (void)
 static void
 check_player_collisions (void)
 {
-    GshmupPlayer *p = GSHMUP_PLAYER (player);
-    GshmupRect hitbox = gshmup_rect_move (p->hitbox, p->position);
+    GshmupRect hitbox = gshmup_rect_move (player->hitbox, player->position);
 
     gshmup_bullet_system_collide_rect (enemy_bullets, hitbox);
 }
@@ -252,7 +245,7 @@ shooter_update (void)
     gshmup_update_background (&background);
     gshmup_update_background (&fog);
     gshmup_set_current_bullet_system (player_bullets);
-    gshmup_update_entity (player);
+    gshmup_update_player (player);
     gshmup_update_bullet_system (player_bullets);
     gshmup_set_current_bullet_system (enemy_bullets);
     gshmup_update_entity_pool (enemies);
@@ -264,12 +257,10 @@ shooter_update (void)
 static void
 player_shoot (void)
 {
-    GshmupPlayer *p = GSHMUP_PLAYER (player);
-
-    if (!p->shooting) {
-        p->shooting = true;
+    if (!player->shooting) {
+        player->shooting = true;
         gshmup_set_current_bullet_system (player_bullets);
-        gshmup_set_current_agenda (p->agenda);
+        gshmup_set_current_agenda (player->agenda);
         scm_run_hook (scm_variable_ref (s_shoot_hook), scm_list_n (SCM_UNDEFINED));
     }
 }
@@ -277,27 +268,25 @@ player_shoot (void)
 static void
 player_stop_shoot (void)
 {
-    GSHMUP_PLAYER (player)->shooting = false;
-    gshmup_entity_clear_agenda (player);
+    player->shooting = false;
+    gshmup_clear_agenda (player->agenda);
 }
 
 static void
 shooter_key_down (int keycode)
 {
-    GshmupPlayer *p = GSHMUP_PLAYER (player);
-
     switch (keycode) {
     case GSHMUP_KEY_UP:
-        gshmup_player_set_direction (p, GSHMUP_PLAYER_UP, true);
+        gshmup_player_set_direction (player, GSHMUP_PLAYER_UP, true);
         break;
     case GSHMUP_KEY_DOWN:
-        gshmup_player_set_direction (p, GSHMUP_PLAYER_DOWN, true);
+        gshmup_player_set_direction (player, GSHMUP_PLAYER_DOWN, true);
         break;
     case GSHMUP_KEY_LEFT:
-        gshmup_player_set_direction (p, GSHMUP_PLAYER_LEFT, true);
+        gshmup_player_set_direction (player, GSHMUP_PLAYER_LEFT, true);
         break;
     case GSHMUP_KEY_RIGHT:
-        gshmup_player_set_direction (p, GSHMUP_PLAYER_RIGHT, true);
+        gshmup_player_set_direction (player, GSHMUP_PLAYER_RIGHT, true);
         break;
     case GSHMUP_KEY_SHOOT:
         player_shoot ();
@@ -308,20 +297,18 @@ shooter_key_down (int keycode)
 static void
 shooter_key_up (int keycode)
 {
-    GshmupPlayer *p = GSHMUP_PLAYER (player);
-
     switch (keycode) {
     case GSHMUP_KEY_UP:
-        gshmup_player_set_direction (p, GSHMUP_PLAYER_UP, false);
+        gshmup_player_set_direction (player, GSHMUP_PLAYER_UP, false);
         break;
     case GSHMUP_KEY_DOWN:
-        gshmup_player_set_direction (p, GSHMUP_PLAYER_DOWN, false);
+        gshmup_player_set_direction (player, GSHMUP_PLAYER_DOWN, false);
         break;
     case GSHMUP_KEY_LEFT:
-        gshmup_player_set_direction (p, GSHMUP_PLAYER_LEFT, false);
+        gshmup_player_set_direction (player, GSHMUP_PLAYER_LEFT, false);
         break;
     case GSHMUP_KEY_RIGHT:
-        gshmup_player_set_direction (p, GSHMUP_PLAYER_RIGHT, false);
+        gshmup_player_set_direction (player, GSHMUP_PLAYER_RIGHT, false);
         break;
     case GSHMUP_KEY_SHOOT:
         player_stop_shoot ();
@@ -348,14 +335,14 @@ SCM_DEFINE (player_position, "player-position", 0, 0, 0,
             (void),
             "Return player position vector.")
 {
-    return gshmup_scm_from_vector2 (GSHMUP_PLAYER (player)->position);
+    return gshmup_scm_from_vector2 (player->position);
 }
 
 SCM_DEFINE (player_shooting_p, "player-shooting?", 0, 0, 0,
             (void),
             "Return @code{#t} if the player is currently shooting.")
 {
-    return scm_from_bool (GSHMUP_PLAYER (player)->shooting);
+    return scm_from_bool (player->shooting);
 }
 
 SCM_DEFINE (spawn_enemy, "spawn-enemy", 4, 0, 0,
@@ -388,7 +375,7 @@ SCM_DEFINE (kill_player, "kill-player", 0, 0, 0,
             (void),
             "Decrement player life counter. Game over if there are no lives left.")
 {
-    player->player.lives--;
+    player->lives--;
 
     return SCM_UNSPECIFIED;
 }
