@@ -4,7 +4,7 @@
 #include "common.h"
 #include "sprite.h"
 #include "rect.h"
-#include "game.h"
+#include "entity.h"
 
 enum {
     GSHMUP_PLAYER_UP,
@@ -14,16 +14,13 @@ enum {
 };
 
 typedef struct {
-    SCM agenda;
-    GshmupVector2 position;
-    GshmupSprite sprite;
+    GshmupEntity entity;
     bool shooting;
     bool dir[4]; /* 4 directional movement. */
     float speed;
     int lives;
     int credits;
     int score;
-    GshmupRect hitbox;
 } GshmupPlayer;
 
 GshmupPlayer *gshmup_create_player (GshmupAnimation *anim);
