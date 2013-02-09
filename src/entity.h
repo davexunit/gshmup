@@ -1,6 +1,8 @@
 #ifndef GSHMUP_ENTITY_H
 #define GSHMUP_ENTITY_H
 
+#include "common.h"
+
 /*
  * Entities represent the objects in the game such as the player,
  * enemy, and bullets.
@@ -11,7 +13,6 @@
 
 typedef enum {
     GSHMUP_ENTITY_ANY,
-    GSHMUP_ENTITY_PLAYER,
     GSHMUP_ENTITY_ENEMY,
 } GshmupEntityType;
 
@@ -24,7 +25,6 @@ typedef union GshmupEntity GshmupEntity;
     GshmupVector2 position; \
     GshmupEntity *next;
 
-#include "player.h"
 #include "enemy.h"
 
 union GshmupEntity {
@@ -36,7 +36,6 @@ union GshmupEntity {
     struct {
         _GSHMUP_ENTITY_HEADER
     } base;
-    GshmupPlayer player;
     GshmupEnemy enemy;
 };
 
@@ -51,7 +50,6 @@ void gshmup_entity_clear_agenda (GshmupEntity *entity);
 void gshmup_entity_init_scm (void);
 
 /* Type cast macros. */
-#define GSHMUP_PLAYER(entity) (&entity->player)
 #define GSHMUP_ENEMY(entity) (&entity->enemy)
 
 #endif
