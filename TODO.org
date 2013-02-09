@@ -111,3 +111,8 @@ Stages encapsulate a game level.
   - description
   - map
   - script
+
+** TODO Add prototype system
+We want to specify the recipe for making a particular type of enemy,
+ and then stamp out clones of it. There needs to be some system of
+registering a prototype and asking for a clone to be made.
