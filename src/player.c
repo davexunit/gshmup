@@ -11,8 +11,7 @@ gshmup_create_player (GshmupAnimation *anim)
     GshmupPlayer *player = (GshmupPlayer *) scm_gc_malloc (sizeof (GshmupPlayer),
                                                            "player");
 
-    player->entity.position = gshmup_create_vector2 (0, 0);
-    player->entity.agenda = gshmup_create_agenda ();
+    player->entity = gshmup_create_entity ("Player");
     player->shooting = false;
     player->lives = scm_to_int (scm_variable_ref (s_lives_per_credit));
     player->credits = scm_to_int (scm_variable_ref (s_num_credits));
@@ -37,8 +36,7 @@ gshmup_destroy_player (GshmupPlayer *player)
 void
 gshmup_draw_player (GshmupPlayer *player)
 {
-    player->entity.sprite.position = player->entity.position;
-    gshmup_draw_sprite (&player->entity.sprite);
+    gshmup_draw_entity (&player->entity);
 }
 
 void
@@ -46,7 +44,6 @@ gshmup_update_player (GshmupPlayer *player)
 {
     GshmupVector2 v;
 
-    gshmup_update_animation (player->entity.sprite.anim);
     /* Transform movement flags into a direction vector. */
     v.x = player->dir[GSHMUP_PLAYER_RIGHT] - player->dir[GSHMUP_PLAYER_LEFT];
     v.y = player->dir[GSHMUP_PLAYER_DOWN] - player->dir[GSHMUP_PLAYER_UP];
@@ -59,7 +56,7 @@ gshmup_update_player (GshmupPlayer *player)
     v.y = gshmup_clamp (v.y, 0, GAME_HEIGHT);
     player->entity.position = v;
 
-    gshmup_update_agenda (player->entity.agenda);
+    gshmup_update_entity (&player->entity);
 }
 
 void

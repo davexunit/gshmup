@@ -8,9 +8,7 @@ gshmup_create_enemy (GshmupAnimation *anim, int max_health)
     GshmupEnemy *enemy = (GshmupEnemy *) scm_gc_malloc (sizeof (GshmupEnemy),
                                                         "enemy");
 
-    enemy->entity.position = gshmup_create_vector2 (0, 0);
-    enemy->entity.agenda = gshmup_create_agenda ();
-    enemy->entity.hitbox = gshmup_create_rect (0, 0, 0, 0);
+    enemy->entity = gshmup_create_entity ("Enemy");
     enemy->max_health = max_health;
     enemy->health = max_health;
     enemy->kill = false;
@@ -41,8 +39,7 @@ gshmup_destroy_enemies (GshmupEnemy *enemy)
 void
 gshmup_draw_enemy (GshmupEnemy *enemy)
 {
-    enemy->entity.sprite.position = enemy->entity.position;
-    gshmup_draw_sprite (&enemy->entity.sprite);
+    gshmup_draw_entity (&enemy->entity);
 }
 
 void
@@ -58,8 +55,7 @@ void
 gshmup_update_enemy (GshmupEnemy *enemy)
 {
     current_enemy = enemy;
-    gshmup_update_animation (enemy->entity.sprite.anim);
-    gshmup_update_agenda (enemy->entity.agenda);
+    gshmup_update_entity (&enemy->entity);
 }
 
 GshmupEnemy *
