@@ -56,7 +56,7 @@
   (test-pattern 5)
   (test-pattern -5)
   (move-in)
-  (kill-entity))
+  (kill-enemy))
 
 (define (test-pattern step)
   (let ((n 8)

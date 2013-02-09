@@ -105,11 +105,21 @@ SCM_DEFINE (damage_enemy, "damage-enemy", 1, 0, 0,
     return SCM_UNSPECIFIED;
 }
 
+SCM_DEFINE (kill_enemy, "kill-enemy", 0, 0, 0,
+            (void),
+            "Sets enemy's kill flag.")
+{
+    current_enemy->kill = true;
+
+    return SCM_UNSPECIFIED;
+}
+
 void
 gshmup_enemy_init_scm (void)
 {
 #include "enemy.x"
 
     scm_c_export (s_damage_enemy,
+                  s_kill_enemy,
                   NULL);
 }
