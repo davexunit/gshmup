@@ -46,9 +46,6 @@ gshmup_draw_entity (GshmupEntity *entity)
     case GSHMUP_ENTITY_ENEMY:
         gshmup_draw_enemy (GSHMUP_ENEMY (entity));
         break;
-    case GSHMUP_ENTITY_BULLET:
-        gshmup_draw_bullet (GSHMUP_BULLET (entity));
-        break;
     default:
         break;
     }
@@ -63,9 +60,6 @@ gshmup_update_entity (GshmupEntity *entity)
         break;
     case GSHMUP_ENTITY_ENEMY:
         gshmup_update_enemy (GSHMUP_ENEMY (entity));
-        break;
-    case GSHMUP_ENTITY_BULLET:
-        gshmup_update_bullet (GSHMUP_BULLET (entity));
         break;
     default:
         break;

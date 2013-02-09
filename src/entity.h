@@ -13,9 +13,6 @@ typedef enum {
     GSHMUP_ENTITY_ANY,
     GSHMUP_ENTITY_PLAYER,
     GSHMUP_ENTITY_ENEMY,
-    GSHMUP_ENTITY_ITEM,
-    GSHMUP_ENTITY_BULLET,
-    GSHMUP_ENTITY_PARTICLE,
 } GshmupEntityType;
 
 typedef union GshmupEntity GshmupEntity;
@@ -29,7 +26,6 @@ typedef union GshmupEntity GshmupEntity;
 
 #include "player.h"
 #include "enemy.h"
-#include "bullet_system.h"
 
 union GshmupEntity {
     GshmupEntityType type;
@@ -42,7 +38,6 @@ union GshmupEntity {
     } base;
     GshmupPlayer player;
     GshmupEnemy enemy;
-    GshmupBullet bullet;
 };
 
 GshmupEntity *gshmup_create_entity (void);
@@ -58,6 +53,5 @@ void gshmup_entity_init_scm (void);
 /* Type cast macros. */
 #define GSHMUP_PLAYER(entity) (&entity->player)
 #define GSHMUP_ENEMY(entity) (&entity->enemy)
-#define GSHMUP_BULLET(entity) (&entity->bullet)
 
 #endif
