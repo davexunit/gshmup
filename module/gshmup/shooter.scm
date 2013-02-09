@@ -65,14 +65,14 @@
                (a 0))
       (when (< i times)
         (repeat n (lambda (i)
-                    (emit-bullet (entity-position) 2 (+ a (* 360 (/ i n))) 'fire
+                    (emit-bullet (enemy-position) 2 (+ a (* 360 (/ i n))) 'fire
                                  test-bullet-script)))
         (wait 12)
         (fire (1+ i) (+ a step))))))
 
 (define (move-in)
   (repeat 128 (lambda (i)
-                (move-entity (make-vector2 0 1))
+                (move-enemy (make-vector2 0 1))
                 (wait 1))))
 
 (define-coroutine (test-bullet-script)
@@ -80,7 +80,7 @@
 
   (define (step angle)
     (set-bullet-direction (+ (bullet-direction) (* 8 (sin-deg angle))))
-    (wait 1)
+    (wait 2)
     (step (+ angle angle-step)))
 
   (step 0))
