@@ -134,6 +134,7 @@ gshmup_create_bullet_system (int reserved_size, GshmupSpriteSheet *sprite_sheet)
     system->sprite_sheet = sprite_sheet;
     system->bullets = g_array_sized_new (false, false, sizeof (GshmupBullet),
                                          reserved_size);
+    system->agendas = NULL;
     system->bounds = gshmup_create_rect (0, 0, 0, 0);
     system->len = 0;
 
@@ -174,6 +175,39 @@ gshmup_draw_bullet_system_hitboxes (GshmupBulletSystem *system,
     }
 }
 
+static void
+remove_agenda (GshmupBulletSystem *system, GshmupBullet *bullet)
+{
+    /*
+     * Removes the agenda from the agendas list.
+     *
+     * Right now it's just a shitty linear time search.
+     */
+    GshmupBulletAgenda *agenda = system->agendas;
+    GshmupBulletAgenda *prev = NULL;
+    GshmupBulletAgenda *next = NULL;
+
+    while (agenda) {
+        next = agenda->next;
+
+        /* DESTROY! */
+        if (agenda == bullet->agenda) {
+            scm_gc_free (agenda, sizeof (GshmupBulletAgenda), "bullet agenda");
+
+            if (prev) {
+                prev->next = next;
+            } else {
+                system->agendas = next;
+            }
+
+            return;
+        }
+
+        prev = agenda;
+        agenda = next;
+    }
+}
+
 void
 gshmup_update_bullet_system (GshmupBulletSystem *system)
 {
@@ -182,7 +216,12 @@ gshmup_update_bullet_system (GshmupBulletSystem *system)
 
         gshmup_update_bullet (bullet);
 
+        if (bullet->agenda) {
+            gshmup_update_agenda (bullet->agenda->agenda);
+        }
+
         if (bullet->kill) {
+            remove_agenda (system, bullet);
             g_array_remove_index_fast (system->bullets, i--);
         }
     }
@@ -202,6 +241,19 @@ gshmup_set_bullet_type (GshmupBullet *bullet, GshmupBulletType *type)
     bullet->on_hit = type->on_hit;
 }
 
+static void
+add_agenda (GshmupBulletSystem *system, GshmupBullet *bullet)
+{
+    GshmupBulletAgenda *bullet_agenda =
+        (GshmupBulletAgenda *) scm_gc_malloc (sizeof (GshmupBulletAgenda),
+                                              "bullet agenda");
+
+    bullet->agenda = bullet_agenda;
+    bullet_agenda->agenda = gshmup_create_agenda ();
+    bullet_agenda->next = system->agendas;
+    system->agendas = bullet_agenda;
+}
+
 void
 gshmup_emit_bullet (GshmupBulletSystem *system, GshmupVector2 position,
                     float speed, float direction, float acceleration,
@@ -218,12 +270,14 @@ gshmup_emit_bullet (GshmupBulletSystem *system, GshmupVector2 position,
     bullet.pos = position;
     bullet.life_count = 0;
     bullet.kill = false;
+    bullet.agenda = NULL;
     gshmup_set_bullet_type (&bullet, type);
     init_bullet_movement (&bullet, speed, direction,
                           acceleration, angular_velocity);
 
     if (scm_is_true (thunk) && scm_is_false (scm_eq_p (thunk, SCM_UNDEFINED))) {
-        /* gshmup_schedule (bullet.agenda, 0, thunk); */
+        add_agenda (system, &bullet);
+        gshmup_schedule (bullet.agenda->agenda, 0, thunk);
     }
 
     g_array_append_val (system->bullets, bullet);

@@ -25,8 +25,14 @@ typedef struct {
 
 typedef struct GshmupBulletAgenda GshmupBulletAgenda;
 
+/*
+ * List nodes that store an agenda for a bullet.
+ *
+ * This is necessary because we need to use scm_gc_malloc when we are storing
+ * SCM objects. The bullets array uses a glib array, which is great, but we
+ * can't store SCMs in there.
+ */
 struct GshmupBulletAgenda {
-    int bullet_id;
     SCM agenda;
     GshmupBulletAgenda *next;
 };
@@ -34,6 +40,7 @@ struct GshmupBulletAgenda {
 typedef struct {
     GshmupSpriteSheet *sprite_sheet;
     GArray *bullets;
+    GshmupBulletAgenda *agendas;
     GshmupRect bounds;
     int len;
 } GshmupBulletSystem;
@@ -52,6 +59,7 @@ typedef struct {
     ALLEGRO_TRANSFORM angular_velocity; /* Change in direction. */
     GshmupSprite sprite;
     ALLEGRO_COLOR color;
+    GshmupBulletAgenda *agenda;
     SCM on_hit;
 } GshmupBullet;
 
