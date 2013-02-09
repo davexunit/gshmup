@@ -84,8 +84,8 @@ member instead for common data.
   - agenda
   - hitbox
 - [X] Refactor Player and Enemy so that they have an Entity member
-- [ ] BulletSystem is not an Entity, silly
-- [ ] Remove duplicated logic with types that have an Entity member.
+- [X] BulletSystem is not an Entity, silly
+- [X] Remove duplicated logic with types that have an Entity member.
 ** TODO Add ParticleSystem type
 Useful for cool effects like explosions and whatnot.
 
