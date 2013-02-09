@@ -1,27 +1,74 @@
 * Things To Do
 ** TODO Implement all bullet properties
-- position
-- direction
-- velocity
-- accelleration
-- angular velocity
-- tile
-- hitbox
-- blend mode (alpha or additive)
-- directional (rotates with the bullet)
-- color
-- lifetime
-- scale
-- damage
-*** TODO setters/getters for all properties.
-*** TODO emit-bullet procedure that accepts all properties.
-** TODO Collision detection
-*** DONE Remove bullets that collide with something.
-*** DONE Use a callback to handle damaging enemies and killing the player.
-** TODO Improved keybinding system
-*** TODO Allow the user to bind any keyboard key to a Guile procedure.
+- [ ] position
+- [ ] direction
+- [ ] velocity
+- [ ] accelleration
+- [ ] angular velocity
+- [ ] tile
+- [ ] hitbox
+- [ ] blend mode (alpha or additive)
+- [ ] directional (rotates with the bullet)
+- [ ] color
+- [ ] lifetime
+- [ ] scale
+- [ ] damage
+- [ ] setters/getters for all properties.
+- [ ] emit-bullet procedure that accepts all properties.
+** DONE Collision detection
+- [X] Remove bullets that collide with something.
+- [X] Use a callback to handle damaging enemies and killing the player.
 ** DONE Animated sprites
+** TODO Splash screen
+The intro screen with game logo that tells you to 'Press Any Key' or something.
+
+- [ ] User sees an intro screen with background image, game title, and a prompt to press a key
+- [ ] Add config option for background image
+- [ ] Add config option for title image
 ** TODO Main menu screen
 ** TODO Asset customization
-   Allow the user to specify what assets (art, music, etc.) to load from Guile.
+- [ ] Allow the user to specify what assets (art, music, etc.) to load
 ** TODO Port agenda to C?
+Could reduce GC runs.
+** TODO Configuration variables
+SCM_VARIABLE in C, set! them in init.scm.
+
+- [ ] Make a config.c module that stores all SCM engine variables
+- [ ] debug-mode
+- [ ] lives-per-credit
+- [ ] initial-credits
+
+** TODO Create DSL
+A good domain specific language will allow for very elegant game scripts to be written.
+
+- [ ] define-stage
+  - [ ] name
+  - [ ] description
+  - [ ] map
+  - [ ] script
+- [ ] define-player
+  - [ ] name
+  - [ ] description
+  - [ ] hitbox
+  - [ ] speed
+  - [ ] tileset
+  - [ ] animations
+- [ ] define-enemy
+  - [ ] name
+  - [ ] description
+  - [ ] hitbox
+  - [ ] health
+  - [ ] points
+  - [ ] tileset
+  - [ ] animations
+  - [ ] script
+- [ ] define-item
+  - [ ] name
+  - [ ] tileset
+  - [ ] animation
+  - [ ] script
+
+** TODO Remove Entity union
+I don't think there is good reason to have Player, Enemy, etc. all in a union.
+If anything, each of these structs should have an Entity member instead for
+common data.
