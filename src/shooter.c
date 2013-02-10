@@ -4,6 +4,12 @@
 #include "enemy.h"
 #include "bullet_system.h"
 #include "background.h"
+#include "splash_screen.h"
+
+enum {
+    STATE_MAIN,
+    STATE_GAME_OVER
+};
 
 static const int text_margin = 4;
 static const int text_space = 12;
@@ -28,11 +34,18 @@ static GshmupEnemy *enemies = NULL;
 static GshmupBulletSystem *enemy_bullets = NULL;
 static GshmupBackground background;
 static GshmupBackground fog;
+static int state;
 SCM_VARIABLE_INIT (s_init_hook, "shooter-init-hook",
                    scm_make_hook (scm_from_int (0)));
 SCM_VARIABLE_INIT (s_shoot_hook, "player-shoot-hook",
                    scm_make_hook (scm_from_int (0)));
 static SCM agenda;
+
+static void
+game_over (void)
+{
+    state = STATE_GAME_OVER;
+}
 
 static void
 load_resources (void)
@@ -78,6 +91,8 @@ init_player (void)
     player->entity.position = gshmup_create_vector2 (GAME_WIDTH / 2,
                                                      GAME_HEIGHT - 32);
     player->entity.hitbox = gshmup_create_rect (-1, -1, 3, 3);
+    player->on_game_over = game_over;
+    gshmup_set_current_player (player);
 }
 
 static void
@@ -114,6 +129,7 @@ init_background (void)
 static void
 shooter_init (void)
 {
+    state = STATE_MAIN;
     text_color = al_map_rgba_f (1, 1, 1, 1);
     hitbox_fill_color = al_map_rgb_f (1, 1, 1);
     hitbox_border_color = al_map_rgb_f (0, 0, 0);
@@ -123,6 +139,7 @@ shooter_init (void)
     init_player_bullets ();
     init_enemy_bullets ();
     init_background ();
+    enemies = NULL;
     agenda = gshmup_create_agenda ();
     gshmup_set_current_agenda (agenda);
     scm_run_hook (scm_variable_ref (s_init_hook), scm_list_n (SCM_UNDEFINED));
@@ -190,7 +207,7 @@ draw_player_hitbox (void)
 }
 
 static void
-shooter_draw (void)
+draw_main (void)
 {
     gshmup_draw_background (&background);
     gshmup_draw_background (&fog);
@@ -208,6 +225,38 @@ shooter_draw (void)
     }
 
     draw_hud ();
+}
+
+static void
+draw_game_over_message ()
+{
+    al_draw_text (font, text_color, GAME_WIDTH / 2, GAME_HEIGHT / 2,
+                  ALLEGRO_ALIGN_CENTRE, "GAME OVER");
+}
+
+static void
+draw_game_over (void)
+{
+    gshmup_draw_background (&background);
+    gshmup_draw_background (&fog);
+    gshmup_draw_bullet_system (player_bullets);
+    gshmup_draw_bullet_system (enemy_bullets);
+    gshmup_draw_enemies (enemies);
+    draw_hud ();
+    draw_game_over_message ();
+}
+
+static void
+shooter_draw (void)
+{
+    switch (state) {
+    case STATE_MAIN:
+        draw_main ();
+        break;
+    case STATE_GAME_OVER:
+        draw_game_over ();
+        break;
+    }
 }
 
 static void
@@ -236,7 +285,7 @@ check_player_collisions (void)
 
 
 static void
-shooter_update (void)
+update_main (void)
 {
     gshmup_update_agenda (agenda);
     gshmup_update_background (&background);
@@ -249,6 +298,31 @@ shooter_update (void)
     gshmup_update_bullet_system (enemy_bullets);
     check_enemy_collisions ();
     check_player_collisions ();
+}
+
+static void
+update_game_over (void)
+{
+    gshmup_update_background (&background);
+    gshmup_update_background (&fog);
+    gshmup_set_current_bullet_system (player_bullets);
+    gshmup_update_bullet_system (player_bullets);
+    gshmup_set_current_bullet_system (enemy_bullets);
+    enemies = gshmup_update_enemies (enemies);
+    gshmup_update_bullet_system (enemy_bullets);
+}
+
+static void
+shooter_update (void)
+{
+    switch (state) {
+    case STATE_MAIN:
+        update_main ();
+        break;
+    case STATE_GAME_OVER:
+        update_game_over ();
+        break;
+    }
 }
 
 static void
@@ -270,7 +344,7 @@ player_stop_shoot (void)
 }
 
 static void
-shooter_key_down (int keycode)
+key_down_main (int keycode)
 {
     switch (keycode) {
     case GSHMUP_KEY_UP:
@@ -292,7 +366,31 @@ shooter_key_down (int keycode)
 }
 
 static void
-shooter_key_up (int keycode)
+key_down_game_over (int keycode)
+{
+    switch (keycode) {
+    case GSHMUP_KEY_SHOOT:
+    case GSHMUP_KEY_START:
+        gshmup_set_current_scene (gshmup_create_splash_screen_scene ());
+        break;
+    }
+}
+
+static void
+shooter_key_down (int keycode)
+{
+    switch (state) {
+    case STATE_MAIN:
+        key_down_main (keycode);
+        break;
+    case STATE_GAME_OVER:
+        key_down_game_over (keycode);
+        break;
+    }
+}
+
+static void
+key_up_main (int keycode)
 {
     switch (keycode) {
     case GSHMUP_KEY_UP:
@@ -309,6 +407,16 @@ shooter_key_up (int keycode)
         break;
     case GSHMUP_KEY_SHOOT:
         player_stop_shoot ();
+        break;
+    }
+}
+
+static void
+shooter_key_up (int keycode)
+{
+    switch (state) {
+    case STATE_MAIN:
+        key_up_main (keycode);
         break;
     }
 }
@@ -369,15 +477,6 @@ SCM_DEFINE (clear_enemies, "clear-enemies", 0, 0, 0,
     return SCM_UNSPECIFIED;
 }
 
-SCM_DEFINE (kill_player, "kill-player", 0, 0, 0,
-            (void),
-            "Decrement player life counter. Game over if there are no lives left.")
-{
-    player->lives--;
-
-    return SCM_UNSPECIFIED;
-}
-
 void gshmup_shooter_init_scm (void)
 {
 #include "shooter.x"
@@ -388,6 +487,5 @@ void gshmup_shooter_init_scm (void)
                   s_player_shooting_p,
                   s_spawn_enemy,
                   s_clear_enemies,
-                  s_kill_player,
                   NULL);
 }
