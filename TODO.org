@@ -24,9 +24,9 @@
 ** TODO Splash screen
 The intro screen with game logo that tells you to 'Press Any Key' or something.
 
-- [ ] User sees an intro screen with background image, game title, and a prompt to press a key
-- [ ] Add config option for background image
-- [ ] Add config option for title image
+- [X] User sees an intro screen with background image, game title, and a prompt to press a key
+- [X] Add config option for background image
+- [X] Add config option for title image
 ** TODO Main menu screen
 To be tasked later...
 ** TODO Asset customization
@@ -120,3 +120,7 @@ Stages encapsulate a game level.
 We want to specify the recipe for making a particular type of enemy,
  and then stamp out clones of it. There needs to be some system of
 registering a prototype and asking for a clone to be made.
+
+** TODO Add asset management
+- [ ] Map directories to asset types
+- [ ] Map filenames to asset instances
