@@ -1,5 +1,6 @@
 #include "splash_screen.h"
 #include "shooter.h"
+#include "player.h"
 
 ALLEGRO_BITMAP *background = NULL;
 ALLEGRO_BITMAP *title = NULL;
@@ -54,6 +55,9 @@ splash_draw (void)
     al_draw_text (font, font_color,
                   GAME_WIDTH / 2, title_y + al_get_bitmap_height (title),
                   ALLEGRO_ALIGN_CENTRE, text);
+    al_draw_textf (font, font_color, GAME_WIDTH / 2, GAME_HEIGHT - 16,
+                   ALLEGRO_ALIGN_CENTRE, "Credits  %d",
+                   gshmup_get_initial_player_credits ());
 }
 
 static void
