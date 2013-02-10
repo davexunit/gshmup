@@ -13,10 +13,11 @@ gshmup_create_player (GshmupAnimation *anim)
 
     player->entity = gshmup_create_entity ("Player");
     player->shooting = false;
-    player->lives = scm_to_int (scm_variable_ref (s_lives_per_credit));
-    player->credits = scm_to_int (scm_variable_ref (s_num_credits));
+    player->lives = scm_to_int (scm_variable_ref (s_lives_per_credit)) - 1;
+    player->credits = scm_to_int (scm_variable_ref (s_num_credits)) - 1;
     player->speed = scm_to_double (scm_variable_ref (s_player_speed));
     player->score = 0;
+    player->on_game_over = NULL;
     gshmup_init_animated_sprite (&player->entity.sprite, anim);
     gshmup_play_animation (anim);
 
@@ -71,6 +72,28 @@ gshmup_set_current_player (GshmupPlayer *player)
     current_player = player;
 }
 
+SCM_DEFINE (kill_player, "kill-player", 0, 0, 0,
+            (void),
+            "Decrement player life counter. Game over if there are no lives left.")
+{
+    if (--current_player->lives < 0) {
+        if (--current_player->credits < 0) {
+            if (current_player->on_game_over) {
+                current_player->on_game_over ();
+            }
+
+            current_player->lives = 0;
+            current_player->credits = 0;
+        } else {
+            current_player->lives =
+                scm_to_int (scm_variable_ref (s_lives_per_credit)) - 1;
+        }
+    }
+
+    return SCM_UNSPECIFIED;
+}
+
+
 void
 gshmup_player_init_scm (void)
 {
@@ -79,5 +102,6 @@ gshmup_player_init_scm (void)
     scm_c_export ("lives-per-credit",
                   "num-credits",
                   "player-speed",
+                  s_kill_player,
                   NULL);
 }

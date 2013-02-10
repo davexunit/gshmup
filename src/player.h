@@ -21,6 +21,7 @@ typedef struct {
     int lives;
     int credits;
     int score;
+    void (*on_game_over) (void);
 } GshmupPlayer;
 
 GshmupPlayer *gshmup_create_player (GshmupAnimation *anim);
