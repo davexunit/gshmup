@@ -2,15 +2,18 @@
 #include "game.h"
 #include "player.h"
 #include "enemy.h"
+#include "stage.h"
 #include "bullet_system.h"
 #include "background.h"
 #include "splash_screen.h"
 
+/* Game states */
 enum {
     STATE_MAIN,
     STATE_GAME_OVER
 };
 
+/* Assets */
 static const int text_margin = 4;
 static const int text_space = 12;
 static ALLEGRO_COLOR text_color;
@@ -28,18 +31,23 @@ static GshmupSpriteSheet *player_sprites = NULL;
 static GshmupSpriteSheet *enemy_sprites = NULL;
 static GshmupAnimation *player_anim = NULL;
 static GshmupAnimation *enemy_anim = NULL;
-static GshmupBulletSystem *player_bullets = NULL;
-static GshmupPlayer *player = NULL;
-static GshmupEnemy *enemies = NULL;
-static GshmupBulletSystem *enemy_bullets = NULL;
 static GshmupBackground background;
 static GshmupBackground fog;
+
+/* Game objects */
+static GshmupStage *stage = NULL;
+static GshmupBulletSystem *player_bullets = NULL;
+static GshmupBulletSystem *enemy_bullets = NULL;
+static GshmupPlayer *player = NULL;
+static GshmupEnemy *enemies = NULL;
 static int state;
+
+/* Hooks */
 SCM_VARIABLE_INIT (s_init_hook, "shooter-init-hook",
                    scm_make_hook (scm_from_int (0)));
 SCM_VARIABLE_INIT (s_shoot_hook, "player-shoot-hook",
                    scm_make_hook (scm_from_int (0)));
-static SCM agenda;
+/* static SCM agenda; */
 
 static void
 game_over (void)
@@ -96,6 +104,12 @@ init_player (void)
 }
 
 static void
+init_enemies (void)
+{
+    enemies = NULL;
+}
+
+static void
 init_player_bullets (void)
 {
     static const float margin = 64;
@@ -127,6 +141,14 @@ init_background (void)
 }
 
 static void
+init_stage (void)
+{
+    stage = gshmup_create_stage ("Test Stage", "Hello, world!", SCM_BOOL_F);
+    gshmup_set_current_agenda (stage->agenda);
+    scm_run_hook (scm_variable_ref (s_init_hook), scm_list_n (SCM_UNDEFINED));
+}
+
+static void
 shooter_init (void)
 {
     state = STATE_MAIN;
@@ -136,13 +158,11 @@ shooter_init (void)
     load_resources ();
     init_animations ();
     init_player ();
+    init_enemies ();
     init_player_bullets ();
     init_enemy_bullets ();
     init_background ();
-    enemies = NULL;
-    agenda = gshmup_create_agenda ();
-    gshmup_set_current_agenda (agenda);
-    scm_run_hook (scm_variable_ref (s_init_hook), scm_list_n (SCM_UNDEFINED));
+    init_stage ();
 }
 
 static void
@@ -287,7 +307,7 @@ check_player_collisions (void)
 static void
 update_main (void)
 {
-    gshmup_update_agenda (agenda);
+    gshmup_update_stage (stage);
     gshmup_update_background (&background);
     gshmup_update_background (&fog);
     gshmup_set_current_bullet_system (player_bullets);
