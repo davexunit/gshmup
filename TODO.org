@@ -110,11 +110,17 @@ and data that can be extracted, hopefully.
 ** TODO Add Stages
 Stages encapsulate a game level.
 
-- [ ] Create Stage type.
+- [X] Create Stage type.
   - title
   - description
   - map
   - script
+- [ ] Move the following out of shooter.c and into the stage struct
+  - player
+  - enemies
+  - player bullets
+  - enemy bullets
+  - state
 
 ** TODO Add prototype system
 We want to specify the recipe for making a particular type of enemy,
