@@ -1,20 +1,24 @@
 * Things To Do
 ** TODO Implement all bullet properties
-- [ ] position
-- [ ] direction
-- [ ] velocity
-- [ ] accelleration
-- [ ] angular velocity
-- [ ] tile
-- [ ] hitbox
-- [ ] blend mode (alpha or additive)
-- [ ] directional (rotates with the bullet)
-- [ ] color
+Need scheme procedures to get/set the following:
+- [X] position
+- [X] direction
+- [X] speed
+- [X] accelleration
+- [X] angular velocity
 - [ ] lifetime
-- [ ] scale
-- [ ] damage
-- [ ] setters/getters for all properties.
+- [ ] type
+  - [ ] tile
+  - [ ] hitbox
+  - [ ] blend mode (alpha or additive)
+  - [ ] directional (rotates with the bullet)
+  - [ ] color
+  - [ ] scale
+  - [ ] damage
+
+Also need:
 - [ ] emit-bullet procedure that accepts all properties.
+
 ** DONE Collision detection
 - [X] Remove bullets that collide with something.
 - [X] Use a callback to handle damaging enemies and killing the player.
