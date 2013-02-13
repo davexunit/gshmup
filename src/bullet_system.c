@@ -104,6 +104,20 @@ gshmup_draw_bullet (GshmupBullet *bullet)
     gshmup_draw_sprite (&bullet->sprite);
 }
 
+static bool
+bullet_out_of_time (GshmupBullet *bullet)
+{
+    return bullet->life != 0 && bullet->life_count >= bullet->life;
+}
+
+static bool
+is_bullet_dead (GshmupBullet *bullet)
+{
+    return bullet->kill ||
+        bullet_out_of_bounds (bullet) ||
+        bullet_out_of_time (bullet);
+}
+
 void
 gshmup_update_bullet (GshmupBullet *bullet)
 {
@@ -115,7 +129,7 @@ gshmup_update_bullet (GshmupBullet *bullet)
     bullet->pos = gshmup_vector2_add (bullet->pos, bullet->vel);
     bullet->vel = gshmup_vector2_add (bullet->vel, bullet->acc);
     bullet->life_count++;
-    bullet->kill = bullet->kill || bullet_out_of_bounds (bullet);
+    bullet->kill = is_bullet_dead (bullet);
 
     if (bullet->directional) {
         bullet->sprite.rotation = gshmup_deg_to_rad (bullet->direction);
@@ -275,6 +289,8 @@ gshmup_emit_bullet (GshmupBulletSystem *system, GshmupVector2 position,
     bullet.angular_velocity = angular_velocity;
     gshmup_set_bullet_type (&bullet, type);
     update_bullet_movement (&bullet);
+
+    /* Only scripted bullets require an agenda. */
     if (scm_is_true (thunk) && scm_is_false (scm_eq_p (thunk, SCM_UNDEFINED))) {
         add_agenda (system, &bullet);
         gshmup_schedule (bullet.agenda->agenda, 0, thunk);
@@ -334,14 +350,20 @@ gshmup_bullet_system_collide_rect (GshmupBulletSystem *system, GshmupRect rect)
     }
 }
 
-SCM_DEFINE (emit_bullet, "%emit-bullet", 4, 1, 0,
-            (SCM pos, SCM speed, SCM direction, SCM type, SCM thunk),
+SCM_DEFINE (emit_bullet, "%emit-bullet", 7, 1, 0,
+            (SCM pos, SCM speed, SCM direction, SCM acceleration,
+             SCM angular_velocity, SCM life, SCM type, SCM thunk),
             "Emit a bullet.")
 {
     gshmup_emit_bullet (current_bullets,
-                        gshmup_scm_to_vector2 (pos), scm_to_double (speed),
-                        scm_to_double (direction), 0, 0, 0,
-                        check_bullet_type (type), thunk);
+                        gshmup_scm_to_vector2 (pos),
+                        scm_to_double (speed),
+                        scm_to_double (direction),
+                        scm_to_double (acceleration),
+                        scm_to_double (angular_velocity),
+                        scm_to_double (life),
+                        check_bullet_type (type),
+                        thunk);
 
     return SCM_UNSPECIFIED;
 }
