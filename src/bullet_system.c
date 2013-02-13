@@ -355,24 +355,35 @@ SCM_DEFINE (bullet_position, "bullet-position", 0, 0, 0,
 
 SCM_DEFINE (bullet_speed, "bullet-speed", 0, 0, 0,
             (void),
-            "Return bullet speed.")
+            "Return the current bullet's speed.")
 {
     return scm_from_double (gshmup_vector2_mag (current_bullet->vel));
 }
 
 SCM_DEFINE (bullet_direction, "bullet-direction", 0, 0, 0,
             (void),
-            "Return bullet direction in degrees.")
+            "Return the current bullet's direction in degrees.")
 {
-    float direction = gshmup_rad_to_deg (gshmup_vector2_angle (current_bullet->vel));
-
-    return scm_from_double (direction);
+    return scm_from_double (current_bullet->direction);
 }
 
+SCM_DEFINE (bullet_acceleration, "bullet-acceleration", 0, 0, 0,
+            (void),
+            "Return the current bullet's acceleration.")
+{
+    return scm_from_double (current_bullet->acceleration);
+}
+
+SCM_DEFINE (bullet_angular_velocity, "bullet-angular-velocity", 0, 0, 0,
+            (void),
+            "Return the current bullet's angular velocity in degrees.")
+{
+    return scm_from_double (current_bullet->angular_velocity);
+}
 
 SCM_DEFINE (set_bullet_position, "set-bullet-position", 1, 0, 0,
             (SCM position),
-            "Change the current bullet's position.")
+            "Set the current bullet's position.")
 {
     current_bullet->pos = gshmup_scm_to_vector2 (position);
 
@@ -381,7 +392,7 @@ SCM_DEFINE (set_bullet_position, "set-bullet-position", 1, 0, 0,
 
 SCM_DEFINE (set_bullet_speed, "set-bullet-speed", 1, 0, 0,
             (SCM speed),
-            "Change the current bullet's speed.")
+            "Set the current bullet's speed.")
 {
     current_bullet->speed = scm_to_double (speed);
     update_bullet_movement (current_bullet);
@@ -391,9 +402,29 @@ SCM_DEFINE (set_bullet_speed, "set-bullet-speed", 1, 0, 0,
 
 SCM_DEFINE (set_bullet_direction, "set-bullet-direction", 1, 0, 0,
             (SCM direction),
-            "Change the current bullet's direction.")
+            "Set the current bullet's direction.")
 {
     current_bullet->direction = scm_to_double (direction);
+    update_bullet_movement (current_bullet);
+
+    return SCM_UNSPECIFIED;
+}
+
+SCM_DEFINE (set_bullet_acceleration, "set-bullet-acceleration", 1, 0, 0,
+            (SCM acceleration),
+            "Set the current bullet's acceleration.")
+{
+    current_bullet->acceleration = scm_to_double (acceleration);
+    update_bullet_movement (current_bullet);
+
+    return SCM_UNSPECIFIED;
+}
+
+SCM_DEFINE (set_bullet_angular_velocity, "set-bullet-angular-velocity", 1, 0, 0,
+            (SCM angular_velocity),
+            "Set the current bullet's angular velocity.")
+{
+    current_bullet->angular_velocity = scm_to_double (angular_velocity);
     update_bullet_movement (current_bullet);
 
     return SCM_UNSPECIFIED;
@@ -423,9 +454,13 @@ gshmup_bullet_system_init_scm (void)
                   s_bullet_position,
                   s_bullet_speed,
                   s_bullet_direction,
+                  s_bullet_acceleration,
+                  s_bullet_angular_velocity,
                   s_set_bullet_position,
                   s_set_bullet_speed,
                   s_set_bullet_direction,
+                  s_set_bullet_acceleration,
+                  s_set_bullet_angular_velocity,
                   s_kill_bullet,
                   NULL);
 }

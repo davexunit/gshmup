@@ -50,7 +50,7 @@ typedef struct {
     int blend_mode;
     bool directional; /* Rotate sprite in bullet direction? */
     bool kill;
-    /* Euler angles and such. */
+    /* Scalar movement values. */
     float speed;
     float direction;
     float acceleration;
