@@ -50,8 +50,9 @@
 
 (define-coroutine (test-script)
   (move-in)
-  (test-pattern 5)
-  (test-pattern -5)
+  (repeat 4 (lambda (i)
+              (test-pattern-2)
+              (wait 30)))
   (move-in)
   (test-pattern 5)
   (test-pattern -5)
@@ -65,10 +66,25 @@
                (a 0))
       (when (< i times)
         (repeat n (lambda (i)
-                    (emit-bullet (entity-position) 2 (+ a (* 360 (/ i n))) 'fire
-                                 test-bullet-script)))
+                    (emit-bullet (entity-position)
+                                 2 (+ a (* 360 (/ i n)))
+                                 'fire test-bullet-script
+                                 #:life 90)))
         (wait 12)
         (fire (1+ i) (+ a step))))))
+
+(define (test-pattern-2)
+  (define-coroutine (delay-speed)
+    (wait 20)
+    (set-bullet-speed 1.6))
+  (let ((n 16))
+    (repeat n
+            (lambda (i)
+              (let ((a (* 180 (/ i (1+ n)))))
+                (emit-bullet (vector2-add (entity-position)
+                                          (vector2-from-polar 40 a))
+                             0 (- 180 a)
+                             'fire delay-speed))))))
 
 (define (move-in)
   (repeat 128 (lambda (i)
@@ -77,10 +93,8 @@
 
 (define-coroutine (test-bullet-script)
   (define angle-step 10)
-
   (define (step angle)
     (set-bullet-direction (+ (bullet-direction) (* 8 (sin-deg angle))))
     (wait 2)
     (step (+ angle angle-step)))
-
   (step 0))
