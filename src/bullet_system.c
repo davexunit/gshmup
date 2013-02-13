@@ -82,15 +82,13 @@ print_bullet_type (SCM bullet_type_smob, SCM port, scm_print_state *pstate)
 }
 
 static void
-init_bullet_movement (GshmupBullet *bullet, float speed, float direction,
-                      float acceleration, float angular_velocity)
-{
-    float theta = gshmup_deg_to_rad (direction);
+update_bullet_movement (GshmupBullet *bullet) {
+    float theta = gshmup_deg_to_rad (bullet->direction);
 
-    bullet->vel = gshmup_vector2_from_polar (speed, theta);
-    bullet->acc = gshmup_vector2_from_polar (acceleration, theta);
-    al_build_transform (&bullet->angular_velocity, 0, 0, 1, 1,
-                        gshmup_deg_to_rad (angular_velocity));
+    bullet->vel = gshmup_vector2_from_polar (bullet->speed, theta);
+    bullet->acc = gshmup_vector2_from_polar (bullet->acceleration, theta);
+    al_build_transform (&bullet->ang_vel, 0, 0, 1, 1,
+                        gshmup_deg_to_rad (bullet->angular_velocity));
 }
 
 static bool
@@ -110,9 +108,9 @@ void
 gshmup_update_bullet (GshmupBullet *bullet)
 {
     current_bullet = bullet;
-    al_transform_coordinates (&bullet->angular_velocity,
+    al_transform_coordinates (&bullet->ang_vel,
                               &bullet->vel.x, &bullet->vel.y);
-    al_transform_coordinates (&bullet->angular_velocity,
+    al_transform_coordinates (&bullet->ang_vel,
                               &bullet->acc.x, &bullet->acc.y);
     bullet->pos = gshmup_vector2_add (bullet->pos, bullet->vel);
     bullet->vel = gshmup_vector2_add (bullet->vel, bullet->acc);
@@ -120,7 +118,7 @@ gshmup_update_bullet (GshmupBullet *bullet)
     bullet->kill = bullet->kill || bullet_out_of_bounds (bullet);
 
     if (bullet->directional) {
-        bullet->sprite.rotation = gshmup_vector2_angle (bullet->vel);
+        bullet->sprite.rotation = gshmup_deg_to_rad (bullet->direction);
     }
 }
 
@@ -271,10 +269,12 @@ gshmup_emit_bullet (GshmupBulletSystem *system, GshmupVector2 position,
     bullet.life_count = 0;
     bullet.kill = false;
     bullet.agenda = NULL;
+    bullet.speed = speed;
+    bullet.direction = direction;
+    bullet.acceleration = acceleration;
+    bullet.angular_velocity = angular_velocity;
     gshmup_set_bullet_type (&bullet, type);
-    init_bullet_movement (&bullet, speed, direction,
-                          acceleration, angular_velocity);
-
+    update_bullet_movement (&bullet);
     if (scm_is_true (thunk) && scm_is_false (scm_eq_p (thunk, SCM_UNDEFINED))) {
         add_agenda (system, &bullet);
         gshmup_schedule (bullet.agenda->agenda, 0, thunk);
@@ -383,9 +383,8 @@ SCM_DEFINE (set_bullet_speed, "set-bullet-speed", 1, 0, 0,
             (SCM speed),
             "Change the current bullet's speed.")
 {
-    GshmupVector2 normal = gshmup_vector2_norm (current_bullet->vel);
-
-    current_bullet->vel = gshmup_vector2_scale (normal, scm_to_double (speed));
+    current_bullet->speed = scm_to_double (speed);
+    update_bullet_movement (current_bullet);
 
     return SCM_UNSPECIFIED;
 }
@@ -394,12 +393,17 @@ SCM_DEFINE (set_bullet_direction, "set-bullet-direction", 1, 0, 0,
             (SCM direction),
             "Change the current bullet's direction.")
 {
-    float theta = gshmup_deg_to_rad (scm_to_double (direction));
-    float speed = gshmup_vector2_mag (current_bullet->vel);
-    float acceleration = gshmup_vector2_mag (current_bullet->acc);
+    current_bullet->direction = scm_to_double (direction);
+    update_bullet_movement (current_bullet);
 
-    current_bullet->vel = gshmup_vector2_from_polar (speed, theta);
-    current_bullet->acc = gshmup_vector2_from_polar (acceleration, theta);
+    return SCM_UNSPECIFIED;
+}
+
+SCM_DEFINE (kill_bullet, "kill-bullet", 0, 0, 0,
+            (void),
+            "Sets kill flag for the current bullet.")
+{
+    current_bullet->kill = true;
 
     return SCM_UNSPECIFIED;
 }
@@ -422,5 +426,6 @@ gshmup_bullet_system_init_scm (void)
                   s_set_bullet_position,
                   s_set_bullet_speed,
                   s_set_bullet_direction,
+                  s_kill_bullet,
                   NULL);
 }

@@ -50,11 +50,17 @@ typedef struct {
     int blend_mode;
     bool directional; /* Rotate sprite in bullet direction? */
     bool kill;
+    /* Euler angles and such. */
+    float speed;
+    float direction;
+    float acceleration;
+    float angular_velocity;
+    /* Vectors for fast updates. */
     GshmupVector2 pos;
     GshmupVector2 vel;
     GshmupVector2 acc;
+    ALLEGRO_TRANSFORM ang_vel;
     GshmupRect hitbox;
-    ALLEGRO_TRANSFORM angular_velocity; /* Change in direction. */
     GshmupSprite sprite;
     ALLEGRO_COLOR color;
     GshmupBulletAgenda *agenda;
