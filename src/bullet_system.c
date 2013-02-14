@@ -452,6 +452,15 @@ SCM_DEFINE (set_bullet_angular_velocity, "set-bullet-angular-velocity", 1, 0, 0,
     return SCM_UNSPECIFIED;
 }
 
+SCM_DEFINE (set_bullet_type, "%set-bullet-type", 1, 0, 0,
+            (SCM type),
+            "Set the current bullet's type")
+{
+    gshmup_set_bullet_type (current_bullet, check_bullet_type (type));
+
+    return SCM_UNSPECIFIED;
+}
+
 SCM_DEFINE (kill_bullet, "kill-bullet", 0, 0, 0,
             (void),
             "Sets kill flag for the current bullet.")
@@ -483,6 +492,7 @@ gshmup_bullet_system_init_scm (void)
                   s_set_bullet_direction,
                   s_set_bullet_acceleration,
                   s_set_bullet_angular_velocity,
+                  s_set_bullet_type,
                   s_kill_bullet,
                   NULL);
 }

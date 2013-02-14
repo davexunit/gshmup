@@ -23,6 +23,6 @@
     (%emit-bullet position speed direction acceleration angular-velocity
                   life type thunk)))
 
-(define (set-bullet-type bullet type)
+(define (set-bullet-type type)
   (let ((type (get-bullet-type type)))
-    (%set-bullet-type bullet type)))
+    (%set-bullet-type type)))
