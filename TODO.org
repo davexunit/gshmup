@@ -6,15 +6,14 @@ Need scheme procedures to get/set the following:
 - [X] speed
 - [X] accelleration
 - [X] angular velocity
-- [ ] lifetime
-- [ ] type
-  - [ ] tile
-  - [ ] hitbox
+- [X] life
+- [-] type
+  - [X] tile
+  - [X] hitbox
   - [ ] blend mode (alpha or additive)
-  - [ ] directional (rotates with the bullet)
+  - [X] directional (rotates with the bullet)
   - [ ] color
   - [ ] scale
-  - [ ] damage
 
 Also need:
 - [ ] emit-bullet procedure that accepts all properties.
