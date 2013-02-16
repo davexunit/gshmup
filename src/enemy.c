@@ -13,6 +13,7 @@ gshmup_create_enemy (GshmupAnimation *anim, int max_health)
     enemy->health = max_health;
     enemy->kill = false;
     enemy->next = NULL;
+    enemy->on_death = SCM_BOOL_F;
     gshmup_init_animated_sprite (&enemy->entity.sprite, anim);
     gshmup_play_animation (anim);
 

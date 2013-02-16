@@ -16,6 +16,7 @@ struct GshmupEnemy{
     int max_health;
     int health;
     GshmupEnemy *next;
+    SCM on_death;
 };
 
 GshmupEnemy *gshmup_create_enemy (GshmupAnimation *anim, int max_health);
