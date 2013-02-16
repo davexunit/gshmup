@@ -10,7 +10,7 @@ static GshmupRect scale;
 static float timestep = 1.0f / 60;
 static float fps_time;
 static int fps = 0;
-static int last_fps = 0;
+static float last_fps = 0;
 static bool running = false;
 static bool redraw = true;
 static GshmupScene *current_scene = NULL;
@@ -104,7 +104,7 @@ game_update_fps (void)
     float time = al_get_time ();
 
     if (time - fps_time >= 1) {
-        last_fps = fps;
+        last_fps = (float) fps / (time - fps_time);
         fps = 0;
         fps_time = time;
     }
@@ -245,7 +245,7 @@ gshmup_set_current_agenda (SCM agenda)
     s_current_agenda = agenda;
 }
 
-int
+float
 gshmup_get_fps (void)
 {
     return last_fps;
