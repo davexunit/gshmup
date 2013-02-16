@@ -10,7 +10,8 @@
 /* Game states */
 enum {
     STATE_MAIN,
-    STATE_GAME_OVER
+    STATE_GAME_OVER,
+    STATE_STAGE_CLEAR
 };
 
 /* Assets */
@@ -209,7 +210,8 @@ draw_hud (void)
                    ALLEGRO_ALIGN_RIGHT, "%09d", player->score);
     al_draw_textf (font, text_color, GAME_WIDTH - text_margin,
                    GAME_HEIGHT - 12 - text_margin,
-                   ALLEGRO_ALIGN_RIGHT, "FPS  %02d", gshmup_get_fps ());
+                   ALLEGRO_ALIGN_RIGHT, "FPS  %05.2f", gshmup_get_fps ());
+
     if (gshmup_debug_mode ()) {
         draw_bullet_system_stats (player_bullets, "Player",
                                   text_margin + text_space * 2);
