@@ -16,7 +16,7 @@ Need scheme procedures to get/set the following:
   - [ ] scale
 
 Also need:
-- [ ] emit-bullet procedure that accepts all properties.
+- [X] emit-bullet procedure that accepts all properties.
 
 ** DONE Collision detection
 - [X] Remove bullets that collide with something.
@@ -24,7 +24,7 @@ Also need:
 ** DONE Animated sprites
 - [X] Add Animation type
 - [X] Add Animation member variable to Sprite
-** TODO Splash screen
+** DONE Splash screen
 The intro screen with game logo that tells you to 'Press Any Key' or something.
 
 - [X] User sees an intro screen with background image, game title, and a prompt to press a key
