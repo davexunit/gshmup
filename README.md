@@ -29,6 +29,7 @@ Dependencies
 
 * Allegro >= 5.0
 * GNU Guile >= 2.0
+* GLib >= 2.0
 
 License
 -------
