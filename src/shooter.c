@@ -43,12 +43,13 @@ static GshmupPlayer *player = NULL;
 static GshmupEnemy *enemies = NULL;
 static int state;
 
-/* Hooks */
+/* Guile */
 SCM_VARIABLE_INIT (s_init_hook, "shooter-init-hook",
                    scm_make_hook (scm_from_int (0)));
 SCM_VARIABLE_INIT (s_shoot_hook, "player-shoot-hook",
                    scm_make_hook (scm_from_int (0)));
-/* static SCM agenda; */
+SCM_VARIABLE (s_stages, "*stages*");
+static SCM stage_list = SCM_BOOL_F;
 
 static void
 game_over (void)
@@ -142,11 +143,32 @@ init_background (void)
 }
 
 static void
+set_current_stage (void)
+{
+    stage = gshmup_check_stage_smob (scm_car (stage_list));
+    gshmup_start_stage (stage);
+}
+
+static void
+next_stage (void)
+{
+    stage_list = scm_cdr (stage_list);
+
+    if (scm_is_null (stage_list)) {
+        gshmup_set_current_scene (gshmup_create_splash_screen_scene ());
+    } else {
+        set_current_stage ();
+        state = STATE_MAIN;
+    }
+}
+
+
+static void
 init_stage (void)
 {
-    stage = gshmup_create_stage ("Test Stage", "Hello, world!", SCM_BOOL_F);
-    gshmup_set_current_agenda (stage->agenda);
-    scm_run_hook (scm_variable_ref (s_init_hook), scm_list_n (SCM_UNDEFINED));
+    /* We iterate over *stages* and store the current pair in stage_list. */
+    stage_list = scm_variable_ref (s_stages);
+    set_current_stage ();
 }
 
 static void
@@ -269,6 +291,25 @@ draw_game_over (void)
 }
 
 static void
+draw_stage_clear_message (void)
+{
+    al_draw_text (font, text_color, GAME_WIDTH / 2, GAME_HEIGHT / 2,
+                  ALLEGRO_ALIGN_CENTRE, "STAGE CLEAR!");
+}
+
+static void
+draw_stage_clear (void)
+{
+    gshmup_draw_background (&background);
+    gshmup_draw_background (&fog);
+    gshmup_draw_bullet_system (player_bullets);
+    gshmup_draw_player (player);
+    gshmup_draw_bullet_system (enemy_bullets);
+    gshmup_draw_enemies (enemies);
+    draw_stage_clear_message ();
+}
+
+static void
 shooter_draw (void)
 {
     switch (state) {
@@ -277,6 +318,9 @@ shooter_draw (void)
         break;
     case STATE_GAME_OVER:
         draw_game_over ();
+        break;
+    case STATE_STAGE_CLEAR:
+        draw_stage_clear ();
         break;
     }
 }
@@ -335,6 +379,16 @@ update_game_over (void)
 }
 
 static void
+update_stage_clear (void)
+{
+    gshmup_update_background (&background);
+    gshmup_update_background (&fog);
+    gshmup_set_current_bullet_system (player_bullets);
+    gshmup_update_player (player);
+    gshmup_update_bullet_system (player_bullets);
+}
+
+static void
 shooter_update (void)
 {
     switch (state) {
@@ -343,6 +397,9 @@ shooter_update (void)
         break;
     case STATE_GAME_OVER:
         update_game_over ();
+        break;
+    case STATE_STAGE_CLEAR:
+        update_stage_clear ();
         break;
     }
 }
@@ -399,6 +456,17 @@ key_down_game_over (int keycode)
 }
 
 static void
+key_down_stage_clear (int keycode)
+{
+    switch (keycode) {
+    case GSHMUP_KEY_SHOOT:
+    case GSHMUP_KEY_START:
+        next_stage ();
+        break;
+    }
+}
+
+static void
 shooter_key_down (int keycode)
 {
     switch (state) {
@@ -407,6 +475,9 @@ shooter_key_down (int keycode)
         break;
     case STATE_GAME_OVER:
         key_down_game_over (keycode);
+        break;
+    case STATE_STAGE_CLEAR:
+        key_down_stage_clear (keycode);
         break;
     }
 }
@@ -472,20 +543,17 @@ SCM_DEFINE (player_shooting_p, "player-shooting?", 0, 0, 0,
     return scm_from_bool (player->shooting);
 }
 
-SCM_DEFINE (spawn_enemy, "spawn-enemy", 4, 0, 0,
-            (SCM pos, SCM max_health, SCM hitbox, SCM thunk),
-            "Spawn an enemy and run the AI procedure @var{thunk}.")
+SCM_DEFINE (spawn_enemy, "spawn-enemy", 5, 0, 0,
+            (SCM pos, SCM max_health, SCM hitbox, SCM script, SCM on_death),
+            "Spawn an enemy and run the AI procedure @var{script}.")
 {
-    GshmupEnemy *enemy = gshmup_create_enemy (enemy_anim, scm_to_int (max_health));
+    GshmupEnemy *enemy = gshmup_create_enemy (enemy_anim, scm_to_int (max_health),
+                                              script, on_death);
 
     enemy->entity.position = gshmup_scm_to_vector2 (pos);
     enemy->entity.hitbox = gshmup_scm_to_rect (hitbox);
     enemy->next = enemies;
     enemies = enemy;
-
-    if (scm_is_true (scm_procedure_p (thunk))) {
-        gshmup_schedule (enemy->entity.agenda, 0, thunk);
-    }
 
     return SCM_UNSPECIFIED;
 }
@@ -495,6 +563,20 @@ SCM_DEFINE (clear_enemies, "clear-enemies", 0, 0, 0,
             "Remove all enemies from the game.")
 {
     gshmup_destroy_enemies (enemies);
+    enemies = NULL;
+
+    return SCM_UNSPECIFIED;
+}
+
+SCM_DEFINE (end_stage, "end-stage", 0, 0, 0,
+            (void),
+            "Ends the current stage. Typically called when the boss dies.")
+{
+    state = STATE_STAGE_CLEAR;
+    gshmup_player_stop (player);
+    player->shooting = false;
+    gshmup_destroy_enemies (enemies);
+    enemies = NULL;
 
     return SCM_UNSPECIFIED;
 }
@@ -505,9 +587,11 @@ void gshmup_shooter_init_scm (void)
 
     scm_c_export ("shooter-init-hook",
                   "player-shoot-hook",
+                  "*stages*",
                   s_player_position,
                   s_player_shooting_p,
                   s_spawn_enemy,
                   s_clear_enemies,
+                  s_end_stage,
                   NULL);
 }
