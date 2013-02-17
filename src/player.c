@@ -18,12 +18,9 @@ gshmup_create_player (GshmupAnimation *anim)
     player->speed = scm_to_double (scm_variable_ref (s_player_speed));
     player->score = 0;
     player->on_game_over = NULL;
+    gshmup_player_stop (player);
     gshmup_init_animated_sprite (&player->entity.sprite, anim);
     gshmup_play_animation (anim);
-
-    for (int i = 0; i < 4; ++i) {
-        player->dir[i] = false;
-    }
 
     return player;
 }
@@ -64,6 +61,14 @@ void
 gshmup_player_set_direction (GshmupPlayer *player, int dir, bool flag)
 {
     player->dir[dir] = flag;
+}
+
+void
+gshmup_player_stop (GshmupPlayer *player)
+{
+    for (int i = 0; i < 4; ++i) {
+        player->dir[i] = false;
+    }
 }
 
 void
