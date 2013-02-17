@@ -33,6 +33,7 @@ gshmup_init (void)
     gshmup_bullet_system_init_scm ();
     gshmup_player_init_scm ();
     gshmup_enemy_init_scm ();
+    gshmup_stage_init_scm ();
     gshmup_game_init_scm ();
     gshmup_splash_screen_init_scm ();
     gshmup_shooter_init_scm ();
