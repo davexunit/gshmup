@@ -3,7 +3,8 @@
 static GshmupEnemy *current_enemy = NULL;
 
 GshmupEnemy *
-gshmup_create_enemy (GshmupAnimation *anim, int max_health)
+gshmup_create_enemy (GshmupAnimation *anim, int max_health,
+                     SCM script, SCM on_death)
 {
     GshmupEnemy *enemy = (GshmupEnemy *) scm_gc_malloc (sizeof (GshmupEnemy),
                                                         "enemy");
@@ -13,9 +14,14 @@ gshmup_create_enemy (GshmupAnimation *anim, int max_health)
     enemy->health = max_health;
     enemy->kill = false;
     enemy->next = NULL;
-    enemy->on_death = SCM_BOOL_F;
+    enemy->on_death = on_death;
     gshmup_init_animated_sprite (&enemy->entity.sprite, anim);
     gshmup_play_animation (anim);
+
+    /* Schedule script if one is provided. */
+    if (scm_is_true (scm_procedure_p (script))) {
+        gshmup_schedule (enemy->entity.agenda, 0, script);
+    }
 
     return enemy;
 }
@@ -101,6 +107,10 @@ SCM_DEFINE (damage_enemy, "damage-enemy", 1, 0, 0,
 
     if (current_enemy->health <= 0) {
         current_enemy->kill = true;
+
+        if (scm_is_true (scm_procedure_p (current_enemy->on_death))) {
+            scm_call_0 (current_enemy->on_death);
+        }
     }
 
     return SCM_UNSPECIFIED;

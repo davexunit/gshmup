@@ -19,7 +19,8 @@ struct GshmupEnemy{
     SCM on_death;
 };
 
-GshmupEnemy *gshmup_create_enemy (GshmupAnimation *anim, int max_health);
+GshmupEnemy *gshmup_create_enemy (GshmupAnimation *anim, int max_health,
+                                  SCM script, SCM on_death);
 void gshmup_destroy_enemy (GshmupEnemy *enemy);
 void gshmup_destroy_enemies (GshmupEnemy *enemy);
 void gshmup_draw_enemy (GshmupEnemy *enemy);
