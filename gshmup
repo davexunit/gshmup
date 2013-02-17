@@ -5,6 +5,12 @@
 (add-to-load-path "./module")
 (use-modules (gshmup core)
              (system repl server))
+
+;; REPL for connecting to the game from Emacs
 (spawn-server)
-(add-hook! game-init-hook (lambda () (use-modules (gshmup init))))
+
+;; This loads the game configuration file when the engine is ready.
+(add-hook! game-init-hook
+           (lambda () (use-modules (gshmup init))))
+
 (gshmup-start)
