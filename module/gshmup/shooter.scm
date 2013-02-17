@@ -21,7 +21,7 @@
 (register-bullet-type 'fire
                       (make-bullet-type 5 (make-rect -2 -2 4 4) 'alpha #t kill-player))
 
-(add-hook! player-shoot-hook (lambda () (test-shot)))
+(set! *player-on-shoot* (lambda () (test-shot)))
 
 (define-coroutine (test-shot)
   (when (player-shooting?)
@@ -37,8 +37,6 @@
     (wait 5)
     (test-shot)))
 
-;; (add-hook! shooter-init-hook (lambda () (test-level)))
-
 (define stage-1
   (make-stage "Stage 1"
               "Is this thing on?"
@@ -46,12 +44,6 @@
                 (spawn-test-enemy))))
 
 (set! *stages* (list stage-1 stage-1))
-
-(define-coroutine (test-level)
-  (spawn-test-enemy)
-  ;; (wait (* 60 10))
-  ;; (spawn-test-enemy)
-  )
 
 (define (spawn-test-enemy)
   (spawn-enemy (make-vector2 120 -32) 20 (make-rect -16 -16 32 32)

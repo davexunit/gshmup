@@ -19,6 +19,6 @@
 (set! splash-screen-title "data/sprites/splash_title.png")
 
 ;; Player settings.
-(set! num-credits 1)
-(set! lives-per-credit 1)
-(set! player-speed 3.5)
+(set! *num-credits* 1)
+(set! *lives-per-credit* 1)
+(set! *player-speed* 3.5)
