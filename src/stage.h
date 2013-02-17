@@ -14,9 +14,9 @@ typedef struct {
     SCM agenda;
 } GshmupStage;
 
-GshmupStage *gshmup_create_stage (const char *name, const char *description,
-                                  SCM script);
-void gshmup_destroy_stage (GshmupStage *stage);
+GshmupStage *gshmup_check_stage_smob (SCM stage_smob);
+void gshmup_start_stage (GshmupStage *stage);
 void gshmup_update_stage (GshmupStage *stage);
+void gshmup_stage_init_scm (void);
 
 #endif
