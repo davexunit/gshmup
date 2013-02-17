@@ -10,8 +10,8 @@ ALLEGRO_COLOR font_color;
 const char *text = "Press shoot button";
 
 /* Configuration variables. */
-SCM_VARIABLE (s_splash_screen_background, "splash-screen-background");
-SCM_VARIABLE (s_splash_screen_title, "splash-screen-title");
+SCM_VARIABLE (s_splash_screen_background, "*splash-screen-background*");
+SCM_VARIABLE (s_splash_screen_title, "*splash-screen-title*");
 
 static void
 splash_init (void)
@@ -103,7 +103,7 @@ gshmup_splash_screen_init_scm (void)
 {
 #include "splash_screen.x"
 
-    scm_c_export ("splash-screen-background",
-                  "splash-screen-title",
+    scm_c_export ("*splash-screen-background*",
+                  "*splash-screen-title*",
                   NULL);
 }

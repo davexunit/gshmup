@@ -44,8 +44,6 @@ static GshmupEnemy *enemies = NULL;
 static int state;
 
 /* Guile */
-SCM_VARIABLE_INIT (s_shoot_hook, "player-shoot-hook",
-                   scm_make_hook (scm_from_int (0)));
 SCM_VARIABLE (s_stages, "*stages*");
 static SCM stage_list = SCM_BOOL_F;
 
