@@ -403,24 +403,6 @@ shooter_update (void)
 }
 
 static void
-player_shoot (void)
-{
-    if (!player->shooting) {
-        player->shooting = true;
-        gshmup_set_current_bullet_system (player_bullets);
-        gshmup_set_current_agenda (player->entity.agenda);
-        scm_run_hook (scm_variable_ref (s_shoot_hook), scm_list_n (SCM_UNDEFINED));
-    }
-}
-
-static void
-player_stop_shoot (void)
-{
-    player->shooting = false;
-    gshmup_clear_agenda (player->entity.agenda);
-}
-
-static void
 key_down_main (int keycode)
 {
     switch (keycode) {
@@ -437,7 +419,7 @@ key_down_main (int keycode)
         gshmup_player_set_direction (player, GSHMUP_PLAYER_RIGHT, true);
         break;
     case GSHMUP_KEY_SHOOT:
-        player_shoot ();
+        gshmup_set_player_shooting (player, true);
         break;
     }
 }
@@ -497,7 +479,7 @@ key_up_main (int keycode)
         gshmup_player_set_direction (player, GSHMUP_PLAYER_RIGHT, false);
         break;
     case GSHMUP_KEY_SHOOT:
-        player_stop_shoot ();
+        gshmup_set_player_shooting (player, false);
         break;
     }
 }
