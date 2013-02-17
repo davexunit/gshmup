@@ -37,7 +37,15 @@
     (wait 5)
     (test-shot)))
 
-(add-hook! shooter-init-hook (lambda () (test-level)))
+;; (add-hook! shooter-init-hook (lambda () (test-level)))
+
+(define stage-1
+  (make-stage "Stage 1"
+              "Is this thing on?"
+              (coroutine ()
+                (spawn-test-enemy))))
+
+(set! *stages* (list stage-1 stage-1))
 
 (define-coroutine (test-level)
   (spawn-test-enemy)
@@ -46,8 +54,12 @@
   )
 
 (define (spawn-test-enemy)
-  (spawn-enemy (make-vector2 120 -32) 200 (make-rect -16 -16 32 32)
-               (lambda () (test-script))))
+  (spawn-enemy (make-vector2 120 -32) 20 (make-rect -16 -16 32 32)
+               (lambda () (test-script))
+               (lambda () (test-on-death))))
+
+(define (test-on-death)
+  (end-stage))
 
 (define-coroutine (test-script)
   (move-in)
