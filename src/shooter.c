@@ -44,8 +44,6 @@ static GshmupEnemy *enemies = NULL;
 static int state;
 
 /* Guile */
-SCM_VARIABLE_INIT (s_init_hook, "shooter-init-hook",
-                   scm_make_hook (scm_from_int (0)));
 SCM_VARIABLE_INIT (s_shoot_hook, "player-shoot-hook",
                    scm_make_hook (scm_from_int (0)));
 SCM_VARIABLE (s_stages, "*stages*");
@@ -585,8 +583,7 @@ void gshmup_shooter_init_scm (void)
 {
 #include "shooter.x"
 
-    scm_c_export ("shooter-init-hook",
-                  "player-shoot-hook",
+    scm_c_export ("player-shoot-hook",
                   "*stages*",
                   s_player_position,
                   s_player_shooting_p,
