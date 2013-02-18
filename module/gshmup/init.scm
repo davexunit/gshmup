@@ -20,5 +20,5 @@
 
 ;; Player settings.
 (set! *num-credits* 1)
-(set! *lives-per-credit* 1)
+(set! *lives-per-credit* 10)
 (set! *player-speed* 3.5)
