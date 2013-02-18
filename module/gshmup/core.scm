@@ -15,7 +15,7 @@
 (define (bind-key gshmup-key key)
   (%bind-key (gshmup-keycode gshmup-key) (keycode key)))
 
-(define (wait delay)
+(define* (wait #:optional (delay 1))
   (abort-to-prompt 'coroutine-prompt
                    (lambda (resume) (game-schedule delay resume))))
 
