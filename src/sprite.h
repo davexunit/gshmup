@@ -15,7 +15,12 @@ typedef struct {
     int type;
     union {
         ALLEGRO_BITMAP *image;
-        GshmupAnimation *anim;
+        struct {
+            GshmupAnimation *anim;
+            gint current_frame;
+            gint timer;
+            gboolean playing;
+        } anim_state;
     };
     ALLEGRO_COLOR color;
     GshmupVector2 position;
@@ -24,8 +29,10 @@ typedef struct {
     float rotation;
 } GshmupSprite;
 
-void gshmup_init_sprite (GshmupSprite *sprite, ALLEGRO_BITMAP *image);
-void gshmup_init_animated_sprite (GshmupSprite *sprite, GshmupAnimation *anim);
+GshmupSprite gshmup_create_sprite (ALLEGRO_BITMAP *image);
+GshmupSprite gshmup_create_sprite_animated (GshmupAnimation *anim);
 void gshmup_draw_sprite (GshmupSprite *sprite);
+void gshmup_sprite_play_animation (GshmupSprite *sprite);
+void gshmup_sprite_stop_animation (GshmupSprite *sprite);
 
 #endif
