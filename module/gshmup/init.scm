@@ -2,8 +2,8 @@
   #:use-module (gshmup core)
   #:use-module (gshmup shooter))
 
-;; Debug
 (set! *debug-mode* #f)
+(set-asset-path '("data"))
 
 ;; Set preferred keybindings.
 (bind-key 'up 'up)
@@ -15,8 +15,8 @@
 (bind-key 'start 'enter)
 
 ;; Splash screen settings
-(set! *splash-screen-background* "data/sprites/splash_background.png")
-(set! *splash-screen-title* "data/sprites/splash_title.png")
+(set! *splash-screen-background* "splash_background.png")
+(set! *splash-screen-title* "splash_title.png")
 
 ;; Player settings.
 (set! *num-credits* 1)

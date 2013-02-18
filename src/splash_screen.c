@@ -33,7 +33,7 @@ splash_init (void)
 
     background = gshmup_load_image_asset (background_file);
     title = gshmup_load_image_asset (title_file);
-    font_image = gshmup_load_image_asset ("data/fonts/font.png");
+    font_image = gshmup_load_image_asset ("font.png");
     font = al_grab_font_from_bitmap (font_image, 6, ranges);
     font_color = al_map_rgba_f (1, 1, 1, 1);
 }

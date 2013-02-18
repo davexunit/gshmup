@@ -4,7 +4,7 @@
 
 (define enemy-test
   (make-enemy-type "Testing"
-                   "data/sprites/enemy_1.sheet"
+                   "enemy_1.sheet"
                    "idle"
                    60
                    (make-rect -16 -16 32 32)

@@ -60,12 +60,12 @@ load_resources (void)
         112, 127,
     };
 
-    font_image = gshmup_load_image_asset ("data/fonts/font.png");
+    font_image = gshmup_load_image_asset ("font.png");
     font = al_grab_font_from_bitmap (font_image, 6, ranges);
-    player_sprites = gshmup_load_sprite_sheet_asset ("data/sprites/player.sheet");
-    bullet_sprites = gshmup_load_sprite_sheet_asset ("data/sprites/bullets.sheet");
-    background_image = gshmup_load_image_asset ("data/sprites/background.png");
-    fog_image = gshmup_load_image_asset ("data/sprites/fog.png");
+    player_sprites = gshmup_load_sprite_sheet_asset ("player.sheet");
+    bullet_sprites = gshmup_load_sprite_sheet_asset ("bullets.sheet");
+    background_image = gshmup_load_image_asset ("background.png");
+    fog_image = gshmup_load_image_asset ("fog.png");
 }
 
 static void
