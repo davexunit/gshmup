@@ -33,6 +33,7 @@ gshmup_init (void)
     scm_c_export (s_gshmup_s_start, NULL);
     gshmup_init_vector2 ();
     gshmup_init_rect ();
+    gshmup_asset_init_scm ();
     gshmup_entity_init_scm ();
     gshmup_bullet_system_init_scm ();
     gshmup_player_init_scm ();
