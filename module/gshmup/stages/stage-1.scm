@@ -1,16 +1,15 @@
 (define-module (gshmup stages stage-1)
   #:use-module (gshmup core)
   #:use-module (gshmup math)
-  #:use-module (gshmup bullet)
-  #:use-module (gshmup enemy)
   #:use-module (gshmup coroutine)
   #:use-module (gshmup helpers)
+  #:use-module (gshmup bullets)
   #:export (stage-1))
 
-(register-enemy-type 'test-enemy
-                     (make-enemy-type 60
-                                      (make-rect -16 -16 32 32)
-                                      (lambda () (test-on-death))))
+(define test-enemy
+  (make-enemy-type 60
+                   (make-rect -16 -16 32 32)
+                   (lambda () (test-on-death))))
 
 (define stage-1
   (make-stage "Stage 1"
@@ -19,7 +18,7 @@
                 (spawn-test-enemy))))
 
 (define (spawn-test-enemy)
-  (spawn-enemy 'test-enemy
+  (spawn-enemy test-enemy
                (make-vector2 120 -32)
                (lambda () (test-script))))
 
@@ -45,9 +44,9 @@
                (a 0))
       (when (< i times)
         (repeat n (lambda (i)
-                    (emit-bullet (entity-position)
+                    (emit-bullet bullet-fire (entity-position)
                                  2 (+ a (* 360 (/ i n)))
-                                 'fire test-bullet-script
+                                 test-bullet-script
                                  #:life 90)))
         (wait 12)
         (fire (1+ i) (+ a step))))))
@@ -65,10 +64,10 @@
             (lambda (i)
               (let* ((base-angle (* arc (/ i (1+ n))))
                      (a (+ half-arc da base-angle)))
-                (emit-bullet (vector2-add (entity-position)
-                                          (vector2-from-polar 40 a))
+                (emit-bullet bullet-fire (vector2-add (entity-position)
+                                                      (vector2-from-polar 40 a))
                              0 (+ half-arc da (- arc base-angle))
-                             'fire delay-speed))))))
+                             delay-speed))))))
 
 (define (move-in)
   (repeat 128 (lambda (i)
