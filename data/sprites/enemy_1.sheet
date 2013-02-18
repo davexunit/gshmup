@@ -1,0 +1,6 @@
+[Sprite Sheet]
+image=enemy_1.png
+tile_width=32
+tile_height=32
+spacing=0
+margin=0
