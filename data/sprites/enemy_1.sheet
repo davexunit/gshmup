@@ -4,3 +4,8 @@ tile_width=32
 tile_height=32
 spacing=0
 margin=0
+
+[Animation_idle]
+duration=2
+frames=0;1;2;3;
+type=loop
