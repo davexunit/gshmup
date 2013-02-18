@@ -4,12 +4,8 @@
   #:use-module (gshmup coroutine)
   #:use-module (gshmup helpers)
   #:use-module (gshmup bullets)
+  #:use-module (gshmup enemies)
   #:export (stage-1))
-
-(define test-enemy
-  (make-enemy-type 60
-                   (make-rect -16 -16 32 32)
-                   (lambda () (test-on-death))))
 
 (define stage-1
   (make-stage "Stage 1"
@@ -18,17 +14,14 @@
                 (spawn-test-enemy))))
 
 (define (spawn-test-enemy)
-  (spawn-enemy test-enemy
+  (spawn-enemy enemy-test
                (make-vector2 120 -32)
                (lambda () (test-script))))
-
-(define (test-on-death)
-  (end-stage))
 
 (define-coroutine (test-script)
   (move-in)
   (let fire ()
-    (test-pattern-2)
+    (test-pattern 3)
     (wait 25)
     (fire))
   ;; (move-in)
@@ -38,36 +31,37 @@
   (kill-enemy))
 
 (define (test-pattern step)
-  (let ((n 8)
-        (times 10))
-    (let fire ((i 0)
-               (a 0))
-      (when (< i times)
-        (repeat n (lambda (i)
-                    (emit-bullet bullet-fire (entity-position)
-                                 2 (+ a (* 360 (/ i n)))
-                                 test-bullet-script
-                                 #:life 90)))
-        (wait 12)
-        (fire (1+ i) (+ a step))))))
+  (let ((num-bullets 8)
+        (times 10)
+        (delay 12))
+    (repeat times
+            (lambda (i)
+              (let ((angle (* i step)))
+                (repeat num-bullets
+                        (lambda (j)
+                          (let ((direction (+ angle (* 360 (/ j num-bullets)))))
+                            (emit-bullet bullet-fire (entity-position)
+                                         2 direction test-bullet-script)))))
+              (wait delay)))))
 
 (define (test-pattern-2)
   (define-coroutine (delay-speed)
     (wait 5)
     (set-bullet-speed 2))
-  (let* ((n 7)
-         (da (vector2-angle (vector2-sub (player-position)
-                                         (entity-position))))
+
+  (let* ((num-bullets 7)
          (arc 90)
-         (half-arc (* -1 (/ arc 2))))
-    (repeat n
+         ;; Center arc on angle to player.
+         (target-angle (- (angle-to-player) (/ arc 2)))
+         (position (entity-position)))
+    (repeat num-bullets
             (lambda (i)
-              (let* ((base-angle (* arc (/ i (1+ n))))
-                     (a (+ half-arc da base-angle)))
-                (emit-bullet bullet-fire (vector2-add (entity-position)
-                                                      (vector2-from-polar 40 a))
-                             0 (+ half-arc da (- arc base-angle))
-                             delay-speed))))))
+              (let* ((base-angle (* arc (/ i (1+ num-bullets))))
+                     (angle (+ target-angle base-angle))
+                     (position (vector2-add position (vector2-from-polar 40 angle)))
+                     ;; Direction is the inverse of the angle for a neat effect.
+                     (direction (+ target-angle (- arc base-angle))))
+                (emit-bullet bullet-fire position 0 direction delay-speed))))))
 
 (define (move-in)
   (repeat 128 (lambda (i)
@@ -75,9 +69,13 @@
                 (wait 1))))
 
 (define-coroutine (test-bullet-script)
-  (define angle-step 10)
   (define (step angle)
-    (set-bullet-direction (+ (bullet-direction) (* 8 (sin-deg angle))))
-    (wait 2)
-    (step (+ angle angle-step)))
+    (let* ((angle-step 10)
+           (scale 9)
+           (direction (+ (bullet-direction)
+                         (* scale (sin* angle)))))
+      (set-bullet-direction direction)
+      (wait 2)
+      (step (+ angle angle-step))))
+
   (step 0))
