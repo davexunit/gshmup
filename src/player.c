@@ -30,6 +30,7 @@ gshmup_create_player (GshmupAnimation *anim)
 void
 gshmup_destroy_player (GshmupPlayer *player)
 {
+    g_free (player->entity.name);
     scm_gc_free (player, sizeof (GshmupPlayer), "player");
 }
 

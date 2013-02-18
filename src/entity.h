@@ -6,13 +6,11 @@
 #include "sprite.h"
 #include "sprite_sheet.h"
 
-#define GSHMUP_MAX_NAME_LENGTH 128
-
 /*
  * Common properties for game objects.
  */
 typedef struct {
-    char name[GSHMUP_MAX_NAME_LENGTH];
+    gchar *name;
     GshmupVector2 position;
     GshmupRect hitbox;
     GshmupSpriteSheet *sprite_sheet;

@@ -8,8 +8,8 @@
  * fight.
  */
 typedef struct {
-    char *name;
-    char *description;
+    gchar *name;
+    gchar *description;
     SCM script;
     SCM agenda;
 } GshmupStage;

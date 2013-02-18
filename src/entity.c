@@ -4,12 +4,11 @@
 static GshmupEntity *current_entity = NULL;
 
 GshmupEntity
-gshmup_create_entity (const char *name)
+gshmup_create_entity (const gchar *name)
 {
     GshmupEntity entity;
 
-    strncpy (entity.name, name, GSHMUP_MAX_NAME_LENGTH - 1);
-    entity.name[GSHMUP_MAX_NAME_LENGTH] = '\0';
+    entity.name = g_strdup (name);
     entity.position = gshmup_create_vector2 (0, 0);
     entity.hitbox = gshmup_create_rect (0, 0, 0, 0);
     entity.sprite_sheet = NULL;
