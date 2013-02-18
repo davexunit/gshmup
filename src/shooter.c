@@ -521,7 +521,7 @@ SCM_DEFINE (player_shooting_p, "player-shooting?", 0, 0, 0,
     return scm_from_bool (player->shooting);
 }
 
-SCM_DEFINE (spawn_enemy, "%spawn-enemy", 3, 0, 0,
+SCM_DEFINE (spawn_enemy, "spawn-enemy", 3, 0, 0,
             (SCM type, SCM position, SCM script),
             "Spawn an enemy and run the AI procedure @var{script}.")
 {
