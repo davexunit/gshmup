@@ -1,4 +1,5 @@
 #include "splash_screen.h"
+#include "asset.h"
 #include "shooter.h"
 #include "player.h"
 
@@ -30,9 +31,9 @@ splash_init (void)
         112, 127,
     };
 
-    background = gshmup_load_image (background_file);
-    title = gshmup_load_image (title_file);
-    font_image = gshmup_load_image ("data/fonts/font.png");
+    background = gshmup_load_image_asset (background_file);
+    title = gshmup_load_image_asset (title_file);
+    font_image = gshmup_load_image_asset ("data/fonts/font.png");
     font = al_grab_font_from_bitmap (font_image, 6, ranges);
     font_color = al_map_rgba_f (1, 1, 1, 1);
 }

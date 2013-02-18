@@ -1,5 +1,5 @@
 #include "shooter.h"
-#include "game.h"
+#include "asset.h"
 #include "player.h"
 #include "enemy.h"
 #include "stage.h"
@@ -20,9 +20,6 @@ static const int text_space = 12;
 static ALLEGRO_COLOR text_color;
 static ALLEGRO_BITMAP *background_image = NULL;
 static ALLEGRO_BITMAP *fog_image = NULL;
-static ALLEGRO_BITMAP *player_image = NULL;
-static ALLEGRO_BITMAP *enemy_image = NULL;
-static ALLEGRO_BITMAP *bullet_image = NULL;
 static ALLEGRO_BITMAP *font_image = NULL;
 static ALLEGRO_FONT *font = NULL;
 static ALLEGRO_COLOR hitbox_fill_color;
@@ -66,16 +63,13 @@ load_resources (void)
         112, 127,
     };
 
-    font_image = gshmup_load_image ("data/fonts/font.png");
+    font_image = gshmup_load_image_asset ("data/fonts/font.png");
     font = al_grab_font_from_bitmap (font_image, 6, ranges);
-    player_image = gshmup_load_image ("data/sprites/player.png");
-    player_sprites = gshmup_create_sprite_sheet (player_image, 32, 32, 0, 0);
-    enemy_image = gshmup_load_image ("data/sprites/enemy_1.png");
-    enemy_sprites = gshmup_create_sprite_sheet (enemy_image, 32, 32, 0, 0);
-    bullet_image = gshmup_load_image ("data/sprites/bullets.png");
-    bullet_sprites = gshmup_create_sprite_sheet (bullet_image, 32, 32, 0, 0);
-    background_image = gshmup_load_image ("data/sprites/background.png");
-    fog_image = gshmup_load_image ("data/sprites/fog.png");
+    player_sprites = gshmup_load_sprite_sheet_asset ("data/sprites/player.sheet");
+    enemy_sprites = gshmup_load_sprite_sheet_asset ("data/sprites/enemy_1.sheet");
+    bullet_sprites = gshmup_load_sprite_sheet_asset ("data/sprites/bullets.sheet");
+    background_image = gshmup_load_image_asset ("data/sprites/background.png");
+    fog_image = gshmup_load_image_asset ("data/sprites/fog.png");
 }
 
 static void
