@@ -24,5 +24,4 @@
     (test-shot)))
 
 ;; Stages
-(set! *stages* (list stage-1
-                     stage-1))
+(set! *stages* (list stage-1))
