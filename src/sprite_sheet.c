@@ -1,5 +1,81 @@
 #include "sprite_sheet.h"
 
+GshmupAnimation *
+gshmup_create_animation (GshmupSpriteSheet *sprite_sheet, int duration,
+                         int num_frames, int *frames, int anim_mode)
+{
+    GshmupAnimation *anim = (GshmupAnimation *) malloc (sizeof (GshmupAnimation));
+
+    anim->sprite_sheet = sprite_sheet;
+    anim->duration = duration;
+    anim->timer = 0;
+    anim->num_frames = num_frames;
+    anim->current_frame = 0;
+    anim->anim_mode = anim_mode;
+    anim->playing = false;
+    anim->frames = (int *) malloc (sizeof (int) * num_frames);
+
+    /* Copy frames. */
+    for (int i = 0; i < num_frames; ++i) {
+        anim->frames[i] = frames[i];
+    }
+
+    return anim;
+}
+
+void
+gshmup_destroy_animation (GshmupAnimation *anim)
+{
+    free (anim->frames);
+    free (anim);
+}
+
+ALLEGRO_BITMAP *
+gshmup_get_animation_image (GshmupAnimation *anim)
+{
+    return gshmup_get_sprite_sheet_tile (anim->sprite_sheet,
+                                         anim->frames[anim->current_frame]);
+}
+
+static void
+next_frame (GshmupAnimation *anim)
+{
+    anim->current_frame++;
+
+    if (anim->current_frame >= anim->num_frames) {
+        anim->current_frame = 0;
+
+        if (anim->anim_mode == GSHMUP_ANIM_ONCE) {
+            anim->playing = false;
+        }
+    }
+}
+
+void
+gshmup_update_animation (GshmupAnimation *anim)
+{
+    if (anim->playing) {
+        anim->timer++;
+
+        if (anim->timer >= anim->duration) {
+            next_frame (anim);
+            anim->timer = 0;
+        }
+    }
+}
+
+void
+gshmup_play_animation (GshmupAnimation *anim)
+{
+    anim->playing = true;
+    anim->current_frame = 0;
+}
+void
+gshmup_stop_animation (GshmupAnimation *anim)
+{
+    anim->playing = false;
+}
+
 static void
 init_sprite_sheet_tiles (GshmupSpriteSheet *sprite_sheet)
 {
@@ -30,6 +106,14 @@ init_sprite_sheet_tiles (GshmupSpriteSheet *sprite_sheet)
     }
 }
 
+static void
+hash_destroy_animation (gpointer data)
+{
+    GshmupAnimation *anim = (GshmupAnimation *) data;
+
+    gshmup_destroy_animation (anim);
+}
+
 GshmupSpriteSheet *
 gshmup_create_sprite_sheet (ALLEGRO_BITMAP *image, int tile_width, int tile_height,
                             int spacing, int margin)
@@ -41,9 +125,60 @@ gshmup_create_sprite_sheet (ALLEGRO_BITMAP *image, int tile_width, int tile_heig
     sprite_sheet->tile_height = tile_height;
     sprite_sheet->spacing = spacing;
     sprite_sheet->margin = margin;
+    sprite_sheet->animations = g_hash_table_new_full (g_str_hash, g_str_equal,
+                                                      g_free, hash_destroy_animation);
     init_sprite_sheet_tiles (sprite_sheet);
 
     return sprite_sheet;
+}
+
+void
+load_animation (GshmupSpriteSheet *sprite_sheet, GKeyFile *key_file,
+                const gchar *group)
+{
+    GRegex *pattern = g_regex_new ("Animation_", 0, 0, NULL);
+    gchar *name = g_regex_replace_literal (pattern, group, -1, 0, "", 0, NULL);
+    gsize anim_length = 0;
+    gint *frames = g_key_file_get_integer_list (key_file, group, "frames",
+                                                &anim_length, NULL);
+    gint duration = g_key_file_get_integer (key_file, group, "duration", NULL);
+    gchar *type_str = g_key_file_get_string (key_file, group, "type", NULL);
+    gint type = GSHMUP_ANIM_LOOP;
+
+    if (g_strcmp0 (type_str, "loop") == 0) {
+        type = GSHMUP_ANIM_LOOP;
+    } else if (g_strcmp0 (type_str, "once") == 0) {
+        type = GSHMUP_ANIM_ONCE;
+    }
+
+    GshmupAnimation *anim = gshmup_create_animation (sprite_sheet, duration,
+                                                     anim_length, frames,
+                                                     type);
+
+    gshmup_sprite_sheet_add_animation (sprite_sheet, name, anim);
+    g_free (pattern);
+    g_free (name);
+    g_free (frames);
+    g_free (type_str);
+}
+
+void
+load_animations (GshmupSpriteSheet *sprite_sheet, GKeyFile *key_file)
+{
+    GRegex *pattern = g_regex_new ("Animation_.+", 0, 0, NULL);
+    gsize length = 0;
+    gchar **groups = g_key_file_get_groups (key_file, &length);
+
+    for (int i = 0; i < length; ++i) {
+        gchar *group = groups[i];
+
+        if (g_regex_match (pattern, group, 0, NULL)) {
+            load_animation (sprite_sheet, key_file, group);
+        }
+    }
+
+    g_free (pattern);
+    g_strfreev (groups);
 }
 
 GshmupSpriteSheet *
@@ -75,12 +210,21 @@ gshmup_load_sprite_sheet (const gchar *filename)
                                                    spacing, margin);
     }
 
+    load_animations (sprite_sheet, key_file);
     g_free (image_rel_filename);
     g_free (image_filename);
     g_free (dirname);
     g_key_file_free (key_file);
 
     return sprite_sheet;
+}
+
+void
+gshmup_sprite_sheet_add_animation (GshmupSpriteSheet *sprite_sheet,
+                                   const gchar *key,
+                                   GshmupAnimation *anim)
+{
+    g_hash_table_insert (sprite_sheet->animations, g_strdup (key), anim);
 }
 
 void
@@ -94,4 +238,11 @@ ALLEGRO_BITMAP *
 gshmup_get_sprite_sheet_tile (GshmupSpriteSheet *sprite_sheet, int index)
 {
     return sprite_sheet->tiles[index];
+}
+
+GshmupAnimation *
+gshmup_get_sprite_sheet_animation (GshmupSpriteSheet *sprite_sheet,
+                                   const gchar *key)
+{
+    return (GshmupAnimation *) g_hash_table_lookup (sprite_sheet->animations, key);
 }
