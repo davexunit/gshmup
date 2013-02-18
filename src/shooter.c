@@ -26,7 +26,6 @@ static ALLEGRO_COLOR hitbox_fill_color;
 static ALLEGRO_COLOR hitbox_border_color;
 static GshmupSpriteSheet *bullet_sprites = NULL;
 static GshmupSpriteSheet *player_sprites = NULL;
-static GshmupAnimation *player_anim = NULL;
 static GshmupBackground background;
 static GshmupBackground fog;
 
@@ -70,18 +69,12 @@ load_resources (void)
 }
 
 static void
-init_animations (void)
-{
-    int player_frames[] = { 0, 1, 2, 3 };
-
-    player_anim = gshmup_create_animation (player_sprites, 2, 4, player_frames,
-                                           GSHMUP_ANIM_LOOP);
-}
-
-static void
 init_player (void)
 {
-    player = gshmup_create_player (player_anim);
+    GshmupAnimation *anim;
+
+    anim = gshmup_get_sprite_sheet_animation (player_sprites, "idle");
+    player = gshmup_create_player (anim);
     player->entity.position = gshmup_create_vector2 (GAME_WIDTH / 2,
                                                      GAME_HEIGHT - 32);
     player->entity.hitbox = gshmup_create_rect (-1, -1, 3, 3);
@@ -163,7 +156,6 @@ shooter_init (void)
     hitbox_fill_color = al_map_rgb_f (1, 1, 1);
     hitbox_border_color = al_map_rgb_f (0, 0, 0);
     load_resources ();
-    init_animations ();
     init_player ();
     init_enemies ();
     init_player_bullets ();
@@ -180,7 +172,6 @@ shooter_destroy (void)
     gshmup_destroy_bullet_system (player_bullets);
     gshmup_destroy_enemies (enemies);
     gshmup_destroy_bullet_system (enemy_bullets);
-    gshmup_destroy_animation (player_anim);
 }
 
 static void
