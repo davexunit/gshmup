@@ -46,6 +46,37 @@ gshmup_create_sprite_sheet (ALLEGRO_BITMAP *image, int tile_width, int tile_heig
     return sprite_sheet;
 }
 
+GshmupSpriteSheet *
+gshmup_load_sprite_sheet (const gchar *filename)
+{
+    GshmupSpriteSheet *sprite_sheet = NULL;
+    ALLEGRO_BITMAP *image = NULL;
+    GKeyFile *key_file = g_key_file_new ();
+    static const gchar *group = "Sprite Sheet";
+    gchar *image_filename;
+    gint tile_width;
+    gint tile_height;
+    gint spacing;
+    gint margin;
+
+    g_key_file_load_from_file (key_file, filename, G_KEY_FILE_NONE, NULL);
+    image_filename = g_key_file_get_string (key_file, group, "image", NULL);
+    tile_width = g_key_file_get_integer (key_file, group, "tile_width", NULL);
+    tile_height = g_key_file_get_integer (key_file, group, "tile_height", NULL);
+    spacing = g_key_file_get_integer (key_file, group, "spacing", NULL);
+    margin = g_key_file_get_integer (key_file, group, "margin", NULL);
+    image = al_load_bitmap (image_filename);
+
+    if (image) {
+        sprite_sheet = gshmup_create_sprite_sheet (image, tile_width, tile_height,
+                                                   spacing, margin);
+    }
+
+    g_key_file_free (key_file);
+
+    return sprite_sheet;
+}
+
 void
 gshmup_destroy_sprite_sheet (GshmupSpriteSheet *sprite_sheet)
 {
