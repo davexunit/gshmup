@@ -54,6 +54,7 @@ gshmup_load_sprite_sheet (const gchar *filename)
     GKeyFile *key_file = g_key_file_new ();
     static const gchar *group = "Sprite Sheet";
     gchar *dirname = g_path_get_dirname (filename);
+    gchar *image_rel_filename;
     gchar *image_filename;
     gint tile_width;
     gint tile_height;
@@ -65,17 +66,18 @@ gshmup_load_sprite_sheet (const gchar *filename)
     tile_height = g_key_file_get_integer (key_file, group, "tile_height", NULL);
     spacing = g_key_file_get_integer (key_file, group, "spacing", NULL);
     margin = g_key_file_get_integer (key_file, group, "margin", NULL);
-    image_filename = g_key_file_get_string (key_file, group, "image", NULL);
-    image_filename = g_build_filename (dirname, image_filename, NULL);
+    image_rel_filename = g_key_file_get_string (key_file, group, "image", NULL);
+    image_filename = g_build_filename (dirname, image_rel_filename, NULL);
     image = al_load_bitmap (image_filename);
-    g_free (image_filename);
-    g_free (dirname);
 
     if (image) {
         sprite_sheet = gshmup_create_sprite_sheet (image, tile_width, tile_height,
                                                    spacing, margin);
     }
 
+    g_free (image_rel_filename);
+    g_free (image_filename);
+    g_free (dirname);
     g_key_file_free (key_file);
 
     return sprite_sheet;
