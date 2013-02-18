@@ -199,17 +199,11 @@ shooter_destroy (void)
 
 static void
 draw_bullet_system_stats (GshmupBulletSystem *bullets, const char *name,
-                          float y)
+                          float x, float y, int flags)
 {
-    al_draw_textf (font, text_color, text_margin, y, 0, "%s Bullets", name);
-    al_draw_textf (font, text_color, text_margin, y + text_space, 0, "%d",
+    al_draw_textf (font, text_color, x, y, flags, "%s Bullets", name);
+    al_draw_textf (font, text_color, x, y + text_space, flags, "%d",
                    gshmup_get_bullet_system_size (bullets));
-    al_draw_textf (font, text_color, GAME_WIDTH - text_margin, y, ALLEGRO_ALIGN_RIGHT,
-                   "%s Bullet Pool", name);
-    al_draw_textf (font, text_color, GAME_WIDTH - text_margin, y + text_space,
-                   ALLEGRO_ALIGN_RIGHT, "%05d/%05d",
-                   gshmup_get_bullet_system_free_size (bullets),
-                   gshmup_get_bullet_system_max_free_size (bullets));
 }
 
 static void
@@ -232,9 +226,11 @@ draw_hud (void)
 
     if (gshmup_debug_mode ()) {
         draw_bullet_system_stats (player_bullets, "Player",
-                                  text_margin + text_space * 2);
+                                  text_margin, text_margin + text_space * 2, 0);
         draw_bullet_system_stats (enemy_bullets, "Enemy",
-                                  text_margin + text_space * 4);
+                                  GAME_WIDTH - text_margin,
+                                  text_margin + text_space * 2,
+                                  ALLEGRO_ALIGN_RIGHT);
     }
 }
 
