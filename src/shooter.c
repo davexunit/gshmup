@@ -521,15 +521,14 @@ SCM_DEFINE (player_shooting_p, "player-shooting?", 0, 0, 0,
     return scm_from_bool (player->shooting);
 }
 
-SCM_DEFINE (spawn_enemy, "spawn-enemy", 5, 0, 0,
-            (SCM pos, SCM max_health, SCM hitbox, SCM script, SCM on_death),
+SCM_DEFINE (spawn_enemy, "%spawn-enemy", 3, 0, 0,
+            (SCM type, SCM position, SCM script),
             "Spawn an enemy and run the AI procedure @var{script}.")
 {
-    GshmupEnemy *enemy = gshmup_create_enemy (enemy_anim, scm_to_int (max_health),
-                                              script, on_death);
+    GshmupEnemyType *enemy_type = gshmup_check_enemy_type_smob (type);
+    GshmupEnemy *enemy = gshmup_create_enemy (enemy_anim, enemy_type, script);
 
-    enemy->entity.position = gshmup_scm_to_vector2 (pos);
-    enemy->entity.hitbox = gshmup_scm_to_rect (hitbox);
+    enemy->entity.position = gshmup_scm_to_vector2 (position);
     enemy->next = enemies;
     enemies = enemy;
 
