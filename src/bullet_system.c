@@ -246,7 +246,7 @@ gshmup_set_bullet_type (GshmupBullet *bullet, GshmupBulletType *type)
     ALLEGRO_BITMAP *image = gshmup_get_sprite_sheet_tile (parent->sprite_sheet,
                                                           type->tile);
 
-    gshmup_init_sprite (&bullet->sprite, image);
+    bullet->sprite = gshmup_create_sprite (image);
     bullet->directional = type->directional;
     bullet->hitbox = type->hitbox;
     bullet->blend_mode = type->blend_mode;

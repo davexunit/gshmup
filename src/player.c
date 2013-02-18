@@ -21,8 +21,8 @@ gshmup_create_player (GshmupAnimation *anim)
     player->on_shoot = scm_variable_ref (s_player_on_shoot);
     player->on_game_over = NULL;
     gshmup_player_stop (player);
-    gshmup_init_animated_sprite (&player->entity.sprite, anim);
-    gshmup_play_animation (anim);
+    player->entity.sprite = gshmup_create_sprite_animated (anim);
+    gshmup_sprite_play_animation (&player->entity.sprite);
 
     return player;
 }

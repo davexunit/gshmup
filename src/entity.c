@@ -29,10 +29,6 @@ gshmup_update_entity (GshmupEntity *entity)
 {
     current_entity = entity;
     gshmup_update_agenda (entity->agenda);
-
-    if (entity->sprite.type == GSHMUP_SPRITE_ANIMATED) {
-        gshmup_update_animation (entity->sprite.anim);
-    }
 }
 
 /* Guile bindings! */
