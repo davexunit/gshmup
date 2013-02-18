@@ -115,7 +115,7 @@ SCM_DEFINE (kill_player, "kill-player", 0, 0, 0,
 int
 gshmup_get_initial_player_credits (void)
 {
-    return scm_to_int (scm_variable_ref (s_lives_per_credit));
+    return scm_to_int (scm_variable_ref (s_num_credits));
 }
 
 void
