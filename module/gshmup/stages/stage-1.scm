@@ -64,9 +64,10 @@
                 (emit-bullet bullet-fire position 0 direction delay-speed))))))
 
 (define (move-in)
-  (repeat 128 (lambda (i)
-                (move-entity (make-vector2 0 1))
-                (wait 1))))
+  (repeat 128
+          (lambda (i)
+            (move-entity (make-vector2 0 1))
+            (wait))))
 
 (define-coroutine (test-bullet-script)
   (define (step angle)
