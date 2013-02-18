@@ -305,18 +305,6 @@ gshmup_get_bullet_system_size (GshmupBulletSystem *system)
     return system->bullets->len;
 }
 
-int
-gshmup_get_bullet_system_free_size (GshmupBulletSystem *system)
-{
-    return system->bullets->len;
-}
-
-int
-gshmup_get_bullet_system_max_free_size (GshmupBulletSystem *system)
-{
-    return system->bullets->len;
-}
-
 void
 gshmup_set_current_bullet_system (GshmupBulletSystem *system)
 {
