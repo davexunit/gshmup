@@ -15,5 +15,6 @@
 #include "vector.h"
 #include "sprite_sheet.h"
 #include "game.h"
+#include "asset.h"
 
 #endif

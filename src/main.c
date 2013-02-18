@@ -3,6 +3,7 @@
 #include "game.h"
 #include "player.h"
 #include "enemy.h"
+#include "stage.h"
 #include "bullet_system.h"
 #include "entity.h"
 #include "shooter.h"
@@ -13,10 +14,12 @@ SCM_DEFINE (gshmup_s_start, "gshmup-start", 0, 0, 0,
             "Start playing gshmup!")
 {
     printf ("Starting gshmup...\n");
+    gshmup_init_assets ();
     gshmup_init_game ();
     gshmup_set_current_scene (gshmup_create_splash_screen_scene ());
     gshmup_run_game ();
     printf ("Exiting...\n");
+    gshmup_destroy_assets ();
 
     return SCM_UNSPECIFIED;
 }
