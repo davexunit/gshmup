@@ -187,8 +187,6 @@ shooter_init (void)
 static void
 shooter_destroy (void)
 {
-    al_destroy_bitmap (player_image);
-    al_destroy_bitmap (font_image);
     al_destroy_font (font);
     gshmup_destroy_player (player);
     gshmup_destroy_bullet_system (player_bullets);

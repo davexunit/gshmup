@@ -30,9 +30,9 @@ splash_init (void)
         112, 127,
     };
 
-    background = al_load_bitmap (background_file);
-    title = al_load_bitmap (title_file);
-    font_image = al_load_bitmap ("data/fonts/font.png");
+    background = gshmup_load_image (background_file);
+    title = gshmup_load_image (title_file);
+    font_image = gshmup_load_image ("data/fonts/font.png");
     font = al_grab_font_from_bitmap (font_image, 6, ranges);
     font_color = al_map_rgba_f (1, 1, 1, 1);
 }
@@ -40,8 +40,7 @@ splash_init (void)
 static void
 splash_destroy (void)
 {
-    al_destroy_bitmap (background);
-    al_destroy_bitmap (title);
+
 }
 
 static void
