@@ -8,11 +8,8 @@ gshmup_create_animation (GshmupSpriteSheet *sprite_sheet, int duration,
 
     anim->sprite_sheet = sprite_sheet;
     anim->duration = duration;
-    anim->timer = 0;
     anim->num_frames = num_frames;
-    anim->current_frame = 0;
     anim->anim_mode = anim_mode;
-    anim->playing = false;
     anim->frames = (int *) malloc (sizeof (int) * num_frames);
 
     /* Copy frames. */
@@ -31,49 +28,10 @@ gshmup_destroy_animation (GshmupAnimation *anim)
 }
 
 ALLEGRO_BITMAP *
-gshmup_get_animation_image (GshmupAnimation *anim)
+gshmup_get_animation_image (GshmupAnimation *anim, gint frame)
 {
     return gshmup_get_sprite_sheet_tile (anim->sprite_sheet,
-                                         anim->frames[anim->current_frame]);
-}
-
-static void
-next_frame (GshmupAnimation *anim)
-{
-    anim->current_frame++;
-
-    if (anim->current_frame >= anim->num_frames) {
-        anim->current_frame = 0;
-
-        if (anim->anim_mode == GSHMUP_ANIM_ONCE) {
-            anim->playing = false;
-        }
-    }
-}
-
-void
-gshmup_update_animation (GshmupAnimation *anim)
-{
-    if (anim->playing) {
-        anim->timer++;
-
-        if (anim->timer >= anim->duration) {
-            next_frame (anim);
-            anim->timer = 0;
-        }
-    }
-}
-
-void
-gshmup_play_animation (GshmupAnimation *anim)
-{
-    anim->playing = true;
-    anim->current_frame = 0;
-}
-void
-gshmup_stop_animation (GshmupAnimation *anim)
-{
-    anim->playing = false;
+                                         anim->frames[frame]);
 }
 
 static void
@@ -136,6 +94,7 @@ void
 load_animation (GshmupSpriteSheet *sprite_sheet, GKeyFile *key_file,
                 const gchar *group)
 {
+    /* Parse out key from group name. "Animation_idle" becomes "idle". */
     GRegex *pattern = g_regex_new ("Animation_", 0, 0, NULL);
     gchar *name = g_regex_replace_literal (pattern, group, -1, 0, "", 0, NULL);
     gsize anim_length = 0;
@@ -145,6 +104,7 @@ load_animation (GshmupSpriteSheet *sprite_sheet, GKeyFile *key_file,
     gchar *type_str = g_key_file_get_string (key_file, group, "type", NULL);
     gint type = GSHMUP_ANIM_LOOP;
 
+    /* Loop or play animation once? */
     if (g_strcmp0 (type_str, "loop") == 0) {
         type = GSHMUP_ANIM_LOOP;
     } else if (g_strcmp0 (type_str, "once") == 0) {
@@ -154,7 +114,6 @@ load_animation (GshmupSpriteSheet *sprite_sheet, GKeyFile *key_file,
     GshmupAnimation *anim = gshmup_create_animation (sprite_sheet, duration,
                                                      anim_length, frames,
                                                      type);
-
     gshmup_sprite_sheet_add_animation (sprite_sheet, name, anim);
     g_free (pattern);
     g_free (name);

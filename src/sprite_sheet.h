@@ -14,13 +14,10 @@ typedef struct GshmupSpriteSheet GshmupSpriteSheet;
 /* Sprite animation */
 typedef struct {
     GshmupSpriteSheet *sprite_sheet;
-    int duration;
-    int timer;
-    int num_frames;
-    int current_frame;
-    int *frames;
-    int anim_mode;
-    bool playing;
+    gint duration;
+    gint num_frames;
+    gint *frames;
+    gint anim_mode;
 } GshmupAnimation;
 
 /*
@@ -42,10 +39,7 @@ struct GshmupSpriteSheet {
 GshmupAnimation *gshmup_create_animation (GshmupSpriteSheet *sprite_sheet, int duration,
                                           int num_frames, int *frames, int anim_mode);
 void gshmup_destroy_animation (GshmupAnimation *anim);
-ALLEGRO_BITMAP *gshmup_get_animation_image (GshmupAnimation *anim);
-void gshmup_update_animation (GshmupAnimation *anim);
-void gshmup_play_animation (GshmupAnimation *anim);
-void gshmup_stop_animation (GshmupAnimation *anim);
+ALLEGRO_BITMAP *gshmup_get_animation_image (GshmupAnimation *anim, gint frame);
 
 GshmupSpriteSheet *gshmup_create_sprite_sheet (ALLEGRO_BITMAP *image, int tile_width,
                                                int tile_height, int spacing,
