@@ -53,6 +53,13 @@ SCM_DEFINE (move_entity, "move-entity", 1, 0, 0,
     return SCM_UNSPECIFIED;
 }
 
+SCM_DEFINE (set_animation, "set-animation", 1, 0, 0,
+            (SCM key),
+            "Changes the current entity's sprite animation")
+{
+    return SCM_UNSPECIFIED;
+}
+
 void
 gshmup_entity_init_scm (void)
 {
