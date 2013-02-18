@@ -32,6 +32,7 @@ typedef struct {
 GshmupSprite gshmup_create_sprite (ALLEGRO_BITMAP *image);
 GshmupSprite gshmup_create_sprite_animated (GshmupAnimation *anim);
 void gshmup_draw_sprite (GshmupSprite *sprite);
+void gshmup_set_sprite_animation (GshmupSprite *sprite, GshmupAnimation *anim);
 void gshmup_sprite_play_animation (GshmupSprite *sprite);
 void gshmup_sprite_stop_animation (GshmupSprite *sprite);
 

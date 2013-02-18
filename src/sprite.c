@@ -98,6 +98,14 @@ gshmup_draw_sprite (GshmupSprite *sprite)
 }
 
 void
+gshmup_set_sprite_animation (GshmupSprite *sprite, GshmupAnimation *anim)
+{
+    sprite->anim_state.anim = anim;
+    sprite->anim_state.current_frame = 0;
+    sprite->anim_state.timer = 0;
+}
+
+void
 gshmup_sprite_play_animation (GshmupSprite *sprite)
 {
     sprite->anim_state.playing = true;

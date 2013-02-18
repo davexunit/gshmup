@@ -53,6 +53,14 @@ SCM_DEFINE (set_animation, "set-animation", 1, 0, 0,
             (SCM key),
             "Changes the current entity's sprite animation")
 {
+    gchar *anim_key;
+    GshmupAnimation *anim;
+
+    anim_key = scm_to_latin1_string (key);
+    scm_dynwind_unwind_handler (g_free, anim_key, SCM_F_WIND_EXPLICITLY);
+    anim = gshmup_get_sprite_sheet_animation (current_entity->sprite_sheet, anim_key);
+    gshmup_set_sprite_animation (&current_entity->sprite, anim);
+
     return SCM_UNSPECIFIED;
 }
 
@@ -63,5 +71,6 @@ gshmup_entity_init_scm (void)
 
     scm_c_export (s_entity_position,
                   s_move_entity,
+                  s_set_animation,
                   NULL);
 }
