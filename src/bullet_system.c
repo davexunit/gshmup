@@ -350,9 +350,9 @@ gshmup_bullet_system_collide_rect (GshmupBulletSystem *system, GshmupRect rect)
     }
 }
 
-SCM_DEFINE (emit_bullet, "%emit-bullet", 7, 1, 0,
-            (SCM pos, SCM speed, SCM direction, SCM acceleration,
-             SCM angular_velocity, SCM life, SCM type, SCM thunk),
+SCM_DEFINE (emit_bullet, "%emit-bullet", 8, 1, 0,
+            (SCM type, SCM pos, SCM speed, SCM direction, SCM acceleration,
+             SCM angular_velocity, SCM life, SCM script),
             "Emit a bullet.")
 {
     gshmup_emit_bullet (current_bullets,
@@ -363,7 +363,7 @@ SCM_DEFINE (emit_bullet, "%emit-bullet", 7, 1, 0,
                         scm_to_double (angular_velocity),
                         scm_to_double (life),
                         check_bullet_type (type),
-                        thunk);
+                        script);
 
     return SCM_UNSPECIFIED;
 }
@@ -461,7 +461,7 @@ SCM_DEFINE (set_bullet_life, "set-bullet-life", 1, 0, 0,
     return SCM_UNSPECIFIED;
 }
 
-SCM_DEFINE (set_bullet_type, "%set-bullet-type", 1, 0, 0,
+SCM_DEFINE (set_bullet_type, "set-bullet-type", 1, 0, 0,
             (SCM type),
             "Set the current bullet's type")
 {
