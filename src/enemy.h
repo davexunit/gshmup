@@ -26,8 +26,7 @@ struct GshmupEnemy {
 };
 
 GshmupEnemyType *gshmup_check_enemy_type_smob (SCM enemy_type_smob);
-GshmupEnemy *gshmup_create_enemy (GshmupAnimation *anim, GshmupEnemyType *type,
-                                  SCM script);
+GshmupEnemy *gshmup_create_enemy (GshmupEnemyType *type, SCM script);
 void gshmup_destroy_enemy (GshmupEnemy *enemy);
 void gshmup_destroy_enemies (GshmupEnemy *enemy);
 void gshmup_draw_enemy (GshmupEnemy *enemy);

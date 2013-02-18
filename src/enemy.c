@@ -1,4 +1,5 @@
 #include "enemy.h"
+#include "asset.h"
 
 static GshmupEnemy *current_enemy = NULL;
 static scm_t_bits enemy_type_tag;
@@ -12,8 +13,8 @@ gshmup_check_enemy_type_smob (SCM enemy_type_smob)
     return (GshmupEnemyType *) SCM_SMOB_DATA (enemy_type_smob);
 }
 
-SCM_DEFINE (make_enemy_type, "make-enemy-type", 3, 0, 0,
-            (SCM max_health, SCM hitbox, SCM on_death),
+SCM_DEFINE (make_enemy_type, "make-enemy-type", 4, 0, 0,
+            (SCM sprite_sheet, SCM max_health, SCM hitbox, SCM on_death),
             "Creates a new enemy type.")
 {
     SCM smob;
@@ -21,6 +22,7 @@ SCM_DEFINE (make_enemy_type, "make-enemy-type", 3, 0, 0,
         (GshmupEnemyType *) scm_gc_malloc (sizeof (GshmupEnemyType),
                                            "enemy type");
 
+    enemy_type->sprite_sheet_filename = scm_to_latin1_string (sprite_sheet);
     enemy_type->max_health = scm_to_int (max_health);
     enemy_type->hitbox = gshmup_scm_to_rect (hitbox);
     enemy_type->on_death = on_death;
@@ -33,7 +35,9 @@ SCM_DEFINE (make_enemy_type, "make-enemy-type", 3, 0, 0,
 static size_t
 free_enemy_type (SCM enemy_type_smob)
 {
-    /* GshmupEnemyType *enemy_type = (GshmupEnemyType *) SCM_SMOB_DATA (enemy_type_smob); */
+    GshmupEnemyType *enemy_type = (GshmupEnemyType *) SCM_SMOB_DATA (enemy_type_smob);
+
+    g_free (enemy_type->sprite_sheet_filename);
 
     return 0;
 }
@@ -51,9 +55,21 @@ print_enemy_type (SCM enemy_type_smob, SCM port, scm_print_state *pstate)
     return 1;
 }
 
+static void
+init_sprite (GshmupEnemy *enemy, GshmupEnemyType *type)
+{
+    int frames[] = { 0, 1, 2, 3 };
+    GshmupSpriteSheet *sprite_sheet =
+        gshmup_load_sprite_sheet_asset (type->sprite_sheet_filename);
+    GshmupAnimation *anim = gshmup_create_animation (sprite_sheet, 2, 4,
+                                                     frames, GSHMUP_ANIM_LOOP);
+    gshmup_init_animated_sprite (&enemy->entity.sprite, anim);
+    gshmup_play_animation (anim);
+}
+
 /* GshmupEnemy is for instances of GshmupEnemyTypes. */
 GshmupEnemy *
-gshmup_create_enemy (GshmupAnimation *anim, GshmupEnemyType *type, SCM script)
+gshmup_create_enemy (GshmupEnemyType *type, SCM script)
 {
     GshmupEnemy *enemy = (GshmupEnemy *) scm_gc_malloc (sizeof (GshmupEnemy),
                                                         "enemy");
@@ -64,8 +80,7 @@ gshmup_create_enemy (GshmupAnimation *anim, GshmupEnemyType *type, SCM script)
     enemy->kill = false;
     enemy->on_death = type->on_death;
     enemy->next = NULL;
-    gshmup_init_animated_sprite (&enemy->entity.sprite, anim);
-    gshmup_play_animation (anim);
+    init_sprite (enemy, type);
 
     /* Schedule script if one is provided. */
     if (scm_is_true (scm_procedure_p (script))) {
@@ -78,6 +93,8 @@ gshmup_create_enemy (GshmupAnimation *anim, GshmupEnemyType *type, SCM script)
 void
 gshmup_destroy_enemy (GshmupEnemy *enemy)
 {
+    gshmup_destroy_animation (enemy->entity.sprite.anim);
+    g_free (enemy->entity.name);
     scm_gc_free (enemy, sizeof (GshmupEnemy), "enemy");
 }
 

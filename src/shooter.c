@@ -26,9 +26,7 @@ static ALLEGRO_COLOR hitbox_fill_color;
 static ALLEGRO_COLOR hitbox_border_color;
 static GshmupSpriteSheet *bullet_sprites = NULL;
 static GshmupSpriteSheet *player_sprites = NULL;
-static GshmupSpriteSheet *enemy_sprites = NULL;
 static GshmupAnimation *player_anim = NULL;
-static GshmupAnimation *enemy_anim = NULL;
 static GshmupBackground background;
 static GshmupBackground fog;
 
@@ -66,7 +64,6 @@ load_resources (void)
     font_image = gshmup_load_image_asset ("data/fonts/font.png");
     font = al_grab_font_from_bitmap (font_image, 6, ranges);
     player_sprites = gshmup_load_sprite_sheet_asset ("data/sprites/player.sheet");
-    enemy_sprites = gshmup_load_sprite_sheet_asset ("data/sprites/enemy_1.sheet");
     bullet_sprites = gshmup_load_sprite_sheet_asset ("data/sprites/bullets.sheet");
     background_image = gshmup_load_image_asset ("data/sprites/background.png");
     fog_image = gshmup_load_image_asset ("data/sprites/fog.png");
@@ -76,12 +73,9 @@ static void
 init_animations (void)
 {
     int player_frames[] = { 0, 1, 2, 3 };
-    int enemy_frames[] = { 0, 1, 2, 3 };
 
     player_anim = gshmup_create_animation (player_sprites, 2, 4, player_frames,
                                            GSHMUP_ANIM_LOOP);
-    enemy_anim = gshmup_create_animation (enemy_sprites, 2, 4, enemy_frames,
-                                          GSHMUP_ANIM_LOOP);
 }
 
 static void
@@ -514,7 +508,7 @@ SCM_DEFINE (spawn_enemy, "spawn-enemy", 3, 0, 0,
             "Spawn an enemy and run the AI procedure @var{script}.")
 {
     GshmupEnemyType *enemy_type = gshmup_check_enemy_type_smob (type);
-    GshmupEnemy *enemy = gshmup_create_enemy (enemy_anim, enemy_type, script);
+    GshmupEnemy *enemy = gshmup_create_enemy (enemy_type, script);
 
     enemy->entity.position = gshmup_scm_to_vector2 (position);
     enemy->next = enemies;
