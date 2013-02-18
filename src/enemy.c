@@ -1,20 +1,69 @@
 #include "enemy.h"
 
 static GshmupEnemy *current_enemy = NULL;
+static scm_t_bits enemy_type_tag;
 
+/* GshmupEnemyType smob is for Guile scripts. */
+GshmupEnemyType *
+gshmup_check_enemy_type_smob (SCM enemy_type_smob)
+{
+    scm_assert_smob_type (enemy_type_tag, enemy_type_smob);
+
+    return (GshmupEnemyType *) SCM_SMOB_DATA (enemy_type_smob);
+}
+
+SCM_DEFINE (make_enemy_type, "make-enemy-type", 3, 0, 0,
+            (SCM max_health, SCM hitbox, SCM on_death),
+            "Creates a new enemy type.")
+{
+    SCM smob;
+    GshmupEnemyType *enemy_type =
+        (GshmupEnemyType *) scm_gc_malloc (sizeof (GshmupEnemyType),
+                                           "enemy type");
+
+    enemy_type->max_health = scm_to_int (max_health);
+    enemy_type->hitbox = gshmup_scm_to_rect (hitbox);
+    enemy_type->on_death = on_death;
+
+    SCM_NEWSMOB (smob, enemy_type_tag, enemy_type);
+
+    return smob;
+}
+
+static size_t
+free_enemy_type (SCM enemy_type_smob)
+{
+    /* GshmupEnemyType *enemy_type = (GshmupEnemyType *) SCM_SMOB_DATA (enemy_type_smob); */
+
+    return 0;
+}
+
+static int
+print_enemy_type (SCM enemy_type_smob, SCM port, scm_print_state *pstate)
+{
+    GshmupEnemyType *enemy_type = (GshmupEnemyType *) SCM_SMOB_DATA (enemy_type_smob);
+    scm_puts ("#<enemy-type max-health: ", port);
+    scm_display (scm_from_int (enemy_type->max_health), port);
+    scm_puts (" on-death: ", port);
+    scm_display (enemy_type->on_death, port);
+    scm_puts (">", port);
+
+    return 1;
+}
+
+/* GshmupEnemy is for instances of GshmupEnemyTypes. */
 GshmupEnemy *
-gshmup_create_enemy (GshmupAnimation *anim, int max_health,
-                     SCM script, SCM on_death)
+gshmup_create_enemy (GshmupAnimation *anim, GshmupEnemyType *type, SCM script)
 {
     GshmupEnemy *enemy = (GshmupEnemy *) scm_gc_malloc (sizeof (GshmupEnemy),
                                                         "enemy");
 
     enemy->entity = gshmup_create_entity ("Enemy");
-    enemy->max_health = max_health;
-    enemy->health = max_health;
+    enemy->entity.hitbox = type->hitbox;
+    enemy->health = type->max_health;
     enemy->kill = false;
+    enemy->on_death = type->on_death;
     enemy->next = NULL;
-    enemy->on_death = on_death;
     gshmup_init_animated_sprite (&enemy->entity.sprite, anim);
     gshmup_play_animation (anim);
 
@@ -128,9 +177,15 @@ SCM_DEFINE (kill_enemy, "kill-enemy", 0, 0, 0,
 void
 gshmup_enemy_init_scm (void)
 {
+    enemy_type_tag = scm_make_smob_type ("<enemy-type>", sizeof (GshmupEnemyType));
+    scm_set_smob_mark (enemy_type_tag, 0);
+    scm_set_smob_free (enemy_type_tag, free_enemy_type);
+    scm_set_smob_print (enemy_type_tag, print_enemy_type);
+
 #include "enemy.x"
 
-    scm_c_export (s_damage_enemy,
+    scm_c_export (s_make_enemy_type,
+                  s_damage_enemy,
                   s_kill_enemy,
                   NULL);
 }
