@@ -50,8 +50,8 @@ free_stage (SCM stage_smob)
 {
     GshmupStage *stage = (GshmupStage *) SCM_SMOB_DATA (stage_smob);
 
-    free (stage->name);
-    free (stage->description);
+    g_free (stage->name);
+    g_free (stage->description);
 
     return 0;
 }
