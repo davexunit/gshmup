@@ -10,11 +10,11 @@
  */
 typedef struct {
     ALLEGRO_BITMAP *image;
-    int tile_width;
-    int tile_height;
-    int spacing;
-    int margin;
-    int num_tiles;
+    gint tile_width;
+    gint tile_height;
+    gint spacing;
+    gint margin;
+    gint num_tiles;
     ALLEGRO_BITMAP **tiles;
 } GshmupSpriteSheet;
 
