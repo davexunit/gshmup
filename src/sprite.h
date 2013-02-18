@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include "color.h"
+#include "sprite_sheet.h"
 
 /* Sprites can have a static image or an animation. */
 enum {

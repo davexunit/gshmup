@@ -4,6 +4,7 @@
 #include "common.h"
 #include "rect.h"
 #include "sprite.h"
+#include "sprite_sheet.h"
 
 #define GSHMUP_MAX_NAME_LENGTH 128
 

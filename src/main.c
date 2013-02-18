@@ -1,6 +1,7 @@
 #include "common.h"
 #include "rect.h"
 #include "game.h"
+#include "asset.h"
 #include "player.h"
 #include "enemy.h"
 #include "stage.h"

@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include "sprite.h"
+#include "sprite_sheet.h"
 #include "rect.h"
 #include "entity.h"
 

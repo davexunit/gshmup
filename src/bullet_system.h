@@ -5,6 +5,7 @@
 #include "game.h"
 #include "rect.h"
 #include "sprite.h"
+#include "sprite_sheet.h"
 
 /* Blending modes */
 enum {
