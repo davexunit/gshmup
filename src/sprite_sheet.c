@@ -189,7 +189,7 @@ gshmup_sprite_sheet_add_animation (GshmupSpriteSheet *sprite_sheet,
 void
 gshmup_destroy_sprite_sheet (GshmupSpriteSheet *sprite_sheet)
 {
-    g_free (sprite_sheet->animations);
+    g_hash_table_destroy (sprite_sheet->animations);
     g_free (sprite_sheet->tiles);
     g_free (sprite_sheet);
 }
