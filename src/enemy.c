@@ -58,11 +58,11 @@ print_enemy_type (SCM enemy_type_smob, SCM port, scm_print_state *pstate)
 static void
 init_sprite (GshmupEnemy *enemy, GshmupEnemyType *type)
 {
-    int frames[] = { 0, 1, 2, 3 };
     GshmupSpriteSheet *sprite_sheet =
         gshmup_load_sprite_sheet_asset (type->sprite_sheet_filename);
-    GshmupAnimation *anim = gshmup_create_animation (sprite_sheet, 2, 4,
-                                                     frames, GSHMUP_ANIM_LOOP);
+    GshmupAnimation *anim =
+        gshmup_get_sprite_sheet_animation (sprite_sheet, "idle");
+
     gshmup_init_animated_sprite (&enemy->entity.sprite, anim);
     gshmup_play_animation (anim);
 }
@@ -93,7 +93,6 @@ gshmup_create_enemy (GshmupEnemyType *type, SCM script)
 void
 gshmup_destroy_enemy (GshmupEnemy *enemy)
 {
-    gshmup_destroy_animation (enemy->entity.sprite.anim);
     g_free (enemy->entity.name);
     scm_gc_free (enemy, sizeof (GshmupEnemy), "enemy");
 }
