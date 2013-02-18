@@ -9,8 +9,10 @@
 #include "rect.h"
 
 typedef struct {
-    char *sprite_sheet_filename;
-    int max_health;
+    gchar *name;
+    gchar *sprite_sheet_filename;
+    gchar *animation;
+    gint max_health;
     GshmupRect hitbox;
     SCM on_death;
 } GshmupEnemyType;
@@ -19,8 +21,8 @@ typedef struct GshmupEnemy GshmupEnemy;
 
 struct GshmupEnemy {
     GshmupEntity entity;
-    bool kill;
-    int health;
+    gboolean kill;
+    gint health;
     SCM on_death;
     GshmupEnemy *next;
 };
