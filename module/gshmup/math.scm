@@ -1,19 +1,25 @@
 (define-module (gshmup math)
-  #:export (pi deg2rad rad2deg cos-deg sin-deg atan-deg))
+  #:export (pi
+            degrees->radians
+            radians->degrees
+            cos*
+            sin*
+            atan*))
 
 (define pi 3.141592654)
 
-(define (deg2rad angle)
+(define (degrees->radians angle)
   (* angle (/ pi 180)))
 
-(define (rad2deg angle)
+(define (radians->degrees angle)
   (* angle (/ 180 pi)))
 
-(define (cos-deg angle)
-  (cos (deg2rad angle)))
+;; Sine, consine, and arctangent that accept/return angles in degrees.
+(define (cos* angle)
+  (cos (degrees->radians angle)))
 
-(define (sin-deg angle)
-  (sin (deg2rad angle)))
+(define (sin* angle)
+  (sin (degrees->radians angle)))
 
-(define (atan-deg y x)
-  (rad2deg (atan y x)))
+(define (atan* y x)
+  (radians->degrees (atan y x)))
